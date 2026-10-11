@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sadhana Card — Interactive App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: #231610;
+            color: #2B1A12;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px;
+        }
+        .outer-header {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #FBF1DF;
+        }
+        .outer-header h1 {
+            font-family: 'Newsreader', serif;
+            font-size: 28px;
+            color: #F8DCC0;
+        }
+        .outer-header p {
+            font-size: 13px;
+            color: #CBB9A7;
+            margin-top: 2px;
+        }
+        .phone-frame {
+            width: 390px;
+            max-width: 100%;
+            height: 844px;
+            background: #FBF6EC;
+            border-radius: 40px;
+            border: 8px solid #3A241A;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .screen-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        /* Top Header */
+        .header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .week-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #A84F0A;
+        }
+        .screen-title {
+            margin: 0;
+            font-family: 'Newsreader', serif;
+            font-size: 30px;
+            font-weight: 600;
+            line-height: 1.1;
+            color: #2B1A12;
+        }
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            border: 1px solid #E8DCC6;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex: none;
+        }
+        /* Sadhaka / Counselor */
+        .inputs-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .field-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .field-col label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6B5A4C;
+        }
+        .field-col input {
+            height: 44px;
+            box-sizing: border-box;
+            border: 1px solid #E8DCC6;
+            border-radius: 12px;
+            background: #fff;
+            padding: 0 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: #2B1A12;
+            width: 100%;
+        }
+        /* Dedication banner */
+        .dedication-card {
+            background: #5E2112;
+            color: #FBF1DF;
+            border-radius: 20px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dedication-title {
+            font-family: 'Newsreader', serif;
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dedication-body {
+            font-size: 12.5px;
+            line-height: 1.45;
+            opacity: 0.92;
+        }
+        .dedication-shloka {
+            font-family: 'Newsreader', serif;
+            font-style: italic;
+            font-size: 13.5px;
+            line-height: 1.45;
+            border-top: 1px solid rgba(251, 241, 223, 0.25);
+            padding-top: 8px;
+        }
+        /* Day Switcher */
+        .day-switcher {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
+        }
+        .day-btn {
+            min-height: 64px;
+            border-radius: 14px;
+            border: 1px solid #E8DCC6;
+            background: #fff;
+            color: #2B1A12;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.15s ease;
+        }
+        .day-btn span.day-name {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6B5A4C;
+        }
+        .day-btn span.day-num {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .day-btn.active {
+            border: 1.5px solid #5E2112;
+            background: #5E2112;
+            color: #FBF1DF;
+        }
+        .day-btn.active span.day-name {
+            color: #F8DCC0;
+        }
+        /* Score Card */
+        .score-card {
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 20px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .score-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+        .score-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #6B5A4C;
+        }
+        .score-num {
+            font-family: 'Newsreader', serif;
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1;
+            color: #5E2112;
+        }
+        .score-denom {
+            font-size: 18px;
+            font-weight: 500;
+            color: #6B5A4C;
+        }
+        .progress-bar-bg {
+            height: 8px;
+            border-radius: 99px;
+            background: #F1E6D2;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #5E2112;
+            border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+        .score-subtext {
+            font-size: 12px;
+            color: #6B5A4C;
+        }
+        /* Section Headers */
+        .section-header {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #A84F0A;
+            margin-top: 4px;
+        }
+        /* Entry Row Cards */
+        .entry-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 18px;
+            padding: 14px;
+        }
+        .entry-card-stacked {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 18px;
+            padding: 14px;
+        }
+        .icon-tile {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F6E8D2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: none;
+        }
+        .entry-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: flex-start;
+        }
+        .entry-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2B1A12;
+        }
+        .entry-hint {
+            font-size: 12px;
+            color: #6B5A4C;
+        }
+        .score-pill {
+            background: #F8DCC0;
+            color: #6B2D05;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 4px 11px;
+            border-radius: 99px;
+            display: inline-block;
+        }
+        .score-pill.zero {
+            background: #FBEEDD;
+            color: #8C5228;
+            border: 1px solid #E8DCC6;
+        }
+        .time-trigger-btn {
+            min-height: 48px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1.5px solid #5E2112;
+            background: #FBF6EC;
+            color: #5E2112;
+            font-family: 'Newsreader', serif;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: none;
+            transition: all 0.2s ease;
+        }
+        .time-trigger-btn:hover {
+            background: #F8DCC0;
+        }
+        /* Stepper */
+        .stepper-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: none;
+        }
+        .stepper-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid #E8DCC6;
+            background: #FBF6EC;
+            color: #5E2112;
+            font-size: 22px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stepper-btn:hover {
+            background: #F6E8D2;
+        }
+        .stepper-input-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 56px;
+        }
+        .stepper-input {
+            width: 56px;
+            height: 44px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 1.5px solid #5E2112;
+            border-radius: 12px;
+            background: #FBF6EC;
+            font-family: 'Newsreader', serif;
+            font-size: 21px;
+            font-weight: 600;
+            color: #5E2112;
+            padding: 0;
+        }
+        .unit-label {
+            font-size: 11px;
+            color: #6B5A4C;
+            margin-top: 2px;
+        }
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 44px;
+            border-top: 1px solid #F1E6D2;
+            padding-top: 10px;
+            cursor: pointer;
+        }
+        .checkbox-row input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #5E2112;
+            cursor: pointer;
+        }
+        /* Tags */
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-top: 1px solid #F1E6D2;
+            padding-top: 12px;
+        }
+        .tag-chip {
+            min-height: 40px;
+            padding: 0 16px;
+            border-radius: 99px;
+            border: 1px solid #E8DCC6;
+            background: #fff;
+            color: #2B1A12;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .tag-chip.active {
+            border: 1px solid #5E2112;
+            background: #5E2112;
+            color: #FBF1DF;
+        }
+        .add-tag-chip {
+            min-height: 40px;
+            padding: 0 16px;
+            border-radius: 99px;
+            border: 1px dashed #A84F0A;
+            background: #FBF6EC;
+            color: #A84F0A;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .save-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6B5A4C;
+            padding: 4px 0;
+        }
+        /* Bottom Nav */
+        .bottom-nav {
+            background: #fff;
+            border-top: 1px solid #E8DCC6;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 8px 16px 12px 16px;
+            gap: 8px;
+            flex: none;
+        }
+        .nav-tab {
+            min-height: 52px;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            color: #6B5A4C;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .nav-tab.active {
+            background: #F8DCC0;
+            color: #5E2112;
+            font-weight: 700;
+        }
+        /* Weekly Matrix Screen */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .matrix-card {
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 20px;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 62px repeat(7, minmax(0, 1fr));
+            gap: 4px;
+            align-items: center;
+        }
+        .cell-head {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6B5A4C;
+            padding: 4px 0;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .cell-head:hover {
+            background: #F8DCC0;
+            color: #5E2112;
+        }
+        .row-label {
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #2B1A12;
+        }
+        .row-unit {
+            font-size: 10px;
+            font-weight: 400;
+            color: #6B5A4C;
+        }
+        .matrix-cell {
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .matrix-cell:hover {
+            transform: scale(1.05);
+        }
+        .cell-s5 { background: #5E2112; color: #fff; }
+        .cell-s4 { background: #B5541A; color: #fff; }
+        .cell-s3 { background: #F0B27A; color: #3A1C08; }
+        .cell-s2 { background: #F8DCC0; color: #4A2A12; }
+        .cell-s0 { background: #FBEEDD; color: #4A2A12; border: 1px solid #E8DCC6; }
+        .cell-min { background: #FBF6EC; color: #2B1A12; font-weight: 500; font-size: 12px; }
+        .cell-tot { background: #fff; color: #5E2112; border: 1.5px solid #5E2112; }
+        .cell-unlogged { background: #FBF6EC; color: #A89F91; font-weight: 500; }
+        /* Modal for Time Picker */
+        .modal-backdrop {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .modal-title {
+            font-family: 'Newsreader', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #5E2112;
+        }
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .time-input-box {
+            width: 64px;
+            height: 54px;
+            font-family: 'Newsreader', serif;
+            font-size: 28px;
+            text-align: center;
+            border: 1.5px solid #5E2112;
+            border-radius: 12px;
+            background: #FBF6EC;
+            color: #5E2112;
+        }
+        .ampm-btn {
+            height: 54px;
+            padding: 0 12px;
+            border-radius: 12px;
+            border: 1px solid #E8DCC6;
+            background: #FBF6EC;
+            color: #5E2112;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .quick-chip {
+            padding: 6px 12px;
+            border-radius: 99px;
+            border: 1px solid #E8DCC6;
+            background: #FBF6EC;
+            color: #5E2112;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .modal-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .modal-btn.cancel { background: #F1E6D2; color: #6B5A4C; }
+        .modal-btn.save { background: #5E2112; color: #FBF1DF; }
+    </style>
+</head>
+<body>
+
+    <div class="outer-header">
+        <h1>Sadhana Card</h1>
+        <p>Interactive Prototype · All Times, Steppers & Scoring Live</p>
+    </div>
+
+    <div class="phone-frame">
+        <!-- Daily Entry Screen -->
+        <div id="screen-daily" class="screen-container">
+            <!-- Header -->
+            <div class="header-row">
+                <div>
+                    <div class="week-label" id="daily-week-label">WEEK · 11 – 17 OCT 2026</div>
+                    <h1 class="screen-title">Sadhana Card</h1>
+                </div>
+                <button type="button" class="icon-btn" onclick="switchTab('weekly')" aria-label="Switch to Weekly Matrix">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>
+                </button>
+            </div>
+
+            <!-- Sadhaka & Counselor -->
+            <div class="inputs-row">
+                <div class="field-col">
+                    <label for="sadhaka">Sadhaka</label>
+                    <input id="sadhaka" type="text" placeholder="Your name" value="Bhakta Rahul" oninput="saveNames()">
+                </div>
+                <div class="field-col">
+                    <label for="counselor">Counselor</label>
+                    <input id="counselor" type="text" placeholder="Counselor name" value="HG Madhava Das" oninput="saveNames()">
+                </div>
+            </div>
+
+            <!-- Dedication Banner (Collapsible) -->
+            <div class="dedication-card" onclick="toggleDedication()">
+                <div class="dedication-title">
+                    <span>Sri Sri Guru Gouranga Jayate</span>
+                    <span id="dedication-chevron" style="font-size:16px">▼</span>
+                </div>
+                <div id="dedication-expandable">
+                    <div class="dedication-body" style="margin-top:6px">
+                        Sadhana Card for Sadhaka for the pleasure of my Counselor, Authorities, Sri Gurudev, Srila Prabhupada, Sri Sri Gaur Nitai, Sri Sri Radha Raman ji and ISKCON BONGAIGAON NAMHATTA Sangha.
+                    </div>
+                    <div class="dedication-shloka" style="margin-top:8px">
+                        yukta ahara viharasya yukta cestasya karmasu / Yukta svapnava bodhasya yogo bhavati dukha ha
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day Switcher (Sun–Sat) -->
+            <div class="day-switcher" id="day-switcher">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Today's Score Card -->
+            <div class="score-card">
+                <div class="score-header">
+                    <div class="score-label" id="day-score-title">Sunday’s score</div>
+                    <div class="score-num"><span id="total-score-val">16</span><span class="score-denom"> / 20</span></div>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="score-progress" style="width: 80%;"></div>
+                </div>
+                <div class="score-subtext">Bedtime · Wake-up · Day sleep · Japa — 5 pts each. Updates as you type.</div>
+            </div>
+
+            <!-- NIDRA Section -->
+            <div class="section-header">NIDRA · SLEEP</div>
+
+            <!-- Bedtime -->
+            <div class="entry-card">
+                <div class="icon-tile">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+                </div>
+                <div class="entry-info">
+                    <div class="entry-title">Bedtime</div>
+                    <div class="entry-hint">5 pts if by 9:30 PM</div>
+                    <span class="score-pill" id="bedtime-pill">+4 pts</span>
+                </div>
+                <button type="button" class="time-trigger-btn" id="bedtime-btn" onclick="openTimePicker('bedtime')">9:45 PM</button>
+            </div>
+
+            <!-- Wake-up -->
+            <div class="entry-card">
+                <div class="icon-tile">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18M7 19a5 5 0 0 1 10 0M12 5v4M5.6 10.6l1.4 1.4M18.4 10.6L17 12"></path></svg>
+                </div>
+                <div class="entry-info">
+                    <div class="entry-title">Wake-up</div>
+                    <div class="entry-hint">5 pts if before 3:00 AM</div>
+                    <span class="score-pill" id="waketime-pill">+4 pts</span>
+                </div>
+                <button type="button" class="time-trigger-btn" id="waketime-btn" onclick="openTimePicker('wakeTime')">3:20 AM</button>
+            </div>
+
+            <!-- Day Sleep -->
+            <div class="entry-card-stacked">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div class="icon-tile">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg>
+                    </div>
+                    <div class="entry-info">
+                        <div class="entry-title">Day sleep</div>
+                        <div class="entry-hint">5 pts up to 30 min</div>
+                        <span class="score-pill" id="nap-pill">+4 pts</span>
+                    </div>
+                    <div class="stepper-box">
+                        <button type="button" class="stepper-btn" onclick="changeMinutes('napMinutes', -5)">−</button>
+                        <div class="stepper-input-col">
+                            <input type="text" inputmode="numeric" class="stepper-input" id="nap-input" value="40" onchange="setCustomMinutes('napMinutes', this.value)">
+                            <span class="unit-label">min</span>
+                        </div>
+                        <button type="button" class="stepper-btn" onclick="changeMinutes('napMinutes', 5)">+</button>
+                    </div>
+                </div>
+                <label class="checkbox-row" for="train-chk">
+                    <input type="checkbox" id="train-chk" onchange="toggleTrainJourney(this.checked)">
+                    <div style="display:flex;flex-direction:column;gap:1px">
+                        <span style="font-size:14px;font-weight:500">Train journey / travel</span>
+                        <span style="font-size:12px;color:#6B5A4C">Adds a 60-minute allowance before scoring</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- JAPA Section -->
+            <div class="section-header">JAPA</div>
+
+            <!-- 16 rounds done by -->
+            <div class="entry-card">
+                <div class="icon-tile">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="4" r="1" fill="#7A3406"></circle><circle cx="18" cy="8" r="1" fill="#7A3406"></circle><circle cx="18" cy="16" r="1" fill="#7A3406"></circle><circle cx="12" cy="20" r="1" fill="#7A3406"></circle><circle cx="6" cy="16" r="1" fill="#7A3406"></circle><circle cx="6" cy="8" r="1" fill="#7A3406"></circle></svg>
+                </div>
+                <div class="entry-info">
+                    <div class="entry-title">16 rounds done by</div>
+                    <div class="entry-hint">5 pts if by 7:15 AM</div>
+                    <span class="score-pill" id="japa-pill">+4 pts</span>
+                </div>
+                <button type="button" class="time-trigger-btn" id="japa-btn" onclick="openTimePicker('japaTime')">8:10 AM</button>
+            </div>
+
+            <!-- STUDY & SERVICE Section -->
+            <div class="section-header">STUDY & SERVICE · MINUTES</div>
+
+            <!-- Pathan -->
+            <div class="entry-card">
+                <div class="icon-tile">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2zM4 19a2 2 0 0 0 2 2h13v-4"></path></svg>
+                </div>
+                <div class="entry-info">
+                    <div class="entry-title">Pathan</div>
+                    <div class="entry-hint">Reading Srila Prabhupada’s books</div>
+                </div>
+                <div class="stepper-box">
+                    <button type="button" class="stepper-btn" onclick="changeMinutes('pathanMinutes', -5)">−</button>
+                    <div class="stepper-input-col">
+                        <input type="text" inputmode="numeric" class="stepper-input" id="pathan-input" value="45" onchange="setCustomMinutes('pathanMinutes', this.value)">
+                        <span class="unit-label">min</span>
+                    </div>
+                    <button type="button" class="stepper-btn" onclick="changeMinutes('pathanMinutes', 5)">+</button>
+                </div>
+            </div>
+
+            <!-- Sravan -->
+            <div class="entry-card">
+                <div class="icon-tile">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15v-3a8 8 0 0 1 16 0v3"></path><rect x="3" y="14" width="4" height="6" rx="1.5"></rect><rect x="17" y="14" width="4" height="6" rx="1.5"></rect></svg>
+                </div>
+                <div class="entry-info">
+                    <div class="entry-title">Sravan</div>
+                    <div class="entry-hint">Hearing lectures</div>
+                </div>
+                <div class="stepper-box">
+                    <button type="button" class="stepper-btn" onclick="changeMinutes('sravanMinutes', -5)">−</button>
+                    <div class="stepper-input-col">
+                        <input type="text" inputmode="numeric" class="stepper-input" id="sravan-input" value="30" onchange="setCustomMinutes('sravanMinutes', this.value)">
+                        <span class="unit-label">min</span>
+                    </div>
+                    <button type="button" class="stepper-btn" onclick="changeMinutes('sravanMinutes', 5)">+</button>
+                </div>
+            </div>
+
+            <!-- Seva -->
+            <div class="entry-card-stacked">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div class="icon-tile">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>
+                    </div>
+                    <div class="entry-info">
+                        <div class="entry-title">Seva</div>
+                        <div class="entry-hint">Practical service</div>
+                    </div>
+                    <div class="stepper-box">
+                        <button type="button" class="stepper-btn" onclick="changeMinutes('sevaMinutes', -5)">−</button>
+                        <div class="stepper-input-col">
+                            <input type="text" inputmode="numeric" class="stepper-input" id="seva-input" value="60" onchange="setCustomMinutes('sevaMinutes', this.value)">
+                            <span class="unit-label">min</span>
+                        </div>
+                        <button type="button" class="stepper-btn" onclick="changeMinutes('sevaMinutes', 5)">+</button>
+                    </div>
+                </div>
+                <!-- Seva Tags -->
+                <div class="tags-row" id="tags-container">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Save Indicator -->
+            <div class="save-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B5A4C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                <span>Saved on this device · works offline</span>
+            </div>
+        </div>
+
+        <!-- Weekly Matrix Screen -->
+        <div id="screen-weekly" class="screen-container" style="display:none">
+            <!-- Header with week switcher -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <button type="button" class="icon-btn" onclick="changeWeek(-1)" aria-label="Previous week">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>
+                </button>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                    <div class="week-label">WEEKLY SADHANA</div>
+                    <h1 style="margin:0;font-family:'Newsreader',serif;font-size:24px;font-weight:600;line-height:1.15;color:#2B1A12" id="weekly-header-range">11 – 17 Oct 2026</h1>
+                </div>
+                <button type="button" class="icon-btn" onclick="changeWeek(1)" aria-label="Next week">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+
+            <!-- Weekly aggregate Card -->
+            <div style="background:#5E2112;color:#FBF1DF;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between">
+                    <div style="font-size:13px;font-weight:500;opacity:0.9">Weekly score</div>
+                    <div style="font-family:'Newsreader',serif;font-size:38px;font-weight:600;line-height:1"><span id="weekly-total-score">103</span><span style="font-size:18px;font-weight:500;opacity:0.85"> / 140</span></div>
+                </div>
+                <div style="height:8px;border-radius:99px;background:rgba(251,241,223,0.22);overflow:hidden">
+                    <div id="weekly-progress-bar" style="width:73.6%;height:100%;background:#F4B26B;border-radius:99px;transition:width 0.3s ease"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid rgba(251,241,223,0.25);padding-top:12px">
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                        <div style="font-size:11px;opacity:0.85">Pathan</div>
+                        <div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600" id="weekly-pathan-hrs">3h 40m</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                        <div style="font-size:11px;opacity:0.85">Sravan</div>
+                        <div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600" id="weekly-sravan-hrs">4h 15m</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                        <div style="font-size:11px;opacity:0.85">Read + hear</div>
+                        <div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600" id="weekly-both-hrs">7h 55m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8x7 Grid Matrix -->
+            <div class="matrix-card">
+                <div class="matrix-row">
+                    <div></div>
+                    <div class="cell-head" onclick="selectDay(0)">Sun</div>
+                    <div class="cell-head" onclick="selectDay(1)">Mon</div>
+                    <div class="cell-head" onclick="selectDay(2)">Tue</div>
+                    <div class="cell-head" onclick="selectDay(3)">Wed</div>
+                    <div class="cell-head" onclick="selectDay(4)">Thu</div>
+                    <div class="cell-head" onclick="selectDay(5)">Fri</div>
+                    <div class="cell-head" onclick="selectDay(6)">Sat</div>
+                </div>
+                <div id="matrix-rows-container">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#6B5A4C">
+                <span>Score key</span>
+                <span style="width:26px;height:22px;border-radius:6px;background:#FBEEDD;color:#4A2A12;display:inline-flex;align-items:center;justify-content:center;font-weight:700;border:1px solid #E8DCC6">0–1</span>
+                <span style="width:26px;height:22px;border-radius:6px;background:#F8DCC0;color:#4A2A12;display:inline-flex;align-items:center;justify-content:center;font-weight:700">2</span>
+                <span style="width:26px;height:22px;border-radius:6px;background:#F0B27A;color:#3A1C08;display:inline-flex;align-items:center;justify-content:center;font-weight:700">3</span>
+                <span style="width:26px;height:22px;border-radius:6px;background:#B5541A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">4</span>
+                <span style="width:26px;height:22px;border-radius:6px;background:#5E2112;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">5</span>
+                <span>· tap column to edit day</span>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-tab active" id="tab-daily" onclick="switchTab('daily')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10-10-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>
+                <span>Daily</span>
+            </button>
+            <button class="nav-tab" id="tab-weekly" onclick="switchTab('weekly')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"></rect><path d="M3.5 9.5h17M9 9.5V20M15 9.5V20"></path></svg>
+                <span>Weekly</span>
+            </button>
+        </nav>
+
+        <!-- Time Picker Modal -->
+        <div class="modal-backdrop" id="time-modal">
+            <div class="modal-content">
+                <div class="modal-title" id="modal-field-title">Set Bedtime</div>
+                <div class="time-inputs">
+                    <input type="number" id="modal-hour" class="time-input-box" min="1" max="12" value="9">
+                    <span style="font-size:24px;font-weight:700;color:#5E2112">:</span>
+                    <input type="number" id="modal-minute" class="time-input-box" min="0" max="59" value="45">
+                    <button type="button" class="ampm-btn" id="modal-ampm" onclick="toggleAmPm()">PM</button>
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#6B5A4C;margin-bottom:6px">Quick select</div>
+                    <div class="quick-chips" id="quick-chips-box"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" onclick="closeTimePicker(false)">Clear</button>
+                    <button type="button" class="modal-btn cancel" onclick="closeTimePicker(null)">Cancel</button>
+                    <button type="button" class="modal-btn save" onclick="savePickedTime()">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SadhanaScorer Logic (matches SadhanaScorer.kt exactly) ---
+        function scoreBedtime(timeStr) {
+            if (!timeStr) return null;
+            const [h, m, ampm] = parseTime(timeStr);
+            const totalM = toMinuteOfDay(h, m, ampm);
+            if (totalM < 4 * 60) return 0; // 00:00 to 03:59 late night
+            if (totalM <= 21 * 60 + 30) return 5;
+            if (totalM <= 22 * 60) return 4;
+            if (totalM <= 22 * 60 + 30) return 3;
+            if (totalM <= 22 * 60 + 45) return 2;
+            if (totalM <= 23 * 60) return 1;
+            return 0;
+        }
+
+        function scoreWakeUp(timeStr) {
+            if (!timeStr) return null;
+            const [h, m, ampm] = parseTime(timeStr);
+            const totalM = toMinuteOfDay(h, m, ampm);
+            if (totalM < 3 * 60) return 5;
+            if (totalM <= 3 * 60 + 30) return 4;
+            if (totalM <= 4 * 60) return 3;
+            if (totalM <= 4 * 60 + 15) return 2;
+            if (totalM <= 4 * 60 + 30) return 1;
+            return 0;
+        }
+
+        function scoreDaySleep(napMinutes, trainJourney) {
+            if (napMinutes === null || napMinutes === undefined || isNaN(napMinutes)) return null;
+            const effective = Math.max(0, napMinutes - (trainJourney ? 60 : 0));
+            if (effective <= 30) return 5;
+            if (effective <= 45) return 4;
+            if (effective <= 60) return 2;
+            return 0;
+        }
+
+        function scoreJapa(timeStr) {
+            if (!timeStr) return null;
+            const [h, m, ampm] = parseTime(timeStr);
+            const totalM = toMinuteOfDay(h, m, ampm);
+            if (totalM <= 7 * 60 + 15) return 5;
+            if (totalM <= 9 * 60) return 4;
+            if (totalM <= 11 * 60 + 59) return 3;
+            if (totalM <= 15 * 60) return 2;
+            if (totalM <= 18 * 60) return 1;
+            return 0;
+        }
+
+        function toMinuteOfDay(h, m, ampm) {
+            let hour24 = h % 12;
+            if (ampm === 'PM') hour24 += 12;
+            return hour24 * 60 + m;
+        }
+
+        function parseTime(str) {
+            const parts = str.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (!parts) return [9, 0, 'PM'];
+            return [parseInt(parts[1], 10), parseInt(parts[2], 10), parts[3].toUpperCase()];
+        }
+
+        function formatHM(h, m, ampm) {
+            const minStr = m < 10 ? '0' + m : '' + m;
+            return `${h}:${minStr} ${ampm}`;
+        }
+
+        // --- Weekly State Model (7 Days: Sun to Sat) ---
+        let currentWeekOffset = 0;
+        let selectedDayIndex = 0; // 0 = Sunday
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        const defaultData = [
+            { bedtime: '9:45 PM', wakeTime: '3:20 AM', napMinutes: 40, trainJourney: false, japaTime: '8:10 AM', pathanMinutes: 45, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Cooking'] },
+            { bedtime: '9:20 PM', wakeTime: '3:45 AM', napMinutes: 20, trainJourney: false, japaTime: '8:45 AM', pathanMinutes: 30, sravanMinutes: 45, sevaMinutes: 90, sevaTags: ['Mentoring'] },
+            { bedtime: '10:15 PM', wakeTime: '3:15 AM', napMinutes: 25, trainJourney: false, japaTime: '7:10 AM', pathanMinutes: 60, sravanMinutes: 30, sevaMinutes: 45, sevaTags: ['Lecturing'] },
+            { bedtime: '9:40 PM', wakeTime: '2:50 AM', napMinutes: 50, trainJourney: false, japaTime: '10:00 AM', pathanMinutes: 20, sravanMinutes: 60, sevaMinutes: 0, sevaTags: [] },
+            { bedtime: '9:30 PM', wakeTime: '3:25 AM', napMinutes: 40, trainJourney: false, japaTime: '8:30 AM', pathanMinutes: 40, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Calling'] },
+            { bedtime: '10:40 PM', wakeTime: '4:10 AM', napMinutes: 15, trainJourney: false, japaTime: '12:30 PM', pathanMinutes: 0, sravanMinutes: 20, sevaMinutes: 120, sevaTags: ['Temple cleaning'] },
+            { bedtime: '10:20 PM', wakeTime: '4:20 AM', napMinutes: 35, trainJourney: false, japaTime: '10:30 AM', pathanMinutes: 25, sravanMinutes: 40, sevaMinutes: 30, sevaTags: ['Cooking'] }
+        ];
+
+        let weekEntries = JSON.parse(JSON.stringify(defaultData));
+        let availableTags = ['Cooking', 'Mentoring', 'Lecturing', 'Calling', 'Temple cleaning'];
+
+        // --- Render UI ---
+        function renderDaySwitcher() {
+            const container = document.getElementById('day-switcher');
+            container.innerHTML = '';
+            dayNames.forEach((name, i) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'day-btn ' + (i === selectedDayIndex ? 'active' : '');
+                btn.onclick = () => selectDay(i);
+                const dayNum = 11 + i;
+                btn.innerHTML = `<span class="day-name">${name}</span><span class="day-num">${dayNum}</span>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderCurrentDay() {
+            const entry = weekEntries[selectedDayIndex];
+            document.getElementById('day-score-title').textContent = `${fullDayNames[selectedDayIndex]}’s score`;
+
+            // Buttons
+            document.getElementById('bedtime-btn').textContent = entry.bedtime || '—';
+            document.getElementById('waketime-btn').textContent = entry.wakeTime || '—';
+            document.getElementById('nap-input').value = entry.napMinutes !== null ? entry.napMinutes : '';
+            document.getElementById('train-chk').checked = !!entry.trainJourney;
+            document.getElementById('japa-btn').textContent = entry.japaTime || '—';
+
+            document.getElementById('pathan-input').value = entry.pathanMinutes || 0;
+            document.getElementById('sravan-input').value = entry.sravanMinutes || 0;
+            document.getElementById('seva-input').value = entry.sevaMinutes || 0;
+
+            // Score Pills
+            updatePill('bedtime-pill', scoreBedtime(entry.bedtime));
+            updatePill('waketime-pill', scoreWakeUp(entry.wakeTime));
+            updatePill('nap-pill', scoreDaySleep(entry.napMinutes, entry.trainJourney));
+            updatePill('japa-pill', scoreJapa(entry.japaTime));
+
+            // Total Score
+            const scores = [
+                scoreBedtime(entry.bedtime),
+                scoreWakeUp(entry.wakeTime),
+                scoreDaySleep(entry.napMinutes, entry.trainJourney),
+                scoreJapa(entry.japaTime)
+            ].filter(s => s !== null);
+
+            const total = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) : '—';
+            document.getElementById('total-score-val').textContent = total;
+            const pct = typeof total === 'number' ? (total / 20) * 100 : 0;
+            document.getElementById('score-progress').style.width = pct + '%';
+
+            renderTags();
+        }
+
+        function updatePill(elemId, score) {
+            const el = document.getElementById(elemId);
+            if (score === null || score === undefined) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = 'inline-block';
+                el.textContent = `+${score} pts`;
+                if (score <= 1) {
+                    el.className = 'score-pill zero';
+                } else {
+                    el.className = 'score-pill';
+                }
+            }
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tags-container');
+            container.innerHTML = '';
+            const currentTags = weekEntries[selectedDayIndex].sevaTags || [];
+
+            availableTags.forEach(tag => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                const isAct = currentTags.includes(tag);
+                btn.className = 'tag-chip ' + (isAct ? 'active' : '');
+                btn.textContent = tag;
+                btn.onclick = () => toggleTag(tag);
+                container.appendChild(btn);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'add-tag-chip';
+            addBtn.textContent = '+ Add tag';
+            addBtn.onclick = promptAddTag;
+            container.appendChild(addBtn);
+        }
+
+        function toggleTag(tag) {
+            let tags = weekEntries[selectedDayIndex].sevaTags || [];
+            if (tags.includes(tag)) {
+                tags = tags.filter(t => t !== tag);
+            } else {
+                tags.push(tag);
+            }
+            weekEntries[selectedDayIndex].sevaTags = tags;
+            renderTags();
+            updateWeeklyMatrix();
+        }
+
+        function promptAddTag() {
+            const newTag = prompt('Enter new seva tag name:');
+            if (newTag && newTag.trim()) {
+                const trimmed = newTag.trim();
+                if (!availableTags.includes(trimmed)) {
+                    availableTags.push(trimmed);
+                }
+                toggleTag(trimmed);
+            }
+        }
+
+        function selectDay(index) {
+            selectedDayIndex = index;
+            renderDaySwitcher();
+            renderCurrentDay();
+            switchTab('daily');
+        }
+
+        // --- Stepper Controls ---
+        function changeMinutes(field, delta) {
+            let curr = parseInt(weekEntries[selectedDayIndex][field], 10) || 0;
+            curr = Math.max(0, curr + delta);
+            weekEntries[selectedDayIndex][field] = curr;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function setCustomMinutes(field, val) {
+            const parsed = parseInt(val, 10);
+            weekEntries[selectedDayIndex][field] = isNaN(parsed) ? 0 : Math.max(0, parsed);
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function toggleTrainJourney(checked) {
+            weekEntries[selectedDayIndex].trainJourney = checked;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function toggleDedication() {
+            const exp = document.getElementById('dedication-expandable');
+            const chev = document.getElementById('dedication-chevron');
+            if (exp.style.display === 'none') {
+                exp.style.display = 'block';
+                chev.textContent = '▼';
+            } else {
+                exp.style.display = 'none';
+                chev.textContent = '▶';
+            }
+        }
+
+        // --- Time Picker Dialog Modal ---
+        let activeTimeField = null;
+
+        const quickPresets = {
+            bedtime: ['9:15 PM', '9:30 PM', '9:45 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'],
+            wakeTime: ['2:45 AM', '3:00 AM', '3:15 AM', '3:30 AM', '3:45 AM', '4:00 AM', '4:30 AM'],
+            japaTime: ['6:45 AM', '7:00 AM', '7:15 AM', '7:30 AM', '8:00 AM', '9:00 AM', '11:30 AM', '1:00 PM']
+        };
+
+        const titles = {
+            bedtime: 'Set Bedtime',
+            wakeTime: 'Set Wake-up Time',
+            japaTime: 'Set 16 Rounds Completion'
+        };
+
+        function openTimePicker(field) {
+            activeTimeField = field;
+            document.getElementById('modal-field-title').textContent = titles[field];
+            const currentVal = weekEntries[selectedDayIndex][field];
+
+            let [h, m, ampm] = currentVal ? parseTime(currentVal) : (field === 'bedtime' ? [9, 30, 'PM'] : field === 'wakeTime' ? [3, 0, 'AM'] : [7, 15, 'AM']);
+            document.getElementById('modal-hour').value = h;
+            document.getElementById('modal-minute').value = m < 10 ? '0' + m : m;
+            document.getElementById('modal-ampm').textContent = ampm;
+
+            const chipsBox = document.getElementById('quick-chips-box');
+            chipsBox.innerHTML = '';
+            (quickPresets[field] || []).forEach(preset => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'quick-chip';
+                chip.textContent = preset;
+                chip.onclick = () => {
+                    const [qh, qm, qampm] = parseTime(preset);
+                    document.getElementById('modal-hour').value = qh;
+                    document.getElementById('modal-minute').value = qm < 10 ? '0' + qm : qm;
+                    document.getElementById('modal-ampm').textContent = qampm;
+                };
+                chipsBox.appendChild(chip);
+            });
+
+            document.getElementById('time-modal').style.display = 'flex';
+        }
+
+        function toggleAmPm() {
+            const btn = document.getElementById('modal-ampm');
+            btn.textContent = btn.textContent === 'AM' ? 'PM' : 'AM';
+        }
+
+        function closeTimePicker(clear) {
+            if (clear === false && activeTimeField) {
+                weekEntries[selectedDayIndex][activeTimeField] = null;
+                renderCurrentDay();
+                updateWeeklyMatrix();
+            }
+            document.getElementById('time-modal').style.display = 'none';
+        }
+
+        function savePickedTime() {
+            if (!activeTimeField) return;
+            let h = parseInt(document.getElementById('modal-hour').value, 10) || 9;
+            let m = parseInt(document.getElementById('modal-minute').value, 10) || 0;
+            h = Math.max(1, Math.min(12, h));
+            m = Math.max(0, Math.min(59, m));
+            const ampm = document.getElementById('modal-ampm').textContent;
+
+            weekEntries[selectedDayIndex][activeTimeField] = formatHM(h, m, ampm);
+            closeTimePicker(true);
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        // --- Weekly Matrix Computations ---
+        function getCellClass(score) {
+            if (score === null || score === undefined) return 'cell-unlogged';
+            if (score >= 5) return 'cell-s5';
+            if (score === 4) return 'cell-s4';
+            if (score === 3) return 'cell-s3';
+            if (score === 2) return 'cell-s2';
+            return 'cell-s0';
+        }
+
+        function updateWeeklyMatrix() {
+            const container = document.getElementById('matrix-rows-container');
+            container.innerHTML = '';
+
+            const rowDefs = [
+                { key: 'bed', label: 'Bedtime', unit: 'pts', getter: (e) => scoreBedtime(e.bedtime), isScore: true },
+                { key: 'wake', label: 'Wake-up', unit: 'pts', getter: (e) => scoreWakeUp(e.wakeTime), isScore: true },
+                { key: 'nap', label: 'Day sleep', unit: 'pts', getter: (e) => scoreDaySleep(e.napMinutes, e.trainJourney), isScore: true },
+                { key: 'japa', label: 'Japa', unit: 'pts', getter: (e) => scoreJapa(e.japaTime), isScore: true },
+                { key: 'pathan', label: 'Pathan', unit: 'min', getter: (e) => e.pathanMinutes || 0, isScore: false },
+                { key: 'sravan', label: 'Sravan', unit: 'min', getter: (e) => e.sravanMinutes || 0, isScore: false },
+                { key: 'seva', label: 'Seva', unit: 'min', getter: (e) => e.sevaMinutes || 0, isScore: false }
+            ];
+
+            const dailyTotals = weekEntries.map(e => {
+                const s = [scoreBedtime(e.bedtime), scoreWakeUp(e.wakeTime), scoreDaySleep(e.napMinutes, e.trainJourney), scoreJapa(e.japaTime)].filter(x => x !== null);
+                return s.length > 0 ? s.reduce((a, b) => a + b, 0) : null;
+            });
+
+            rowDefs.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'matrix-row';
+                rowDiv.innerHTML = `<div class="row-label">${row.label}<div class="row-unit">${row.unit}</div></div>`;
+
+                weekEntries.forEach((entry, i) => {
+                    const val = row.getter(entry);
+                    const cell = document.createElement('div');
+                    cell.onclick = () => selectDay(i);
+
+                    if (row.isScore) {
+                        cell.className = 'matrix-cell ' + getCellClass(val);
+                        cell.textContent = val !== null ? val : '—';
+                    } else {
+                        cell.className = 'matrix-cell cell-min';
+                        cell.textContent = val;
+                    }
+                    rowDiv.appendChild(cell);
+                });
+                container.appendChild(rowDiv);
+            });
+
+            // Total row
+            const totalRow = document.createElement('div');
+            totalRow.className = 'matrix-row';
+            totalRow.innerHTML = `<div class="row-label">Total<div class="row-unit">of 20</div></div>`;
+            dailyTotals.forEach((tot, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'matrix-cell cell-tot';
+                cell.textContent = tot !== null ? tot : '—';
+                cell.onclick = () => selectDay(i);
+                totalRow.appendChild(cell);
+            });
+            container.appendChild(totalRow);
+
+            // Weekly Summary aggregates
+            const weekTotal = dailyTotals.filter(t => t !== null).reduce((a, b) => a + b, 0);
+            document.getElementById('weekly-total-score').textContent = weekTotal;
+            document.getElementById('weekly-progress-bar').style.width = ((weekTotal / 140) * 100) + '%';
+
+            const sumPathan = weekEntries.reduce((a, b) => a + (b.pathanMinutes || 0), 0);
+            const sumSravan = weekEntries.reduce((a, b) => a + (b.sravanMinutes || 0), 0);
+            const sumBoth = sumPathan + sumSravan;
+
+            document.getElementById('weekly-pathan-hrs').textContent = `${Math.floor(sumPathan / 60)}h ${sumPathan % 60}m`;
+            document.getElementById('weekly-sravan-hrs').textContent = `${Math.floor(sumSravan / 60)}h ${sumSravan % 60}m`;
+            document.getElementById('weekly-both-hrs').textContent = `${Math.floor(sumBoth / 60)}h ${sumBoth % 60}m`;
+        }
+
+        // --- Navigation Tabs ---
+        function switchTab(tab) {
+            const screenDaily = document.getElementById('screen-daily');
+            const screenWeekly = document.getElementById('screen-weekly');
+            const tabDaily = document.getElementById('tab-daily');
+            const tabWeekly = document.getElementById('tab-weekly');
+
+            if (tab === 'daily') {
+                screenDaily.style.display = 'flex';
+                screenWeekly.style.display = 'none';
+                tabDaily.classList.add('active');
+                tabWeekly.classList.remove('active');
+                renderCurrentDay();
+            } else {
+                screenDaily.style.display = 'none';
+                screenWeekly.style.display = 'flex';
+                tabDaily.classList.remove('active');
+                tabWeekly.classList.add('active');
+                updateWeeklyMatrix();
+            }
+        }
+
+        function changeWeek(delta) {
+            currentWeekOffset += delta;
+            const startDay = 11 + (currentWeekOffset * 7);
+            const endDay = startDay + 6;
+            const str = `${startDay} – ${endDay} Oct 2026`;
+            document.getElementById('weekly-header-range').textContent = str;
+            document.getElementById('daily-week-label').textContent = `WEEK · ${startDay} – ${endDay} OCT 2026`;
+        }
+
+        function saveNames() {
+            // autosave to localStorage
+            localStorage.setItem('sadhaka', document.getElementById('sadhaka').value);
+            localStorage.setItem('counselor', document.getElementById('counselor').value);
+        }
+
+        // Init
+        renderDaySwitcher();
+        renderCurrentDay();
+        updateWeeklyMatrix();
+    </script>
+</body>
+</html>

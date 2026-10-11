@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sadhana Card — Weekly Matrix</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width:390px;height:1080px;box-sizing:border-box;background:#FBF6EC;color:#2B1A12;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;gap:16px;padding:20px 16px 0 16px">
+
+<!-- Header with week switcher -->
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<button type="button" aria-label="Previous week" style="width:44px;height:44px;border-radius:14px;border:1px solid #E8DCC6;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;padding:0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+<div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A84F0A">WEEKLY SADHANA</div>
+<h1 style="margin:0;font-family:'Newsreader',serif;font-size:24px;font-weight:600;line-height:1.15">11 – 17 Oct 2026</h1>
+</div>
+<button type="button" aria-label="Next week" style="width:44px;height:44px;border-radius:14px;border:1px solid #E8DCC6;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;padding:0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</button>
+</div>
+
+<!-- Weekly aggregate -->
+<div style="background:#5E2112;color:#FBF1DF;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<div style="font-size:13px;font-weight:500;opacity:0.9">Weekly score</div>
+<div style="font-family:'Newsreader',serif;font-size:38px;font-weight:600;line-height:1">{{weekTotal}}<span style="font-size:18px;font-weight:500;opacity:0.85"> / 140</span></div>
+</div>
+<div role="img" aria-label="103 of 140 points" style="height:8px;border-radius:99px;background:rgba(251,241,223,0.22);overflow:hidden"><div style="width:73.6%;height:100%;background:#F4B26B;border-radius:99px"></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid rgba(251,241,223,0.25);padding-top:12px">
+<div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:11px;opacity:0.85">Pathan</div><div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600">{{pathanHrs}}</div></div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:11px;opacity:0.85">Sravan</div><div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600">{{sravanHrs}}</div></div>
+<div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:11px;opacity:0.85">Read + hear</div><div style="font-family:'Newsreader',serif;font-size:20px;font-weight:600">{{bothHrs}}</div></div>
+</div>
+</div>
+
+<!-- Matrix -->
+<div style="background:#fff;border:1px solid #E8DCC6;border-radius:20px;padding:12px 10px;display:flex;flex-direction:column;gap:6px">
+<div style="display:grid;grid-template-columns:62px repeat(7,minmax(0,1fr));gap:4px;align-items:center">
+<div></div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Sun</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Mon</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Tue</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Wed</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Thu</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Fri</div>
+<div style="text-align:center;font-size:11px;font-weight:700;color:#6B5A4C">Sat</div>
+</div>
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+<div style="display:grid;grid-template-columns:62px repeat(7,minmax(0,1fr));gap:4px;align-items:center">
+<div style="font-size:11.5px;font-weight:700;line-height:1.2;color:#2B1A12">{{row.label}}<div style="font-size:10px;font-weight:400;color:#6B5A4C">{{row.unit}}</div></div>
+<sc-for list="{{row.cells}}" as="c" hint-placeholder-count="7">
+<div style="{{c.style}}">{{c.v}}</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+
+<!-- Legend -->
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#6B5A4C">
+<span>Score key</span>
+<span style="width:26px;height:22px;border-radius:6px;background:#FBEEDD;color:#4A2A12;display:inline-flex;align-items:center;justify-content:center;font-weight:700;border:1px solid #E8DCC6">0–1</span>
+<span style="width:26px;height:22px;border-radius:6px;background:#F8DCC0;color:#4A2A12;display:inline-flex;align-items:center;justify-content:center;font-weight:700">2</span>
+<span style="width:26px;height:22px;border-radius:6px;background:#F0B27A;color:#3A1C08;display:inline-flex;align-items:center;justify-content:center;font-weight:700">3</span>
+<span style="width:26px;height:22px;border-radius:6px;background:#B5541A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">4</span>
+<span style="width:26px;height:22px;border-radius:6px;background:#5E2112;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">5</span>
+<span>· sample data shown</span>
+</div>
+
+<!-- Bottom nav -->
+<nav aria-label="Main" style="margin:auto -16px 0 -16px;background:#fff;border-top:1px solid #E8DCC6;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:8px 16px 14px 16px;gap:8px">
+<a href="Main.dc.html" style="min-height:56px;border-radius:16px;color:#6B5A4C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:500">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B5A4C" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>Daily
+</a>
+<a href="Weekly.dc.html" aria-current="page" style="min-height:56px;border-radius:16px;background:#F8DCC0;color:#5E2112;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:700">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.5"></rect><path d="M3.5 9.5h17M9 9.5V20M15 9.5V20"></path></svg>Weekly
+</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() {
+const scoreStyle = (n) => {
+const base = 'height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;';
+if (n >= 5) return base + 'background:#5E2112;color:#fff;';
+if (n === 4) return base + 'background:#B5541A;color:#fff;';
+if (n === 3) return base + 'background:#F0B27A;color:#3A1C08;';
+if (n === 2) return base + 'background:#F8DCC0;color:#4A2A12;';
+return base + 'background:#FBEEDD;color:#4A2A12;border:1px solid #E8DCC6;box-sizing:border-box;';
+};
+const minStyle = 'height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;background:#FBF6EC;color:#2B1A12;';
+const totalStyle = 'height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:#fff;color:#5E2112;border:1.5px solid #5E2112;box-sizing:border-box;';
+const bed = [4,5,3,4,5,2,3];
+const wake = [4,3,4,5,4,2,1];
+const nap = [4,5,5,2,4,5,4];
+const japa = [4,4,5,3,4,2,3];
+const pathan = [45,30,60,20,40,0,25];
+const sravan = [30,45,30,60,30,20,40];
+const seva = [60,90,45,0,60,120,30];
+const total = bed.map((v, i) => v + wake[i] + nap[i] + japa[i]);
+const sum = (a) => a.reduce((x, y) => x + y, 0);
+const hm = (m) => Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+const sc = (arr) => arr.map((v) => ({ v: v, style: scoreStyle(v) }));
+const mn = (arr) => arr.map((v) => ({ v: v, style: minStyle }));
+const rows = [
+{ label: 'Bedtime', unit: 'pts', cells: sc(bed) },
+{ label: 'Wake-up', unit: 'pts', cells: sc(wake) },
+{ label: 'Day sleep', unit: 'pts', cells: sc(nap) },
+{ label: 'Japa', unit: 'pts', cells: sc(japa) },
+{ label: 'Pathan', unit: 'min', cells: mn(pathan) },
+{ label: 'Sravan', unit: 'min', cells: mn(sravan) },
+{ label: 'Seva', unit: 'min', cells: mn(seva) },
+{ label: 'Total', unit: 'of 20', cells: total.map((v) => ({ v: v, style: totalStyle })) }
+];
+return {
+rows: rows,
+weekTotal: sum(total),
+pathanHrs: hm(sum(pathan)),
+sravanHrs: hm(sum(sravan)),
+bothHrs: hm(sum(pathan) + sum(sravan))
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Tilak symbol / sacred flame in saffron #A84F0A -->
+    <path
+        android:fillColor="#A84F0A"
+        android:pathData="M54,28 C51,36 44,48 44,60 C44,70 48,76 54,76 C60,76 64,70 64,60 C64,48 57,36 54,28 Z" />
+    <path
+        android:fillColor="#5E2112"
+        android:pathData="M54,66 C51.8,66 50,67.8 50,70 C50,72.2 51.8,74 54,74 C56.2,74 58,72.2 58,70 C58,67.8 56.2,66 54,66 Z" />
+</vector>
