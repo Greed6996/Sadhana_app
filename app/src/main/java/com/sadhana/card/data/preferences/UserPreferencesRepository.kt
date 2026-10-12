@@ -19,14 +19,20 @@ data class UserPreferences(
     val isDedicationExpanded: Boolean = true
 )
 
+interface UserPreferencesRepository {
+    val userPreferencesFlow: Flow<UserPreferences>
+    suspend fun updateSadhakaName(name: String)
+    suspend fun updateCounselorName(name: String)
+    suspend fun setDedicationExpanded(expanded: Boolean)
+}
+
 /**
  * Repository for user preferences backed by DataStore Preferences.
- * Stores Sadhaka name, Counselor name, and Dedication banner collapse state.
  */
 @Singleton
-class UserPreferencesRepository @Inject constructor(
+class UserPreferencesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
-) {
+) : UserPreferencesRepository {
 
     private object PreferencesKeys {
         val SADHAKA_NAME = stringPreferencesKey("sadhaka_name")
@@ -34,7 +40,7 @@ class UserPreferencesRepository @Inject constructor(
         val DEDICATION_EXPANDED = booleanPreferencesKey("dedication_expanded")
     }
 
-    val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
+    override val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -50,19 +56,19 @@ class UserPreferencesRepository @Inject constructor(
             )
         }
 
-    suspend fun updateSadhakaName(name: String) {
+    override suspend fun updateSadhakaName(name: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SADHAKA_NAME] = name
         }
     }
 
-    suspend fun updateCounselorName(name: String) {
+    override suspend fun updateCounselorName(name: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.COUNSELOR_NAME] = name
         }
     }
 
-    suspend fun setDedicationExpanded(expanded: Boolean) {
+    override suspend fun setDedicationExpanded(expanded: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEDICATION_EXPANDED] = expanded
         }

@@ -1,5 +1,7 @@
 package com.sadhana.card.di
 
+import com.sadhana.card.data.preferences.UserPreferencesRepository
+import com.sadhana.card.data.preferences.UserPreferencesRepositoryImpl
 import com.sadhana.card.data.repository.SadhanaRepositoryImpl
 import com.sadhana.card.domain.repository.SadhanaRepository
 import dagger.Binds
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun bindSadhanaRepository(
         impl: SadhanaRepositoryImpl
     ): SadhanaRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserPreferencesRepository(
+        impl: UserPreferencesRepositoryImpl
+    ): UserPreferencesRepository
 }
