@@ -1,0 +1,24 @@
+# Baseline Profile for Sadhana Card release variant
+# Pre-compiles Compose runtime, daily entry, weekly matrix, and scorer to AOT native bytecode
+Lcom/sadhana/card/MainActivity;
+Lcom/sadhana/card/ui/MainAppKt;
+Lcom/sadhana/card/ui/MainViewModel;
+Lcom/sadhana/card/ui/daily/DailyEntryScreenKt;
+Lcom/sadhana/card/ui/daily/DailyEntryViewModel;
+Lcom/sadhana/card/ui/daily/DailyEntryUiState;
+Lcom/sadhana/card/ui/weekly/WeeklyMatrixScreenKt;
+Lcom/sadhana/card/ui/weekly/WeeklyMatrixViewModel;
+Lcom/sadhana/card/ui/weekly/WeeklyMatrixUiState;
+Lcom/sadhana/card/ui/components/ScoreCardKt;
+Lcom/sadhana/card/ui/components/ScorePillKt;
+Lcom/sadhana/card/ui/components/DedicationBannerKt;
+Lcom/sadhana/card/ui/components/HeaderFieldsRowKt;
+Lcom/sadhana/card/ui/components/MinutesStepperKt;
+Lcom/sadhana/card/ui/components/SectionCardKt;
+Lcom/sadhana/card/ui/components/TimeFieldKt;
+Lcom/sadhana/card/ui/components/TrainJourneySwitchKt;
+Lcom/sadhana/card/ui/components/WeekDaySelectorKt;
+Lcom/sadhana/card/ui/settings/SettingsScreenKt;
+Lcom/sadhana/card/domain/scorer/SadhanaScorer;
+Lcom/sadhana/card/domain/scorer/SadhanaScorer$DailyScores;
+Lcom/sadhana/card/domain/model/SadhanaEntry;

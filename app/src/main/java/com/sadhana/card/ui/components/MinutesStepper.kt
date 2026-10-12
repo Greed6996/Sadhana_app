@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,12 +36,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BorderCream
-import com.sadhana.card.ui.theme.CreamBackground
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.TextMuted
 
 /**
  * Reusable stepper for minutes (e.g. Day Sleep, Reading, Hearing, Seva)
@@ -69,8 +66,8 @@ fun MinutesStepper(
                 .size(44.dp)
                 .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(CreamBackground)
-                .border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
                 .clickable(
                     enabled = currentMinutes > min,
                     role = Role.Button
@@ -88,7 +85,7 @@ fun MinutesStepper(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 22.sp,
-                color = if (currentMinutes > min) RustPrimary else TextMuted
+                color = if (currentMinutes > min) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -109,8 +106,8 @@ fun MinutesStepper(
                     .width(56.dp)
                     .height(44.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(CreamBackground)
-                    .border(BorderStroke(1.5.dp, RustPrimary), RoundedCornerShape(12.dp)),
+                    .background(MaterialTheme.colorScheme.background)
+                    .border(BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -118,14 +115,14 @@ fun MinutesStepper(
                     fontFamily = NewsreaderFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 21.sp,
-                    color = RustPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             Text(
                 text = "min",
                 fontFamily = DmSansFontFamily,
                 fontSize = 11.sp,
-                color = TextMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -136,8 +133,8 @@ fun MinutesStepper(
                 .size(44.dp)
                 .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(CreamBackground)
-                .border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
                 .clickable(
                     enabled = currentMinutes < max,
                     role = Role.Button
@@ -155,7 +152,7 @@ fun MinutesStepper(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 22.sp,
-                color = if (currentMinutes < max) RustPrimary else TextMuted
+                color = if (currentMinutes < max) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -171,7 +168,7 @@ fun MinutesStepper(
                     fontFamily = NewsreaderFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
-                    color = RustPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             },
             text = {
@@ -204,7 +201,7 @@ fun MinutesStepper(
                         showEditDialog = false
                     }
                 ) {
-                    Text("Save", fontWeight = FontWeight.Bold, color = RustPrimary)
+                    Text("Save", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {

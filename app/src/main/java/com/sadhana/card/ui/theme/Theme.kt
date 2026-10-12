@@ -29,16 +29,16 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkRustPrimary,
-    onPrimary = Color(0xFF19110B),
+    primary = DarkPrimary,
+    onPrimary = DarkBg,
     primaryContainer = DarkSaffronSoft,
-    onPrimaryContainer = DarkScorePillText,
+    onPrimaryContainer = DarkTextPrimary,
     secondary = DarkSaffronAccent,
-    onSecondary = Color(0xFF19110B),
+    onSecondary = DarkBg,
     secondaryContainer = DarkSurfaceVariant,
     onSecondaryContainer = DarkTextPrimary,
     tertiary = GoldAccent,
-    onTertiary = Color(0xFF19110B),
+    onTertiary = DarkBg,
     background = DarkBg,
     onBackground = DarkTextPrimary,
     surface = DarkSurface,

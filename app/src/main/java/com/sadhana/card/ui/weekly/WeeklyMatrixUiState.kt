@@ -1,10 +1,12 @@
 package com.sadhana.card.ui.weekly
 
+import androidx.compose.runtime.Immutable
 import com.sadhana.card.domain.model.SadhanaEntry
 import com.sadhana.card.domain.scorer.SadhanaScorer
 import com.sadhana.card.domain.util.DateUtils
 import java.time.LocalDate
 
+@Immutable
 data class MatrixDayColumn(
     val date: LocalDate,
     val dayName: String, // "Sun", "Mon", ...
@@ -14,6 +16,7 @@ data class MatrixDayColumn(
     val totalScore: Int?
 )
 
+@Immutable
 data class WeeklyMatrixUiState(
     val startOfWeek: LocalDate = DateUtils.getStartOfWeek(LocalDate.now()),
     val columns: List<MatrixDayColumn> = emptyList(),

@@ -17,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -95,16 +96,16 @@ fun ServiceTagPicker(
                     },
                     shape = PillShape,
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = SurfaceWhite,
-                        labelColor = TextDark,
-                        selectedContainerColor = RustPrimary,
-                        selectedLabelColor = Color(0xFFFBF1DF)
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        labelColor = MaterialTheme.colorScheme.onSurface,
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
                         selected = isSelected,
-                        borderColor = BorderCream,
-                        selectedBorderColor = RustPrimary
+                        borderColor = MaterialTheme.colorScheme.outline,
+                        selectedBorderColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -118,7 +119,7 @@ fun ServiceTagPicker(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
-                            tint = RustPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(end = 4.dp)
                         )
                         Text(
@@ -126,19 +127,19 @@ fun ServiceTagPicker(
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 13.sp,
-                            color = RustPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
                 shape = PillShape,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = CreamBackground,
-                    labelColor = RustPrimary
+                    containerColor = MaterialTheme.colorScheme.background,
+                    labelColor = MaterialTheme.colorScheme.primary
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = false,
-                    borderColor = BorderCream
+                    borderColor = MaterialTheme.colorScheme.outline
                 )
             )
         }
@@ -155,7 +156,7 @@ fun ServiceTagPicker(
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = RustPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             },
             text = {
@@ -177,7 +178,7 @@ fun ServiceTagPicker(
                         showCustomTagDialog = false
                     }
                 ) {
-                    Text("Add", fontWeight = FontWeight.Bold, color = RustPrimary)
+                    Text("Add", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {

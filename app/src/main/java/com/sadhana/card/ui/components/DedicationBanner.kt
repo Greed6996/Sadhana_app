@@ -5,7 +5,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,9 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,24 +38,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sadhana.card.ui.theme.BannerShape
+import com.sadhana.card.ui.theme.DarkBg
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
 import com.sadhana.card.ui.theme.RustPrimary
 
 /**
  * Expandable devotional banner celebrating Srila Prabhupada and the Sadhana Card.
+ * High contrast (>4.5:1) in both Light and Dark themes.
  */
 @Composable
 fun DedicationBanner(
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+
+    val bannerBg = if (isDark) MaterialTheme.colorScheme.surface else RustPrimary
+    val titleColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFFFBF1DF)
+    val iconTint = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFFF8DCC0)
+
+    val baseModifier = modifier
+        .fillMaxWidth()
+        .clip(BannerShape)
+        .background(bannerBg)
+
+    val borderedModifier = if (isDark) {
+        baseModifier.border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
+    } else {
+        baseModifier
+    }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(BannerShape)
-            .background(RustPrimary)
+        modifier = borderedModifier
             .clickable(role = Role.Button) { isExpanded = !isExpanded }
             .padding(16.dp)
             .semantics {
@@ -71,12 +88,12 @@ fun DedicationBanner(
                 fontFamily = NewsreaderFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-                color = Color(0xFFFBF1DF)
+                color = titleColor
             )
             Icon(
                 imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
-                tint = Color(0xFFF8DCC0)
+                tint = iconTint
             )
         }
 

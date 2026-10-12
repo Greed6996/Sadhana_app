@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,19 +14,37 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class ThemeMode {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
+
+const val CURRENT_TERMS_VERSION = 1
+
 data class UserPreferences(
     val sadhakaName: String = "",
     val counselorName: String = "",
     val isDedicationExpanded: Boolean = true,
-    val hasAcceptedTerms: Boolean = false
-)
+    val acceptedTerms: Boolean = false,
+    val acceptedTermsVersion: Int = 0,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM
+) {
+    val isTermsAccepted: Boolean
+        get() = acceptedTerms && acceptedTermsVersion >= CURRENT_TERMS_VERSION
+
+    // Compatibility alias
+    val hasAcceptedTerms: Boolean
+        get() = isTermsAccepted
+}
 
 interface UserPreferencesRepository {
     val userPreferencesFlow: Flow<UserPreferences>
     suspend fun updateSadhakaName(name: String)
     suspend fun updateCounselorName(name: String)
     suspend fun setDedicationExpanded(expanded: Boolean)
-    suspend fun setTermsAccepted(accepted: Boolean)
+    suspend fun setTermsAccepted(accepted: Boolean, version: Int = CURRENT_TERMS_VERSION)
+    suspend fun setThemeMode(themeMode: ThemeMode)
 }
 
 /**
@@ -40,7 +59,11 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val SADHAKA_NAME = stringPreferencesKey("sadhaka_name")
         val COUNSELOR_NAME = stringPreferencesKey("counselor_name")
         val DEDICATION_EXPANDED = booleanPreferencesKey("dedication_expanded")
-        val HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
+        val ACCEPTED_TERMS = booleanPreferencesKey("acceptedTerms")
+        val ACCEPTED_TERMS_VERSION = intPreferencesKey("acceptedTermsVersion")
+        val THEME_MODE = stringPreferencesKey("themeMode")
+        // Legacy fallback
+        val LEGACY_HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
     }
 
     override val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
@@ -52,11 +75,20 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             }
         }
         .map { preferences ->
+            val accepted = preferences[PreferencesKeys.ACCEPTED_TERMS]
+                ?: preferences[PreferencesKeys.LEGACY_HAS_ACCEPTED_TERMS]
+                ?: false
+            val version = preferences[PreferencesKeys.ACCEPTED_TERMS_VERSION] ?: if (accepted) 1 else 0
+            val themeModeStr = preferences[PreferencesKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name
+            val themeMode = runCatching { ThemeMode.valueOf(themeModeStr) }.getOrDefault(ThemeMode.SYSTEM)
+
             UserPreferences(
                 sadhakaName = preferences[PreferencesKeys.SADHAKA_NAME] ?: "",
                 counselorName = preferences[PreferencesKeys.COUNSELOR_NAME] ?: "",
                 isDedicationExpanded = preferences[PreferencesKeys.DEDICATION_EXPANDED] ?: true,
-                hasAcceptedTerms = preferences[PreferencesKeys.HAS_ACCEPTED_TERMS] ?: false
+                acceptedTerms = accepted,
+                acceptedTermsVersion = version,
+                themeMode = themeMode
             )
         }
 
@@ -78,9 +110,16 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun setTermsAccepted(accepted: Boolean) {
+    override suspend fun setTermsAccepted(accepted: Boolean, version: Int) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.HAS_ACCEPTED_TERMS] = accepted
+            preferences[PreferencesKeys.ACCEPTED_TERMS] = accepted
+            preferences[PreferencesKeys.ACCEPTED_TERMS_VERSION] = version
+        }
+    }
+
+    override suspend fun setThemeMode(themeMode: ThemeMode) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.THEME_MODE] = themeMode.name
         }
     }
 }

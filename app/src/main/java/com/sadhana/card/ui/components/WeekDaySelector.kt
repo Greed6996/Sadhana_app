@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,14 +22,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BorderCream
 import com.sadhana.card.ui.theme.DayButtonShape
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.SaffronSoft
-import com.sadhana.card.ui.theme.SurfaceWhite
-import com.sadhana.card.ui.theme.TextDark
-import com.sadhana.card.ui.theme.TextMuted
 import java.time.LocalDate
 
 /**
@@ -54,29 +48,18 @@ fun WeekDaySelector(
 
             val accessibilityText = "${date.dayOfWeek.name}, ${date.month.name} ${date.dayOfMonth}${if (isSelected) ", Selected" else ""}"
 
-            val (bg, textColor, nameColor, borderStroke) = if (isSelected) {
-                listOf(
-                    RustPrimary,
-                    com.sadhana.card.ui.theme.CreamBackground,
-                    SaffronSoft,
-                    BorderStroke(1.5.dp, RustPrimary)
-                )
-            } else {
-                listOf(
-                    SurfaceWhite,
-                    TextDark,
-                    TextMuted,
-                    BorderStroke(1.dp, BorderCream)
-                )
-            }
+            val bg = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+            val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+            val nameColor = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant
+            val borderStroke = if (isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
 
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .defaultMinSize(minHeight = 64.dp)
                     .clip(DayButtonShape)
-                    .background(bg as androidx.compose.ui.graphics.Color)
-                    .border(borderStroke as BorderStroke, DayButtonShape)
+                    .background(bg)
+                    .border(borderStroke, DayButtonShape)
                     .clickable(role = Role.Tab) { onDateSelected(date) }
                     .padding(vertical = 8.dp)
                     .semantics { contentDescription = accessibilityText },
@@ -88,14 +71,14 @@ fun WeekDaySelector(
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
-                    color = nameColor as androidx.compose.ui.graphics.Color
+                    color = nameColor
                 )
                 Text(
                     text = dayNum,
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
-                    color = textColor as androidx.compose.ui.graphics.Color
+                    color = textColor
                 )
             }
         }

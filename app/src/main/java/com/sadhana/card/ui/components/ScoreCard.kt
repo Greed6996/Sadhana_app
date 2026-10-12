@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,14 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sadhana.card.ui.theme.BannerShape
-import com.sadhana.card.ui.theme.BorderCream
-import com.sadhana.card.ui.theme.DividerCream
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
 import com.sadhana.card.ui.theme.PillShape
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.SurfaceWhite
-import com.sadhana.card.ui.theme.TextMuted
 
 /**
  * Daily Score header card displaying earned points, total possible (20),
@@ -57,8 +52,8 @@ fun ScoreCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(BannerShape)
-            .background(SurfaceWhite)
-            .border(BorderStroke(1.dp, BorderCream), BannerShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
             .padding(16.dp)
             .semantics { contentDescription = accessibilityDesc },
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -73,7 +68,7 @@ fun ScoreCard(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,
-                color = TextMuted
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
@@ -82,14 +77,14 @@ fun ScoreCard(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 34.sp,
                     lineHeight = 34.sp,
-                    color = RustPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = " / $maxScore",
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp,
-                    color = TextMuted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 2.dp)
                 )
             }
@@ -101,14 +96,14 @@ fun ScoreCard(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(PillShape)
-                .background(DividerCream)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(animatedProgress)
                     .height(8.dp)
                     .clip(PillShape)
-                    .background(RustPrimary)
+                    .background(MaterialTheme.colorScheme.primary)
             )
         }
 
@@ -116,7 +111,7 @@ fun ScoreCard(
             text = "Sleep (5), Wake (5), Day Nap (5), and Japa (5) scored",
             fontFamily = DmSansFontFamily,
             fontSize = 12.sp,
-            color = TextMuted
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

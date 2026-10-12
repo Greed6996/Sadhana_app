@@ -39,7 +39,7 @@ class DailyEntryViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeSadhanaRepository()
         fakePreferences = FakeUserPreferencesRepository()
-        viewModel = DailyEntryViewModel(fakeRepository, fakePreferences)
+        viewModel = DailyEntryViewModel(fakeRepository, fakePreferences, testDispatcher)
     }
 
     @After
@@ -67,6 +67,7 @@ class DailyEntryViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.updateBedtime(LocalTime.of(21, 15)) // <= 21:30 -> 5 pts
+        testDispatcher.scheduler.advanceTimeBy(350)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val saved = fakeRepository.getEntry(date).first()
@@ -104,6 +105,7 @@ class DailyEntryViewModelTest {
 
         viewModel.updateSadhakaName("Arjuna Dasa")
         viewModel.updateCounselorName("Bhima Dasa")
+        testDispatcher.scheduler.advanceTimeBy(350)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val prefs = fakePreferences.userPreferencesFlow.first()
@@ -159,7 +161,14 @@ class DailyEntryViewModelTest {
     }
 
     private class FakeUserPreferencesRepository : UserPreferencesRepository {
-        private val prefsFlow = MutableStateFlow(UserPreferences("Bhaktin Sarah", "Govinda Dasa", hasAcceptedTerms = false))
+        private val prefsFlow = MutableStateFlow(
+            UserPreferences(
+                sadhakaName = "Bhaktin Sarah",
+                counselorName = "Govinda Dasa",
+                acceptedTerms = false,
+                acceptedTermsVersion = 0
+            )
+        )
 
         override val userPreferencesFlow: Flow<UserPreferences> = prefsFlow
 
@@ -175,8 +184,15 @@ class DailyEntryViewModelTest {
             prefsFlow.value = prefsFlow.value.copy(isDedicationExpanded = expanded)
         }
 
-        override suspend fun setTermsAccepted(accepted: Boolean) {
-            prefsFlow.value = prefsFlow.value.copy(hasAcceptedTerms = accepted)
+        override suspend fun setTermsAccepted(accepted: Boolean, version: Int) {
+            prefsFlow.value = prefsFlow.value.copy(
+                acceptedTerms = accepted,
+                acceptedTermsVersion = version
+            )
+        }
+
+        override suspend fun setThemeMode(themeMode: com.sadhana.card.data.preferences.ThemeMode) {
+            prefsFlow.value = prefsFlow.value.copy(themeMode = themeMode)
         }
     }
 }

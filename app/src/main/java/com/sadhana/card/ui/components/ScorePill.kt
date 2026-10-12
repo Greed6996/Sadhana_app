@@ -15,7 +15,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BorderCream
+import com.sadhana.card.ui.theme.DarkBg
+import com.sadhana.card.ui.theme.DarkScorePillBg
+import com.sadhana.card.ui.theme.DarkScorePillText
+import com.sadhana.card.ui.theme.DarkScorePillZeroBg
+import com.sadhana.card.ui.theme.DarkScorePillZeroText
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.PillShape
 import com.sadhana.card.ui.theme.ScorePillBg
@@ -25,6 +29,7 @@ import com.sadhana.card.ui.theme.ScorePillZeroText
 
 /**
  * Reusable pill component displaying points earned vs maximum (e.g., "5/5 pts", "0/5 pts", or "—").
+ * Automatically adapts between Light and Dark themes maintaining >= 4.5:1 text contrast.
  */
 @Composable
 fun ScorePill(
@@ -34,11 +39,20 @@ fun ScorePill(
 ) {
     val isZero = score == 0
     val isNull = score == null
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
 
     val (bgColor, textColor, hasBorder) = when {
         isNull -> Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant, false)
-        isZero -> Triple(ScorePillZeroBg, ScorePillZeroText, true)
-        else -> Triple(ScorePillBg, ScorePillText, false)
+        isZero -> if (isDark) {
+            Triple(DarkScorePillZeroBg, DarkScorePillZeroText, true)
+        } else {
+            Triple(ScorePillZeroBg, ScorePillZeroText, true)
+        }
+        else -> if (isDark) {
+            Triple(DarkScorePillBg, DarkScorePillText, false)
+        } else {
+            Triple(ScorePillBg, ScorePillText, false)
+        }
     }
 
     val text = if (score != null) "$score/$max pts" else "— pts"
@@ -50,7 +64,7 @@ fun ScorePill(
         .background(bgColor)
 
     val finalModifier = if (hasBorder) {
-        baseModifier.border(1.dp, BorderCream, PillShape)
+        baseModifier.border(1.dp, MaterialTheme.colorScheme.outline, PillShape)
     } else {
         baseModifier
     }

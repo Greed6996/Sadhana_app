@@ -27,6 +27,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -242,8 +243,8 @@ fun ConsentRow(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(CreamBackground)
-            .border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
             .padding(12.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -257,8 +258,8 @@ fun ConsentRow(
                     checked = checked,
                     onCheckedChange = null,
                     colors = CheckboxDefaults.colors(
-                        checkedColor = RustPrimary,
-                        checkmarkColor = Color(0xFFFBF1DF)
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                        checkmarkColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
                 Column(modifier = Modifier.padding(start = 8.dp)) {
@@ -267,13 +268,13 @@ fun ConsentRow(
                         fontFamily = DmSansFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.5.sp,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = subtitle,
                         fontFamily = DmSansFontFamily,
                         fontSize = 11.5.sp,
-                        color = TextMuted
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -287,7 +288,7 @@ fun ConsentRow(
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 12.sp,
-                    color = SaffronAccent
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

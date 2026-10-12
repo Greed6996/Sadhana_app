@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import com.sadhana.card.domain.util.DateUtils
 import com.sadhana.card.ui.theme.BannerShape
 import com.sadhana.card.ui.theme.BorderCream
 import com.sadhana.card.ui.theme.CreamBackground
+import com.sadhana.card.ui.theme.DarkBg
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
 import com.sadhana.card.ui.theme.PillShape
@@ -85,7 +87,7 @@ fun WeeklyMatrixContent(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(CreamBackground),
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -100,8 +102,8 @@ fun WeeklyMatrixContent(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(SurfaceWhite)
-                        .border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
                         .clickable(role = Role.Button, onClick = onPreviousWeek)
                         .semantics { contentDescription = "Previous Week" },
                     contentAlignment = Alignment.Center
@@ -109,7 +111,7 @@ fun WeeklyMatrixContent(
                     Icon(
                         imageVector = Icons.Default.ChevronLeft,
                         contentDescription = null,
-                        tint = RustPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -124,7 +126,7 @@ fun WeeklyMatrixContent(
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
-                        color = SaffronAccent
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     Text(
                         text = weekTitle,
@@ -132,7 +134,7 @@ fun WeeklyMatrixContent(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 24.sp,
                         lineHeight = 28.sp,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -140,8 +142,8 @@ fun WeeklyMatrixContent(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(SurfaceWhite)
-                        .border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
                         .clickable(role = Role.Button, onClick = onNextWeek)
                         .semantics { contentDescription = "Next Week" },
                     contentAlignment = Alignment.Center
@@ -149,7 +151,7 @@ fun WeeklyMatrixContent(
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = RustPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -190,13 +192,22 @@ fun WeeklyAggregateCard(
         targetValue = uiState.scoreProgress,
         label = "WeeklyProgress"
     )
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+
+    val cardBg = if (isDark) MaterialTheme.colorScheme.surface else RustPrimary
+    val baseModifier = modifier
+        .fillMaxWidth()
+        .clip(BannerShape)
+        .background(cardBg)
+
+    val finalModifier = if (isDark) {
+        baseModifier.border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
+    } else {
+        baseModifier
+    }
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(BannerShape)
-            .background(RustPrimary)
-            .padding(18.dp),
+        modifier = finalModifier.padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
@@ -304,8 +315,8 @@ fun WeeklySpreadsheetGrid(
         modifier = modifier
             .fillMaxWidth()
             .clip(BannerShape)
-            .background(SurfaceWhite)
-            .border(BorderStroke(1.dp, BorderCream), BannerShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
             .padding(horizontal = 10.dp, vertical = 12.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -331,7 +342,7 @@ fun WeeklySpreadsheetGrid(
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
-                            color = TextMuted,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -505,7 +516,7 @@ fun MatrixRowLabel(
             fontWeight = FontWeight.Bold,
             fontSize = 11.5.sp,
             lineHeight = 14.sp,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = unit,
@@ -513,7 +524,7 @@ fun MatrixRowLabel(
             fontWeight = FontWeight.Normal,
             fontSize = 10.sp,
             lineHeight = 12.sp,
-            color = TextMuted
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -524,13 +535,26 @@ fun ScoreMatrixCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (bg, textColor, border) = when (score) {
-        5 -> Triple(RustPrimary, Color.White, null)
-        4 -> Triple(Color(0xFFB5541A), Color.White, null)
-        3 -> Triple(Color(0xFFF0B27A), Color(0xFF3A1C08), null)
-        2 -> Triple(Color(0xFFF8DCC0), Color(0xFF4A2A12), null)
-        0, 1 -> Triple(Color(0xFFFBEEDD), Color(0xFF4A2A12), BorderStroke(1.dp, BorderCream))
-        else -> Triple(Color(0xFFFBEEDD), Color(0xFF8C5228), BorderStroke(1.dp, BorderCream))
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+
+    val (bg, textColor, border) = if (isDark) {
+        when (score) {
+            5 -> Triple(Color(0xFFF4B26B), Color(0xFF1F140E), null)
+            4 -> Triple(Color(0xFFC27338), Color.White, null)
+            3 -> Triple(Color(0xFF874820), Color(0xFFFBF1DF), null)
+            2 -> Triple(Color(0xFF5A331A), Color(0xFFFBF1DF), null)
+            0, 1 -> Triple(Color(0xFF362015), Color(0xFFCDBBA8), BorderStroke(1.dp, Color(0xFF4A3428)))
+            else -> Triple(Color(0xFF2A1C14), Color(0xFF7D6755), BorderStroke(1.dp, Color(0xFF3F2B20)))
+        }
+    } else {
+        when (score) {
+            5 -> Triple(RustPrimary, Color.White, null)
+            4 -> Triple(Color(0xFFB5541A), Color.White, null)
+            3 -> Triple(Color(0xFFF0B27A), Color(0xFF3A1C08), null)
+            2 -> Triple(Color(0xFFF8DCC0), Color(0xFF4A2A12), null)
+            0, 1 -> Triple(Color(0xFFFBEEDD), Color(0xFF4A2A12), BorderStroke(1.dp, BorderCream))
+            else -> Triple(Color(0xFFFBEEDD), Color(0xFF8C5228), BorderStroke(1.dp, BorderCream))
+        }
     }
 
     val baseMod = modifier
@@ -565,7 +589,7 @@ fun MinuteMatrixCell(
         modifier = modifier
             .height(40.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.background)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -574,7 +598,7 @@ fun MinuteMatrixCell(
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 13.sp,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }
@@ -589,8 +613,8 @@ fun TotalMatrixCell(
         modifier = modifier
             .height(40.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(SurfaceWhite)
-            .border(BorderStroke(1.5.dp, RustPrimary), RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(8.dp))
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -599,7 +623,7 @@ fun TotalMatrixCell(
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
-            color = RustPrimary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -608,6 +632,8 @@ fun TotalMatrixCell(
 fun WeeklyScoreKeyLegend(
     modifier: Modifier = Modifier
 ) {
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -617,14 +643,22 @@ fun WeeklyScoreKeyLegend(
             text = "Score key",
             fontFamily = DmSansFontFamily,
             fontSize = 11.sp,
-            color = TextMuted
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        LegendChip(text = "0–1", bg = Color(0xFFFBEEDD), textColor = Color(0xFF4A2A12), hasBorder = true)
-        LegendChip(text = "2", bg = Color(0xFFF8DCC0), textColor = Color(0xFF4A2A12))
-        LegendChip(text = "3", bg = Color(0xFFF0B27A), textColor = Color(0xFF3A1C08))
-        LegendChip(text = "4", bg = Color(0xFFB5541A), textColor = Color.White)
-        LegendChip(text = "5", bg = RustPrimary, textColor = Color.White)
+        if (isDark) {
+            LegendChip(text = "0–1", bg = Color(0xFF362015), textColor = Color(0xFFCDBBA8), hasBorder = true)
+            LegendChip(text = "2", bg = Color(0xFF5A331A), textColor = Color(0xFFFBF1DF))
+            LegendChip(text = "3", bg = Color(0xFF874820), textColor = Color(0xFFFBF1DF))
+            LegendChip(text = "4", bg = Color(0xFFC27338), textColor = Color.White)
+            LegendChip(text = "5", bg = Color(0xFFF4B26B), textColor = Color(0xFF1F140E))
+        } else {
+            LegendChip(text = "0–1", bg = Color(0xFFFBEEDD), textColor = Color(0xFF4A2A12), hasBorder = true)
+            LegendChip(text = "2", bg = Color(0xFFF8DCC0), textColor = Color(0xFF4A2A12))
+            LegendChip(text = "3", bg = Color(0xFFF0B27A), textColor = Color(0xFF3A1C08))
+            LegendChip(text = "4", bg = Color(0xFFB5541A), textColor = Color.White)
+            LegendChip(text = "5", bg = RustPrimary, textColor = Color.White)
+        }
     }
 }
 
@@ -635,12 +669,13 @@ fun LegendChip(
     textColor: Color,
     hasBorder: Boolean = false
 ) {
+    val borderColor = MaterialTheme.colorScheme.outline
     val base = Modifier
         .size(width = 26.dp, height = 22.dp)
         .clip(RoundedCornerShape(6.dp))
         .background(bg)
 
-    val mod = if (hasBorder) base.border(BorderStroke(1.dp, BorderCream), RoundedCornerShape(6.dp)) else base
+    val mod = if (hasBorder) base.border(BorderStroke(1.dp, borderColor), RoundedCornerShape(6.dp)) else base
 
     Box(
         modifier = mod,

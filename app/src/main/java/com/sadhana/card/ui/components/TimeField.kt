@@ -18,6 +18,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,10 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sadhana.card.domain.util.DateUtils
-import com.sadhana.card.ui.theme.BorderCream
-import com.sadhana.card.ui.theme.CreamBackground
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
 import java.time.LocalTime
 
 /**
@@ -65,10 +63,10 @@ fun TimeField(
             .defaultMinSize(minHeight = 48.dp)
             .semantics { contentDescription = accessibilityLabel },
         shape = RoundedCornerShape(14.dp),
-        border = BorderStroke(1.5.dp, RustPrimary),
+        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = CreamBackground,
-            contentColor = RustPrimary
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.primary
         )
     ) {
         Text(
@@ -96,7 +94,7 @@ fun TimeField(
                     fontFamily = NewsreaderFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
-                    color = RustPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             },
             text = {
@@ -112,7 +110,7 @@ fun TimeField(
                             text = "Quick Presets",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = RustPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.align(Alignment.Start)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -129,10 +127,10 @@ fun TimeField(
                                     },
                                     label = { Text(DateUtils.formatTime(preset)) },
                                     colors = AssistChipDefaults.assistChipColors(
-                                        containerColor = CreamBackground,
-                                        labelColor = RustPrimary
+                                        containerColor = MaterialTheme.colorScheme.background,
+                                        labelColor = MaterialTheme.colorScheme.primary
                                     ),
-                                    border = BorderStroke(1.dp, BorderCream)
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                                 )
                             }
                         }
@@ -146,7 +144,7 @@ fun TimeField(
                         showDialog = false
                     }
                 ) {
-                    Text("OK", fontWeight = FontWeight.Bold, color = RustPrimary)
+                    Text("OK", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             },
             dismissButton = {
@@ -158,7 +156,7 @@ fun TimeField(
                                 showDialog = false
                             }
                         ) {
-                            Text("Clear", color = RustPrimary)
+                            Text("Clear", color = MaterialTheme.colorScheme.primary)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }

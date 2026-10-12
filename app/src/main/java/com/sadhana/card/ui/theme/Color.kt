@@ -22,15 +22,17 @@ val GoldAccent = Color(0xFFD97706)
 val SuccessGreen = Color(0xFF15803D)
 val SuccessGreenBg = Color(0xFFDCFCE7)
 
-// Dark Theme Palette
-val DarkBg = Color(0xFF19110B)
-val DarkSurface = Color(0xFF241812)
-val DarkSurfaceVariant = Color(0xFF33231B)
-val DarkBorder = Color(0xFF483327)
-val DarkTextPrimary = Color(0xFFFBF1DF)
-val DarkTextMuted = Color(0xFFC7B3A2)
-val DarkRustPrimary = Color(0xFFD67345)
-val DarkSaffronAccent = Color(0xFFF59E0B)
-val DarkSaffronSoft = Color(0xFF3D2719)
+// Dark Theme Palette - Warm dark brown & saffron
+val DarkBg = Color(0xFF1F140E)             // Warm dark brown background
+val DarkSurface = Color(0xFF2A1C14)        // Surface slightly lighter
+val DarkSurfaceVariant = Color(0xFF38251B) // Slightly elevated tile background
+val DarkBorder = Color(0xFF4A3428)         // Warm dark outline
+val DarkTextPrimary = Color(0xFFFBF1DF)    // High contrast primary text (>13:1)
+val DarkTextMuted = Color(0xFFCDBBA8)      // Muted descriptive text (>8:1)
+val DarkPrimary = Color(0xFFF4B26B)        // Saffron accent for primary elements
+val DarkSaffronAccent = Color(0xFFF4B26B)  // Saffron accent
+val DarkSaffronSoft = Color(0xFF3D2719)    // Container tone
 val DarkScorePillBg = Color(0xFF3D2719)
 val DarkScorePillText = Color(0xFFF8DCC0)
+val DarkScorePillZeroBg = Color(0xFF261912)
+val DarkScorePillZeroText = Color(0xFFCDBBA8)

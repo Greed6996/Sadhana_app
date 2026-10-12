@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,14 +23,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BorderCream
 import com.sadhana.card.ui.theme.CardShape
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.SaffronAccent
-import com.sadhana.card.ui.theme.SurfaceWhite
-import com.sadhana.card.ui.theme.TextDark
-import com.sadhana.card.ui.theme.TextMuted
-import com.sadhana.card.ui.theme.TileBg
 import com.sadhana.card.ui.theme.TileShape
 
 @Composable
@@ -42,13 +38,14 @@ fun SectionHeader(
         fontWeight = FontWeight.Bold,
         fontSize = 12.sp,
         letterSpacing = 1.sp,
-        color = SaffronAccent,
+        color = MaterialTheme.colorScheme.secondary,
         modifier = modifier.padding(vertical = 4.dp)
     )
 }
 
 /**
  * Clean card container for a daily sadhana entry item.
+ * Adapts to theme tokens dynamically.
  */
 @Composable
 fun SadhanaEntryCard(
@@ -65,8 +62,8 @@ fun SadhanaEntryCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(CardShape)
-            .background(SurfaceWhite)
-            .border(BorderStroke(1.dp, BorderCream), CardShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), CardShape)
             .padding(14.dp)
     ) {
         Row(
@@ -78,14 +75,14 @@ fun SadhanaEntryCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(TileShape)
-                    .background(TileBg),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 if (icon != null) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = com.sadhana.card.ui.theme.RustPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 } else if (iconContent != null) {
@@ -104,14 +101,14 @@ fun SadhanaEntryCard(
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = TextDark
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = hint,
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
-                    color = TextMuted
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (score != null || maxScore > 0) {
                     Spacer(modifier = Modifier.height(4.dp))

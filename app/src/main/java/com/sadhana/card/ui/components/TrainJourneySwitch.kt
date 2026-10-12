@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,9 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.TextDark
-import com.sadhana.card.ui.theme.TextMuted
 
 /**
  * Checkbox row for Train Journey sleep allowance toggle (+60 min exemption).
@@ -52,8 +50,8 @@ fun TrainJourneySwitch(
             checked = checked,
             onCheckedChange = null, // Handled by row click
             colors = CheckboxDefaults.colors(
-                checkedColor = RustPrimary,
-                checkmarkColor = com.sadhana.card.ui.theme.CreamBackground
+                checkedColor = MaterialTheme.colorScheme.primary,
+                checkmarkColor = MaterialTheme.colorScheme.onPrimary
             )
         )
 
@@ -65,13 +63,13 @@ fun TrainJourneySwitch(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "+60 min daytime sleep allowance (exempt from score deductions)",
                 fontFamily = DmSansFontFamily,
                 fontSize = 12.sp,
-                color = TextMuted
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

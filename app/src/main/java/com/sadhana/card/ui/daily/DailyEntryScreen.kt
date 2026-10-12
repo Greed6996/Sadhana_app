@@ -28,11 +28,13 @@ import androidx.compose.material.icons.filled.Hearing
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NightsStay
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -77,6 +79,7 @@ import java.time.LocalTime
 @Composable
 fun DailyEntryScreen(
     viewModel: DailyEntryViewModel,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -98,6 +101,7 @@ fun DailyEntryScreen(
         onUpdateSevaTags = viewModel::updateSevaTags,
         onUpdateSadhakaName = viewModel::updateSadhakaName,
         onUpdateCounselorName = viewModel::updateCounselorName,
+        onOpenSettings = onOpenSettings,
         modifier = modifier
     )
 }
@@ -120,22 +124,20 @@ fun DailyEntryContent(
     onUpdateSevaTags: (List<String>) -> Unit,
     onUpdateSadhakaName: (String) -> Unit,
     onUpdateCounselorName: (String) -> Unit,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var showLegalInfo by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-    var selectedPolicyTab by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(0) } // 0 = Privacy, 1 = Terms
-
     val weekTitle = "WEEK OF ${DateUtils.formatWeekRangeUpper(uiState.startOfWeek)}"
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(CreamBackground),
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // 1. Top Header Row
-        item {
+        item(key = "header") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -148,7 +150,7 @@ fun DailyEntryContent(
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         letterSpacing = 1.sp,
-                        color = SaffronAccent
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -157,7 +159,7 @@ fun DailyEntryContent(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,
                         lineHeight = 34.sp,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -182,16 +184,16 @@ fun DailyEntryContent(
                         onClick = onNextWeek
                     )
                     HeaderIconButton(
-                        icon = Icons.Default.Info,
-                        contentDescription = "Privacy Policy & Terms",
-                        onClick = { showLegalInfo = true }
+                        icon = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        onClick = onOpenSettings
                     )
                 }
             }
         }
 
         // 2. Sadhaka & Counselor Name Inputs
-        item {
+        item(key = "names") {
             HeaderFieldsRow(
                 sadhakaName = uiState.sadhakaName,
                 onSadhakaNameChanged = onUpdateSadhakaName,
@@ -201,12 +203,12 @@ fun DailyEntryContent(
         }
 
         // 3. Devotional Dedication Banner
-        item {
+        item(key = "dedication") {
             DedicationBanner()
         }
 
         // 4. Week Day Selector (Sunday to Saturday)
-        item {
+        item(key = "weekday_selector") {
             WeekDaySelector(
                 startOfWeek = uiState.startOfWeek,
                 selectedDate = uiState.selectedDate,
@@ -215,7 +217,7 @@ fun DailyEntryContent(
         }
 
         // 5. Daily Score Summary Card
-        item {
+        item(key = "score_summary") {
             ScoreCard(
                 score = uiState.score.totalScore,
                 maxScore = 20
@@ -223,12 +225,12 @@ fun DailyEntryContent(
         }
 
         // 6. Section: SLEEP & WAKE
-        item {
+        item(key = "section_sleep") {
             SectionHeader(title = "Sleep & Wake Regulation")
         }
 
         // Bedtime
-        item {
+        item(key = "bedtime") {
             SadhanaEntryCard(
                 title = "Rest / Bedtime",
                 hint = "Target: ≤ 21:30 (5 pts)",
@@ -252,7 +254,7 @@ fun DailyEntryContent(
         }
 
         // Wake-up Time
-        item {
+        item(key = "wake_time") {
             SadhanaEntryCard(
                 title = "Wake-up Time",
                 hint = "Target: < 03:00 (5 pts), ≤ 03:30 (4 pts)",
@@ -276,7 +278,7 @@ fun DailyEntryContent(
         }
 
         // Daytime Sleep (Nap)
-        item {
+        item(key = "day_nap") {
             SadhanaEntryCard(
                 title = "Daytime Sleep (Nap)",
                 hint = if (uiState.entry.trainJourney) {
@@ -299,7 +301,7 @@ fun DailyEntryContent(
         }
 
         // Train Journey Toggle
-        item {
+        item(key = "train_journey") {
             TrainJourneySwitch(
                 checked = uiState.entry.trainJourney,
                 onCheckedChange = onUpdateTrainJourney
@@ -307,11 +309,11 @@ fun DailyEntryContent(
         }
 
         // 7. Section: CHANTING (JAPA)
-        item {
+        item(key = "section_japa") {
             SectionHeader(title = "Chanting (Japa)")
         }
 
-        item {
+        item(key = "japa") {
             SadhanaEntryCard(
                 title = "16 Rounds Finished By",
                 hint = "Target: ≤ 07:15 (5 pts), ≤ 09:00 (4 pts)",
@@ -335,11 +337,11 @@ fun DailyEntryContent(
         }
 
         // 8. Section: SRAVAN & PATHAN
-        item {
+        item(key = "section_study") {
             SectionHeader(title = "Hearing & Study (Sravanam & Pathan)")
         }
 
-        item {
+        item(key = "pathan") {
             SadhanaEntryCard(
                 title = "Reading (Pathan / Svadhyaya)",
                 hint = "Srila Prabhupada's Books",
@@ -356,7 +358,7 @@ fun DailyEntryContent(
             )
         }
 
-        item {
+        item(key = "sravan") {
             SadhanaEntryCard(
                 title = "Hearing (Sravanam)",
                 hint = "Classes, Lectures & Kirtan",
@@ -374,11 +376,11 @@ fun DailyEntryContent(
         }
 
         // 9. Section: PRACTICAL SERVICE (SEVA)
-        item {
+        item(key = "section_seva") {
             SectionHeader(title = "Practical Service (Seva)")
         }
 
-        item {
+        item(key = "seva_minutes") {
             SadhanaEntryCard(
                 title = "Active Service Duration",
                 hint = "Physical devotional service",
@@ -395,7 +397,7 @@ fun DailyEntryContent(
             )
         }
 
-        item {
+        item(key = "seva_tags") {
             ServiceTagPicker(
                 selectedTags = uiState.entry.sevaTags,
                 onTagsChanged = onUpdateSevaTags
@@ -403,64 +405,9 @@ fun DailyEntryContent(
         }
 
         // Bottom spacing for navigation bar clearance
-        item {
+        item(key = "bottom_spacer") {
             Spacer(modifier = Modifier.height(64.dp))
         }
-    }
-
-    if (showLegalInfo) {
-        AlertDialog(
-            onDismissRequest = { showLegalInfo = false },
-            title = {
-                Text(
-                    text = if (selectedPolicyTab == 0) com.sadhana.card.ui.legal.LegalContent.PRIVACY_POLICY_TITLE else com.sadhana.card.ui.legal.LegalContent.TERMS_CONDITIONS_TITLE,
-                    fontFamily = NewsreaderFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    color = RustPrimary
-                )
-            },
-            text = {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        FilterChip(
-                            selected = selectedPolicyTab == 0,
-                            onClick = { selectedPolicyTab = 0 },
-                            label = { Text("Privacy Policy") }
-                        )
-                        FilterChip(
-                            selected = selectedPolicyTab == 1,
-                            onClick = { selectedPolicyTab = 1 },
-                            label = { Text("Terms & Conditions") }
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        Text(
-                            text = if (selectedPolicyTab == 0) com.sadhana.card.ui.legal.LegalContent.PRIVACY_POLICY_TEXT else com.sadhana.card.ui.legal.LegalContent.TERMS_CONDITIONS_TEXT,
-                            fontFamily = DmSansFontFamily,
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp,
-                            color = TextDark
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showLegalInfo = false }) {
-                    Text("Close", fontWeight = FontWeight.Bold, color = RustPrimary)
-                }
-            }
-        )
     }
 }
 
@@ -475,8 +422,8 @@ fun HeaderIconButton(
         modifier = modifier
             .size(44.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(SurfaceWhite)
-            .border(androidx.compose.foundation.BorderStroke(1.dp, BorderCream), RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center
@@ -484,7 +431,7 @@ fun HeaderIconButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = RustPrimary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(22.dp)
         )
     }
