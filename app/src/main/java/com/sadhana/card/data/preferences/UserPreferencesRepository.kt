@@ -16,7 +16,8 @@ import javax.inject.Singleton
 data class UserPreferences(
     val sadhakaName: String = "",
     val counselorName: String = "",
-    val isDedicationExpanded: Boolean = true
+    val isDedicationExpanded: Boolean = true,
+    val hasAcceptedTerms: Boolean = false
 )
 
 interface UserPreferencesRepository {
@@ -24,6 +25,7 @@ interface UserPreferencesRepository {
     suspend fun updateSadhakaName(name: String)
     suspend fun updateCounselorName(name: String)
     suspend fun setDedicationExpanded(expanded: Boolean)
+    suspend fun setTermsAccepted(accepted: Boolean)
 }
 
 /**
@@ -38,6 +40,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val SADHAKA_NAME = stringPreferencesKey("sadhaka_name")
         val COUNSELOR_NAME = stringPreferencesKey("counselor_name")
         val DEDICATION_EXPANDED = booleanPreferencesKey("dedication_expanded")
+        val HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
     }
 
     override val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
@@ -52,7 +55,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             UserPreferences(
                 sadhakaName = preferences[PreferencesKeys.SADHAKA_NAME] ?: "",
                 counselorName = preferences[PreferencesKeys.COUNSELOR_NAME] ?: "",
-                isDedicationExpanded = preferences[PreferencesKeys.DEDICATION_EXPANDED] ?: true
+                isDedicationExpanded = preferences[PreferencesKeys.DEDICATION_EXPANDED] ?: true,
+                hasAcceptedTerms = preferences[PreferencesKeys.HAS_ACCEPTED_TERMS] ?: false
             )
         }
 
@@ -71,6 +75,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setDedicationExpanded(expanded: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEDICATION_EXPANDED] = expanded
+        }
+    }
+
+    override suspend fun setTermsAccepted(accepted: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HAS_ACCEPTED_TERMS] = accepted
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sadhana.card.ui.daily.DailyEntryScreen
 import com.sadhana.card.ui.daily.DailyEntryViewModel
+import com.sadhana.card.ui.legal.LegalConsentDialog
 import com.sadhana.card.ui.navigation.SadhanaBottomBar
 import com.sadhana.card.ui.navigation.Screen
 import com.sadhana.card.ui.theme.CreamBackground
@@ -28,6 +30,7 @@ fun MainApp(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Daily.route
+    val dailyUiState by dailyViewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = CreamBackground,
@@ -74,5 +77,12 @@ fun MainApp(
                 )
             }
         }
+    }
+
+    // First-launch consent modal (Privacy Policy & Terms and Conditions)
+    if (!dailyUiState.hasAcceptedTerms) {
+        LegalConsentDialog(
+            onConsentAccepted = dailyViewModel::acceptTerms
+        )
     }
 }

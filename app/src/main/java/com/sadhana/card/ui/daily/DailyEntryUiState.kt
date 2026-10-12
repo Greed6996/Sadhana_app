@@ -12,5 +12,6 @@ data class DailyEntryUiState(
     val score: SadhanaScorer.DailyScores = SadhanaScorer.DailyScores(null, null, null, null, null),
     val sadhakaName: String = "",
     val counselorName: String = "",
+    val hasAcceptedTerms: Boolean = false,
     val isLoading: Boolean = false
 )

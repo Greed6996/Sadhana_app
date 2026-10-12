@@ -111,6 +111,20 @@ class DailyEntryViewModelTest {
         assertEquals("Bhima Dasa", prefs.counselorName)
     }
 
+    @Test
+    fun testAcceptTerms_updatesPreferences() = runTest(testDispatcher) {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.hasAcceptedTerms)
+
+        viewModel.acceptTerms()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(true, viewModel.uiState.value.hasAcceptedTerms)
+        assertEquals(true, fakePreferences.userPreferencesFlow.first().hasAcceptedTerms)
+    }
+
     // --- Fakes ---
 
     private class FakeSadhanaRepository : SadhanaRepository {
@@ -145,7 +159,7 @@ class DailyEntryViewModelTest {
     }
 
     private class FakeUserPreferencesRepository : UserPreferencesRepository {
-        private val prefsFlow = MutableStateFlow(UserPreferences("Bhaktin Sarah", "Govinda Dasa"))
+        private val prefsFlow = MutableStateFlow(UserPreferences("Bhaktin Sarah", "Govinda Dasa", hasAcceptedTerms = false))
 
         override val userPreferencesFlow: Flow<UserPreferences> = prefsFlow
 
@@ -159,6 +173,10 @@ class DailyEntryViewModelTest {
 
         override suspend fun setDedicationExpanded(expanded: Boolean) {
             prefsFlow.value = prefsFlow.value.copy(isDedicationExpanded = expanded)
+        }
+
+        override suspend fun setTermsAccepted(accepted: Boolean) {
+            prefsFlow.value = prefsFlow.value.copy(hasAcceptedTerms = accepted)
         }
     }
 }

@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Bed
@@ -24,13 +26,20 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.Hearing
 import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -113,6 +122,9 @@ fun DailyEntryContent(
     onUpdateCounselorName: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLegalInfo by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var selectedPolicyTab by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(0) } // 0 = Privacy, 1 = Terms
+
     val weekTitle = "WEEK OF ${DateUtils.formatWeekRangeUpper(uiState.startOfWeek)}"
 
     LazyColumn(
@@ -149,7 +161,7 @@ fun DailyEntryContent(
                     )
                 }
 
-                // Week navigation controls
+                // Week navigation and info controls
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -168,6 +180,11 @@ fun DailyEntryContent(
                         icon = Icons.Default.ChevronRight,
                         contentDescription = "Next Week",
                         onClick = onNextWeek
+                    )
+                    HeaderIconButton(
+                        icon = Icons.Default.Info,
+                        contentDescription = "Privacy Policy & Terms",
+                        onClick = { showLegalInfo = true }
                     )
                 }
             }
@@ -389,6 +406,61 @@ fun DailyEntryContent(
         item {
             Spacer(modifier = Modifier.height(64.dp))
         }
+    }
+
+    if (showLegalInfo) {
+        AlertDialog(
+            onDismissRequest = { showLegalInfo = false },
+            title = {
+                Text(
+                    text = if (selectedPolicyTab == 0) com.sadhana.card.ui.legal.LegalContent.PRIVACY_POLICY_TITLE else com.sadhana.card.ui.legal.LegalContent.TERMS_CONDITIONS_TITLE,
+                    fontFamily = NewsreaderFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
+                    color = RustPrimary
+                )
+            },
+            text = {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedPolicyTab == 0,
+                            onClick = { selectedPolicyTab = 0 },
+                            label = { Text("Privacy Policy") }
+                        )
+                        FilterChip(
+                            selected = selectedPolicyTab == 1,
+                            onClick = { selectedPolicyTab = 1 },
+                            label = { Text("Terms & Conditions") }
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = if (selectedPolicyTab == 0) com.sadhana.card.ui.legal.LegalContent.PRIVACY_POLICY_TEXT else com.sadhana.card.ui.legal.LegalContent.TERMS_CONDITIONS_TEXT,
+                            fontFamily = DmSansFontFamily,
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp,
+                            color = TextDark
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLegalInfo = false }) {
+                    Text("Close", fontWeight = FontWeight.Bold, color = RustPrimary)
+                }
+            }
+        )
     }
 }
 

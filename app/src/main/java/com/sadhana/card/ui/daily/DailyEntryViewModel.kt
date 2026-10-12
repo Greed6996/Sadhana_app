@@ -48,6 +48,7 @@ class DailyEntryViewModel @Inject constructor(
             score = score,
             sadhakaName = preferences.sadhakaName,
             counselorName = preferences.counselorName,
+            hasAcceptedTerms = preferences.hasAcceptedTerms,
             isLoading = false
         )
     }.stateIn(
@@ -55,6 +56,12 @@ class DailyEntryViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DailyEntryUiState()
     )
+
+    fun acceptTerms() {
+        viewModelScope.launch {
+            userPreferencesRepository.setTermsAccepted(true)
+        }
+    }
 
     fun selectDate(date: LocalDate) {
         selectedDateFlow.value = date
