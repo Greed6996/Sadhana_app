@@ -1,0 +1,31 @@
+package com.sadhana.card
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import com.sadhana.card.ui.MainApp
+import com.sadhana.card.ui.theme.CreamBackground
+import com.sadhana.card.ui.theme.SadhanaTheme
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            SadhanaTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = CreamBackground
+                ) {
+                    MainApp()
+                }
+            }
+        }
+    }
+}
