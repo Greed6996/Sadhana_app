@@ -24,7 +24,11 @@ data class WeeklyMatrixUiState(
     val totalPathanMinutes: Int = 0,
     val totalSravanMinutes: Int = 0,
     val totalSevaMinutes: Int = 0,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isExporting: Boolean = false,
+    val exportError: String? = null,
+    val sadhakaName: String = "",
+    val counselorName: String = ""
 ) {
     val maxWeeklyScore: Int = 140 // 7 days * 20 max points
     val scoreProgress: Float

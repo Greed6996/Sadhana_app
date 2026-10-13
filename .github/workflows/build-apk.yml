@@ -1,16 +1,28 @@
-name: Build Sadhana Card APK
+name: Build and Release Sadhana Card APK
 
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Custom Release Tag (e.g. v1.0.1, leave empty for auto run number)'
+        required: false
+        default: ''
+      release_title:
+        description: 'Custom Release Title (optional)'
+        required: false
+        default: ''
 
 jobs:
   build-apk:
-    name: Build Android APK
+    name: Build and Release Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -34,18 +46,52 @@ jobs:
       - name: Build Debug & Release APKs
         run: ./gradlew assembleDebug assembleRelease
 
-      - name: Upload Release APK
+      - name: Prepare Named APK Binaries
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk Sadhana-Card.apk
+          cp app/build/outputs/apk/debug/app-debug.apk Sadhana-Card-Debug.apk
+
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Sadhana-Card-Release-APK
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
+          path: Sadhana-Card.apk
           retention-days: 30
 
-      - name: Upload Debug APK
+      - name: Upload Debug Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Sadhana-Card-Debug-APK
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          path: Sadhana-Card-Debug.apk
           retention-days: 30
+
+      - name: Automatic GitHub Release
+        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag_name != '' && inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || format('v1.0.{0}', github.run_number) }}
+          name: ${{ inputs.release_title != '' && inputs.release_title || (startsWith(github.ref, 'refs/tags/') && format('Sadhana Card {0}', github.ref_name)) || format('Sadhana Card v1.0.{0}', github.run_number) }}
+          body: |
+            ## 🪷 Sadhana Card Android App
+            
+            Automated production build for Sadhana Card.
+            
+            ### 📱 Direct Download for Android:
+            - 🟢 **[Sadhana-Card.apk](https://github.com/Greed6996/Sadhana_app_design/releases/latest/download/Sadhana-Card.apk)** (Direct download, ready to install)
+            - 🛠️ `Sadhana-Card-Debug.apk` (Development build)
+            
+            ### ✨ Features:
+            - 100% Offline & Private Devotional Habit Tracker
+            - Daily 20-Point & Weekly 140-Point scoring rubric
+            - 7-Day matrix view & aggregate progress
+            - Excel (.xlsx) weekly report generation matching official template
+            - One-tap WhatsApp sharing with mentors/counselors
+            - Sanskrit verses & devotional dedication
+          files: |
+            Sadhana-Card.apk
+            Sadhana-Card-Debug.apk
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

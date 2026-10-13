@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,11 +31,13 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -59,6 +64,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadhana.card.domain.util.DateUtils
 import com.sadhana.card.ui.theme.BannerShape
@@ -73,6 +79,7 @@ import com.sadhana.card.ui.theme.SaffronAccent
 import com.sadhana.card.ui.theme.SurfaceWhite
 import com.sadhana.card.ui.theme.TextDark
 import com.sadhana.card.ui.theme.TextMuted
+import java.io.File
 import java.time.LocalDate
 
 /**
@@ -85,12 +92,75 @@ fun WeeklyMatrixScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    var fileToSave by remember { mutableStateOf<File?>(null) }
+
+    val saveFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    ) { uri ->
+        if (uri != null && fileToSave != null) {
+            try {
+                context.contentResolver.openOutputStream(uri)?.use { output ->
+                    fileToSave!!.inputStream().use { input ->
+                        input.copyTo(output)
+                    }
+                }
+                Toast.makeText(context, "Excel report saved successfully!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Failed to save file: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    val onShareReport = {
+        viewModel.exportWeeklyReport(
+            onSuccess = { file ->
+                try {
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        file
+                    )
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        putExtra(Intent.EXTRA_SUBJECT, "Weekly Sadhana Report: ${file.name}")
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "Hare Krishna! Attached is the weekly Sadhana Card spreadsheet report for ${DateUtils.formatWeekRange(uiState.startOfWeek)}."
+                        )
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, "Share Sadhana Excel Report"))
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error sharing report: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                }
+            },
+            onError = { err ->
+                Toast.makeText(context, err, Toast.LENGTH_LONG).show()
+            }
+        )
+    }
+
+    val onSaveReport = {
+        viewModel.exportWeeklyReport(
+            onSuccess = { file ->
+                fileToSave = file
+                saveFileLauncher.launch(file.name)
+            },
+            onError = { err ->
+                Toast.makeText(context, err, Toast.LENGTH_LONG).show()
+            }
+        )
+    }
 
     WeeklyMatrixContent(
         uiState = uiState,
         onPreviousWeek = viewModel::previousWeek,
         onNextWeek = viewModel::nextWeek,
         onDayClick = onDayClick,
+        onShareReport = onShareReport,
+        onSaveReport = onSaveReport,
         modifier = modifier
     )
 }
@@ -101,6 +171,8 @@ fun WeeklyMatrixContent(
     onPreviousWeek: () -> Unit,
     onNextWeek: () -> Unit,
     onDayClick: (LocalDate) -> Unit,
+    onShareReport: () -> Unit,
+    onSaveReport: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val weekTitle = DateUtils.formatWeekRange(uiState.startOfWeek)
@@ -192,12 +264,21 @@ fun WeeklyMatrixContent(
             )
         }
 
-        // 4. Score key Legend
+        // 4. Excel Export Card
+        item {
+            WeeklyExcelExportCard(
+                uiState = uiState,
+                onShareReport = onShareReport,
+                onSaveReport = onSaveReport
+            )
+        }
+
+        // 5. Score key Legend
         item {
             WeeklyScoreKeyLegend()
         }
 
-        // 5. Feedback & Feature Requests Section
+        // 6. Feedback & Feature Requests Section
         item {
             FeedbackAndFeatureRequestsSection()
         }
@@ -728,11 +809,6 @@ enum class FeedbackType(
     val description: String,
     val prefilledMessage: String
 ) {
-    SHARE_FEEDBACK(
-        title = "Share Feedback",
-        description = "Tell us what you like or what we can improve.",
-        prefilledMessage = "Hello Developer! 👋\n\nI would like to share some feedback about your app.\n\nMy feedback:\n"
-    ),
     REQUEST_FEATURE(
         title = "Request a Feature",
         description = "Have an idea for a new feature? Let us know.",
@@ -742,11 +818,6 @@ enum class FeedbackType(
         title = "Report a Bug",
         description = "Found a problem? Help us identify and fix it.",
         prefilledMessage = "Hello Developer! 👋\n\nI found a bug in the app."
-    ),
-    CONTACT_DEVELOPER(
-        title = "Contact Developer",
-        description = "Questions or need help? Chat with the developer on WhatsApp.",
-        prefilledMessage = "Hello Developer! 👋\n\nI am using your app and would like to get in touch."
     )
 }
 
@@ -849,15 +920,6 @@ fun FeedbackAndFeatureRequestsSection(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FeedbackActionRow(
-                actionType = FeedbackType.SHARE_FEEDBACK,
-                icon = Icons.Default.Feedback,
-                iconTint = if (isDark) Color(0xFF7DD3FC) else Color(0xFF0284C7),
-                iconBg = if (isDark) Color(0xFF082F49) else Color(0xFFE0F2FE),
-                iconBorder = if (isDark) Color(0xFF0369A1) else Color(0xFFBAE6FD),
-                onClick = { launchWhatsApp(context, FeedbackType.SHARE_FEEDBACK.prefilledMessage) }
-            )
-
-            FeedbackActionRow(
                 actionType = FeedbackType.REQUEST_FEATURE,
                 icon = Icons.Default.Lightbulb,
                 iconTint = if (isDark) Color(0xFFFCD34D) else Color(0xFFD97706),
@@ -873,45 +935,6 @@ fun FeedbackAndFeatureRequestsSection(
                 iconBg = if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2),
                 iconBorder = if (isDark) Color(0xFF991B1B) else Color(0xFFFECACA),
                 onClick = { launchWhatsApp(context, FeedbackType.REPORT_BUG.prefilledMessage) }
-            )
-
-            FeedbackActionRow(
-                actionType = FeedbackType.CONTACT_DEVELOPER,
-                icon = Icons.Default.SupportAgent,
-                iconTint = if (isDark) Color(0xFF86EFAC) else Color(0xFF25D366),
-                iconBg = if (isDark) Color(0xFF052E16) else Color(0xFFDCFCE7),
-                iconBorder = if (isDark) Color(0xFF166534) else Color(0xFFBBF7D0),
-                onClick = { launchWhatsApp(context, FeedbackType.CONTACT_DEVELOPER.prefilledMessage) }
-            )
-        }
-
-        // WhatsApp Direct Badge Footer
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (isDark) Color(0xFF1A100B) else Color(0xFFF8F4EC))
-                .border(
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-                    RoundedCornerShape(12.dp)
-                )
-                .padding(horizontal = 12.dp, vertical = 9.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "💬 WhatsApp: +91 6002630803",
-                fontFamily = DmSansFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 11.5.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "Direct Developer Chat",
-                fontFamily = DmSansFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -993,3 +1016,173 @@ fun FeedbackActionRow(
         )
     }
 }
+
+/**
+ * Dedicated, beautifully styled Excel Export action card allowing users to share or save
+ * the authentic weekly XLSX report.
+ */
+@Composable
+fun WeeklyExcelExportCard(
+    uiState: WeeklyMatrixUiState,
+    onShareReport: () -> Unit,
+    onSaveReport: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+    val cardBg = if (isDark) MaterialTheme.colorScheme.surface else Color(0xFFFDFBF7)
+    val borderColor = if (isDark) MaterialTheme.colorScheme.outline else Color(0xFFEFE4D1)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(BannerShape)
+            .background(cardBg)
+            .border(BorderStroke(1.dp, borderColor), BannerShape)
+            .padding(16.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Header Row: Icon + Title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isDark) Color(0xFF143823) else Color(0xFFE6F4EA))
+                        .border(
+                            BorderStroke(1.dp, if (isDark) Color(0xFF1E5B37) else Color(0xFFCEEAD6)),
+                            RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.TableChart,
+                        contentDescription = "Excel Export",
+                        tint = if (isDark) Color(0xFF81C995) else Color(0xFF137333),
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Export Weekly Excel (.xlsx)",
+                        fontFamily = NewsreaderFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Generates formatted spreadsheet based on the ISKCON Sadhana template.",
+                        fontFamily = DmSansFontFamily,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 16.sp
+                    )
+                }
+            }
+
+            // Info details: Sadhaka, Counselor, Week
+            val sadhakaDisplay = uiState.sadhakaName.ifBlank { "Sadhaka" }
+            val counselorDisplay = uiState.counselorName.ifBlank { "Counselor" }
+            val weekRange = DateUtils.formatWeekRange(uiState.startOfWeek)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (isDark) Color(0xFF1F140E) else Color(0xFFF7F2E9))
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "👤 $sadhakaDisplay • 🙏 $counselorDisplay",
+                    fontFamily = DmSansFontFamily,
+                    fontSize = 11.5.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+                Text(
+                    text = "📅 $weekRange",
+                    fontFamily = DmSansFontFamily,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
+                )
+            }
+
+            // Buttons: Share Sheet & Save as File
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = onShareReport,
+                    enabled = !uiState.isExporting,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isDark) Color(0xFF2E6340) else Color(0xFF137333),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (uiState.isExporting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Exporting...",
+                            fontFamily = DmSansFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.5.sp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Share Report",
+                            fontFamily = DmSansFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.5.sp
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = onSaveReport,
+                    enabled = !uiState.isExporting,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color(0xFFEFE8DB),
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FileDownload,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Save File",
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.5.sp
+                    )
+                }
+            }
+        }
+    }
+}
+

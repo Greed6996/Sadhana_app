@@ -17,6 +17,17 @@
 
 <br />
 
+<p align="center">
+  <a href="https://github.com/Greed6996/Sadhana_app_design/releases/latest/download/Sadhana-Card.apk">
+    <img src="https://img.shields.io/badge/📲%20Download%20Latest%20APK-Direct%20Download-brightgreen?style=for-the-badge&logo=android&logoColor=white" alt="Download Latest APK" height="44" />
+  </a>
+  <a href="https://github.com/Greed6996/Sadhana_app_design/releases/latest">
+    <img src="https://img.shields.io/badge/🏷️%20Latest%20Release-View%20Releases-blue?style=for-the-badge&logo=github&logoColor=white" alt="View Releases" height="44" />
+  </a>
+</p>
+
+> 📲 **Mobile Users:** Can't see the "Releases" tab on your phone? Tap **[📥 Download Sadhana-Card.apk Directly](https://github.com/Greed6996/Sadhana_app_design/releases/latest/download/Sadhana-Card.apk)** to get the latest app installer with one tap!
+
 *A calm, modern, and disciplined digital companion designed to replace traditional paper cards with effortless daily devotional logging.*
 
 ---
@@ -79,8 +90,9 @@ Every day is scored up to **20 points**, following the standard devotional scori
 
 Installing the app onto your Android phone takes less than a minute. Follow these simple steps:
 
-### 🔹 Step 1: Open the Repository & Click on "Releases"
-On the right-hand sidebar of this repository page, locate the **Releases** section and click on the latest release tag (e.g., **Sadhana App v1.0.0**):
+### 🔹 Step 1: Tap the Download Link (or Open "Releases")
+- **On Mobile Phones:** Simply tap the **[📲 Download Sadhana-Card.apk](https://github.com/Greed6996/Sadhana_app_design/releases/latest/download/Sadhana-Card.apk)** button at the top of this page to download immediately!
+- **On Desktop Computers:** On the right-hand sidebar of this repository page, locate the **Releases** section (or click **[Latest Release](https://github.com/Greed6996/Sadhana_app_design/releases/latest)**):
 
 <p align="center">
   <img src="docs/images/step-1-click-release.png" alt="Step 1: Click on Releases in the right sidebar" width="88%" />
