@@ -77,16 +77,30 @@ Every day is scored up to **20 points**, following the standard devotional scori
 
 ## 📱 How to Download & Install (For Non-Developers)
 
-Installing the app onto your Android phone is simple:
+Installing the app onto your Android phone takes less than a minute. Follow these simple steps:
 
-1. **Download the App:**
-   - Look at the right sidebar of this GitHub page and click on **Releases** (or check **Actions → Latest Build Artifacts**).
-   - Download the file named **`app-debug.apk`** or **`Sadhana-Card.apk`** to your phone.
-2. **Install on Your Phone:**
-   - Open your phone's **Downloads** folder and tap the downloaded `.apk` file.
-   - If prompted with *"For your security, your phone is not allowed to install unknown apps from this source"*, tap **Settings** and turn on **Allow from this source**.
-3. **Open & Begin:**
-   - Tap **Install**. Once finished, open **Sadhana Card** from your home screen or app drawer and start your daily practice!
+### 🔹 Step 1: Open the Repository & Click on "Releases"
+On the right-hand sidebar of this repository page, locate the **Releases** section and click on the latest release tag (e.g., **Sadhana App v1.0.0**):
+
+<p align="center">
+  <img src="docs/images/step-1-click-release.png" alt="Step 1: Click on Releases in the right sidebar" width="88%" />
+</p>
+
+---
+
+### 🔹 Step 2: Check the Version & Download `Sadhana-Card.apk`
+On the release page, verify the version details, scroll down to the **Assets** list, and tap on **`Sadhana-Card.apk`** to download it directly to your phone:
+
+<p align="center">
+  <img src="docs/images/step-2-download-apk.png" alt="Step 2: Tap on Sadhana-Card.apk under Assets to download" width="88%" />
+</p>
+
+---
+
+### 🔹 Step 3: Install & Open on Your Phone
+1. Open your phone's **Downloads** folder (or tap the completed download notification) and select **`Sadhana-Card.apk`**.
+2. If Android displays *"For your security, your phone is not allowed to install unknown apps from this source"*, tap **Settings** and toggle on **Allow from this source**.
+3. Tap **Install**, then launch **Sadhana Card** from your home screen or app drawer to begin your daily devotional journal!
 
 ---
 
