@@ -1,5 +1,10 @@
 package com.sadhana.card.ui.weekly
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,18 +24,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -124,7 +145,7 @@ fun WeeklyMatrixContent(
                         text = "WEEKLY SADHANA",
                         fontFamily = DmSansFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         letterSpacing = 1.sp,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -132,8 +153,8 @@ fun WeeklyMatrixContent(
                         text = weekTitle,
                         fontFamily = NewsreaderFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 24.sp,
-                        lineHeight = 28.sp,
+                        fontSize = 22.sp,
+                        lineHeight = 26.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -176,9 +197,14 @@ fun WeeklyMatrixContent(
             WeeklyScoreKeyLegend()
         }
 
+        // 5. Feedback & Feature Requests Section
+        item {
+            FeedbackAndFeatureRequestsSection()
+        }
+
         // Bottom navigation spacing
         item {
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(72.dp))
         }
     }
 }
@@ -687,6 +713,283 @@ fun LegendChip(
             fontWeight = FontWeight.Bold,
             fontSize = 11.sp,
             color = textColor
+        )
+    }
+}
+
+// Developer WhatsApp phone number constant (international format without +)
+private const val DEVELOPER_WHATSAPP_NUMBER = "916002630803"
+
+/**
+ * Types of feedback and feature requests sent via WhatsApp click-to-chat.
+ */
+enum class FeedbackType(
+    val title: String,
+    val description: String,
+    val prefilledMessage: String
+) {
+    SHARE_FEEDBACK(
+        title = "Share Feedback",
+        description = "Tell us what you like or what we can improve.",
+        prefilledMessage = "Hello Developer! 👋\n\nI would like to share some feedback about your app.\n\nMy feedback:\n"
+    ),
+    REQUEST_FEATURE(
+        title = "Request a Feature",
+        description = "Have an idea for a new feature? Let us know.",
+        prefilledMessage = "Hello Developer! 👋\n\nI have a suggestion for a new feature."
+    ),
+    REPORT_BUG(
+        title = "Report a Bug",
+        description = "Found a problem? Help us identify and fix it.",
+        prefilledMessage = "Hello Developer! 👋\n\nI found a bug in the app."
+    ),
+    CONTACT_DEVELOPER(
+        title = "Contact Developer",
+        description = "Questions or need help? Chat with the developer on WhatsApp.",
+        prefilledMessage = "Hello Developer! 👋\n\nI am using your app and would like to get in touch."
+    )
+}
+
+/**
+ * Safe helper to construct a WhatsApp click-to-chat URL and launch it via Intent.ACTION_VIEW.
+ * Gracefully falls back to browser or shows an error Toast if neither is available.
+ */
+fun launchWhatsApp(context: Context, message: String) {
+    try {
+        val encodedMessage = Uri.encode(message)
+        val url = "https://wa.me/$DEVELOPER_WHATSAPP_NUMBER?text=$encodedMessage"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(
+            context,
+            "Could not open WhatsApp or browser. Please install WhatsApp or a web browser.",
+            Toast.LENGTH_LONG
+        ).show()
+    } catch (e: Exception) {
+        Toast.makeText(
+            context,
+            "Unable to open link: ${e.localizedMessage ?: "Unknown error"}",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+}
+
+/**
+ * Polished "Feedback & Feature Requests" section on the Weekly page.
+ */
+@Composable
+fun FeedbackAndFeatureRequestsSection(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        // Section Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (isDark) Color(0xFF14281A) else Color(0xFFE8F8EE))
+                    .border(
+                        BorderStroke(1.dp, if (isDark) Color(0xFF1E462B) else Color(0xFFC1EACD)),
+                        RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    tint = Color(0xFF25D366),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "Feedback & Feature Requests",
+                    fontFamily = NewsreaderFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 19.sp,
+                    lineHeight = 23.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Help us improve the app. Your suggestions and feedback matter.",
+                    fontFamily = DmSansFontFamily,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        // Action Rows
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FeedbackActionRow(
+                actionType = FeedbackType.SHARE_FEEDBACK,
+                icon = Icons.Default.Feedback,
+                iconTint = if (isDark) Color(0xFF7DD3FC) else Color(0xFF0284C7),
+                iconBg = if (isDark) Color(0xFF082F49) else Color(0xFFE0F2FE),
+                iconBorder = if (isDark) Color(0xFF0369A1) else Color(0xFFBAE6FD),
+                onClick = { launchWhatsApp(context, FeedbackType.SHARE_FEEDBACK.prefilledMessage) }
+            )
+
+            FeedbackActionRow(
+                actionType = FeedbackType.REQUEST_FEATURE,
+                icon = Icons.Default.Lightbulb,
+                iconTint = if (isDark) Color(0xFFFCD34D) else Color(0xFFD97706),
+                iconBg = if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7),
+                iconBorder = if (isDark) Color(0xFF92400E) else Color(0xFFFDE68A),
+                onClick = { launchWhatsApp(context, FeedbackType.REQUEST_FEATURE.prefilledMessage) }
+            )
+
+            FeedbackActionRow(
+                actionType = FeedbackType.REPORT_BUG,
+                icon = Icons.Default.BugReport,
+                iconTint = if (isDark) Color(0xFFFCA5A5) else Color(0xFFDC2626),
+                iconBg = if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2),
+                iconBorder = if (isDark) Color(0xFF991B1B) else Color(0xFFFECACA),
+                onClick = { launchWhatsApp(context, FeedbackType.REPORT_BUG.prefilledMessage) }
+            )
+
+            FeedbackActionRow(
+                actionType = FeedbackType.CONTACT_DEVELOPER,
+                icon = Icons.Default.SupportAgent,
+                iconTint = if (isDark) Color(0xFF86EFAC) else Color(0xFF25D366),
+                iconBg = if (isDark) Color(0xFF052E16) else Color(0xFFDCFCE7),
+                iconBorder = if (isDark) Color(0xFF166534) else Color(0xFFBBF7D0),
+                onClick = { launchWhatsApp(context, FeedbackType.CONTACT_DEVELOPER.prefilledMessage) }
+            )
+        }
+
+        // WhatsApp Direct Badge Footer
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(if (isDark) Color(0xFF1A100B) else Color(0xFFF8F4EC))
+                .border(
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+                    RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 12.dp, vertical = 9.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "💬 WhatsApp: +91 6002630803",
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.5.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Direct Developer Chat",
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+fun FeedbackActionRow(
+    actionType: FeedbackType,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconTint: Color,
+    iconBg: Color,
+    iconBorder: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isDark = MaterialTheme.colorScheme.background == DarkBg
+    val rowBg = if (isDark) Color(0xFF1F140E) else Color(0xFFFDFBF7)
+    val rowBorder = if (isDark) Color(0xFF3F2B20) else Color(0xFFEFE4D1)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(rowBg)
+            .border(BorderStroke(1.dp, rowBorder), RoundedCornerShape(14.dp))
+            .clickable(
+                role = Role.Button,
+                onClick = onClick
+            )
+            .semantics {
+                contentDescription = "${actionType.title}: ${actionType.description}"
+            }
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(RoundedCornerShape(11.dp))
+                .background(iconBg)
+                .border(BorderStroke(1.dp, iconBorder), RoundedCornerShape(11.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(1.dp)
+        ) {
+            Text(
+                text = actionType.title,
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.5.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = actionType.description,
+                fontFamily = DmSansFontFamily,
+                fontSize = 11.5.sp,
+                lineHeight = 15.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.size(18.dp)
         )
     }
 }

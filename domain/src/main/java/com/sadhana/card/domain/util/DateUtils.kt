@@ -78,6 +78,13 @@ object DateUtils {
     }
 
     /**
+     * Formats full day name: "Sunday", "Monday", etc.
+     */
+    fun formatDayFullName(date: LocalDate): String {
+        return date.format(DateTimeFormatter.ofPattern("EEEE", Locale.ENGLISH))
+    }
+
+    /**
      * Formats day of month: "1", "11", etc.
      */
     fun formatDayNumber(date: LocalDate): String {

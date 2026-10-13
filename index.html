@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sadhana Card — Interactive App</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -875,13 +876,330 @@
         .phone-frame.dark .terms-body-text h2 {
             color: #FBF1DF;
         }
+
+        /* --- App Logo & Branding --- */
+        .outer-brand-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+        .outer-logo-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            border: 2px solid #F4B26B;
+            background: #231610;
+        }
+        .app-logo-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(94, 33, 18, 0.2);
+            border: 1.5px solid #E8DCC6;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .app-logo-img:hover {
+            transform: scale(1.05);
+        }
+        .phone-frame.dark .app-logo-img {
+            border-color: #5E3928;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+        .app-logo-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(94, 33, 18, 0.18);
+            border: 1px solid #E8DCC6;
+            flex-shrink: 0;
+        }
+        .phone-frame.dark .app-logo-small {
+            border-color: #5E3928;
+        }
+        .settings-branding-card {
+            background: linear-gradient(135deg, #FFF9F2 0%, #FFFFFF 100%);
+            border: 1px solid #E8DCC6;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(94,33,18,0.06);
+        }
+        .phone-frame.dark .settings-branding-card {
+            background: linear-gradient(135deg, #2D1E16 0%, #231610 100%);
+            border-color: #4A3428;
+            box-shadow: none;
+        }
+        .settings-app-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 6px 16px rgba(94, 33, 18, 0.22);
+            border: 2px solid #E8DCC6;
+            flex-shrink: 0;
+        }
+        .phone-frame.dark .settings-app-logo {
+            border-color: #F4B26B;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        .settings-app-name {
+            font-family: 'Newsreader', serif;
+            font-size: 21px;
+            font-weight: 600;
+            color: #2B1A12;
+            line-height: 1.1;
+        }
+        .phone-frame.dark .settings-app-name { color: #FBF1DF; }
+        .settings-app-tagline {
+            font-size: 12px;
+            color: #A84F0A;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .phone-frame.dark .settings-app-tagline { color: #F4B26B; }
+        .settings-sangha {
+            font-size: 11px;
+            color: #6B5A4C;
+            margin-top: 3px;
+        }
+        .phone-frame.dark .settings-sangha { color: #CDBBA8; }
+
+        /* --- Feedback & Feature Requests Section --- */
+        .feedback-section-card {
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(94,33,18,0.04);
+            margin-top: 4px;
+            margin-bottom: 24px;
+        }
+        .phone-frame.dark .feedback-section-card {
+            background: #2A1C14;
+            border-color: #4A3428;
+            box-shadow: none;
+        }
+        .feedback-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .feedback-header-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #E8F8EE;
+            border: 1px solid #C1EACD;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #25D366;
+        }
+        .phone-frame.dark .feedback-header-icon-box {
+            background: #14281A;
+            border-color: #1E462B;
+        }
+        .feedback-header-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .feedback-section-title {
+            font-family: 'Newsreader', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2B1A12;
+            line-height: 1.2;
+        }
+        .phone-frame.dark .feedback-section-title { color: #FBF1DF; }
+        .feedback-section-sub {
+            font-size: 12px;
+            color: #6B5A4C;
+            line-height: 1.35;
+        }
+        .phone-frame.dark .feedback-section-sub { color: #CDBBA8; }
+
+        .feedback-actions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .feedback-action-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: #FDFBF7;
+            border: 1px solid #EFE4D1;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: left;
+            width: 100%;
+        }
+        .feedback-action-row:hover {
+            background: #F9F0E1;
+            border-color: #E2CEB1;
+            transform: translateY(-1px);
+        }
+        .phone-frame.dark .feedback-action-row {
+            background: #1F140E;
+            border-color: #3F2B20;
+        }
+        .phone-frame.dark .feedback-action-row:hover {
+            background: #2D1D15;
+            border-color: #5E3928;
+        }
+        .feedback-action-icon-tile {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #F4EDE0;
+            color: #5E2112;
+            border: 1px solid #E8DCC6;
+        }
+        .phone-frame.dark .feedback-action-icon-tile {
+            background: #2D1D15;
+            border-color: #4A3428;
+            color: #F4B26B;
+        }
+        .feedback-action-icon-tile.share-feedback {
+            color: #0284C7;
+            background: #E0F2FE;
+            border-color: #BAE6FD;
+        }
+        .phone-frame.dark .feedback-action-icon-tile.share-feedback {
+            background: #082F49;
+            border-color: #0369A1;
+            color: #7DD3FC;
+        }
+        .feedback-action-icon-tile.feature-req {
+            color: #D97706;
+            background: #FEF3C7;
+            border-color: #FDE68A;
+        }
+        .phone-frame.dark .feedback-action-icon-tile.feature-req {
+            background: #451A03;
+            border-color: #92400E;
+            color: #FCD34D;
+        }
+        .feedback-action-icon-tile.bug-report {
+            color: #DC2626;
+            background: #FEE2E2;
+            border-color: #FECACA;
+        }
+        .phone-frame.dark .feedback-action-icon-tile.bug-report {
+            background: #450A0A;
+            border-color: #991B1B;
+            color: #FCA5A5;
+        }
+        .feedback-action-icon-tile.contact-dev {
+            color: #25D366;
+            background: #DCFCE7;
+            border-color: #BBF7D0;
+        }
+        .phone-frame.dark .feedback-action-icon-tile.contact-dev {
+            background: #052E16;
+            border-color: #166534;
+            color: #86EFAC;
+        }
+        .feedback-action-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+        }
+        .feedback-action-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #2B1A12;
+        }
+        .phone-frame.dark .feedback-action-title { color: #FBF1DF; }
+        .feedback-action-desc {
+            font-size: 11.5px;
+            color: #6B5A4C;
+            line-height: 1.3;
+        }
+        .phone-frame.dark .feedback-action-desc { color: #CDBBA8; }
+        .feedback-action-chevron {
+            color: #A89F91;
+            flex-shrink: 0;
+        }
+        .phone-frame.dark .feedback-action-chevron { color: #6E5B4D; }
+
+        .dev-badge-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F8F4EC;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #6B5A4C;
+        }
+        .phone-frame.dark .dev-badge-footer {
+            background: #1A100B;
+            color: #A89888;
+        }
+
+        /* Toast notification */
+        .app-toast {
+            position: absolute;
+            bottom: 74px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(35, 22, 16, 0.95);
+            color: #FBF1DF;
+            border: 1px solid #F4B26B;
+            padding: 10px 16px;
+            border-radius: 99px;
+            font-size: 12.5px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        .app-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
 
     <div class="outer-header">
-        <h1>Sadhana Card</h1>
-        <p>Interactive Prototype · All Times, Steppers & Scoring Live</p>
+        <div class="outer-brand-row">
+            <img src="logo.png" alt="Sadhana Card Logo" class="outer-logo-img">
+            <div style="text-align:left">
+                <h1 style="margin:0;line-height:1.05">Sadhana Card</h1>
+                <p style="margin:3px 0 0 0">Interactive APK Design & Prototype · Daily & Weekly Journal</p>
+            </div>
+        </div>
         <div class="control-bar">
             <button class="control-pill" onclick="toggleDarkMode()">🌓 Toggle Theme (Dark / Light)</button>
             <button class="control-pill" onclick="openSettings()">⚙️ Settings</button>
@@ -895,9 +1213,12 @@
         <div id="screen-daily" class="screen-container">
             <!-- Header -->
             <div class="header-row">
-                <div>
-                    <div class="week-label" id="daily-week-label">WEEK · 11 – 17 OCT 2026</div>
-                    <h1 class="screen-title">Sadhana Card</h1>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <img src="logo.png" alt="App Logo" class="app-logo-img">
+                    <div>
+                        <div class="week-label" id="daily-week-label">WEEK · 11 – 17 OCT 2026</div>
+                        <h1 class="screen-title">Sadhana Card</h1>
+                    </div>
                 </div>
                 <div style="display:flex;gap:8px">
                     <button type="button" class="icon-btn" onclick="openSettings()" aria-label="Settings" title="Settings">
@@ -1111,9 +1432,12 @@
                 <button type="button" class="icon-btn" onclick="changeWeek(-1)" aria-label="Previous week">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>
                 </button>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-                    <div class="week-label">WEEKLY SADHANA</div>
-                    <h1 style="margin:0;font-family:'Newsreader',serif;font-size:24px;font-weight:600;line-height:1.15;color:#2B1A12" id="weekly-header-range">11 – 17 Oct 2026</h1>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <img src="logo.png" alt="App Logo" class="app-logo-small">
+                    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:1px">
+                        <div class="week-label">WEEKLY SADHANA</div>
+                        <h1 style="margin:0;font-family:'Newsreader',serif;font-size:22px;font-weight:600;line-height:1.15;color:#2B1A12" id="weekly-header-range">11 – 17 Oct 2026</h1>
+                    </div>
                 </div>
                 <button type="button" class="icon-btn" onclick="changeWeek(1)" aria-label="Next week">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5E2112" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
@@ -1172,6 +1496,102 @@
                 <span style="width:26px;height:22px;border-radius:6px;background:#5E2112;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700">5</span>
                 <span>· tap column to edit day</span>
             </div>
+
+            <!-- Feedback & Feature Requests Section -->
+            <div class="feedback-section-card">
+                <div class="feedback-card-header">
+                    <div class="feedback-header-icon-box">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="feedback-header-text">
+                        <div class="feedback-section-title">Feedback & Feature Requests</div>
+                        <div class="feedback-section-sub">Help us improve the app. Your suggestions and feedback matter.</div>
+                    </div>
+                </div>
+
+                <div class="feedback-actions-list">
+                    <!-- Share Feedback -->
+                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('feedback')" aria-label="Share Feedback">
+                        <div class="feedback-action-icon-tile share-feedback">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="feedback-action-content">
+                            <div class="feedback-action-title">Share Feedback</div>
+                            <div class="feedback-action-desc">Tell us what you like or what we can improve.</div>
+                        </div>
+                        <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <!-- Request a Feature -->
+                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('feature')" aria-label="Request a Feature">
+                        <div class="feedback-action-icon-tile feature-req">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="9" y1="18" x2="15" y2="18"></line>
+                                <line x1="10" y1="22" x2="14" y2="22"></line>
+                                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                            </svg>
+                        </div>
+                        <div class="feedback-action-content">
+                            <div class="feedback-action-title">Request a Feature</div>
+                            <div class="feedback-action-desc">Have an idea for a new feature? Let us know.</div>
+                        </div>
+                        <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <!-- Report a Bug -->
+                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('bug')" aria-label="Report a Bug">
+                        <div class="feedback-action-icon-tile bug-report">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="8" y="9" width="8" height="10" rx="4"></rect>
+                                <path d="m19 7-3 2"></path>
+                                <path d="m5 7 3 2"></path>
+                                <path d="m19 19-3-2"></path>
+                                <path d="m5 19 3-2"></path>
+                                <path d="M20 13h-4"></path>
+                                <path d="M4 13h4"></path>
+                                <path d="m10 4 1 2"></path>
+                                <path d="m14 4-1 2"></path>
+                            </svg>
+                        </div>
+                        <div class="feedback-action-content">
+                            <div class="feedback-action-title">Report a Bug</div>
+                            <div class="feedback-action-desc">Found a problem? Help us identify and fix it.</div>
+                        </div>
+                        <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <!-- Contact Developer -->
+                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('contact')" aria-label="Contact Developer">
+                        <div class="feedback-action-icon-tile contact-dev">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                        </div>
+                        <div class="feedback-action-content">
+                            <div class="feedback-action-title">Contact Developer</div>
+                            <div class="feedback-action-desc">Questions or need help? Chat with the developer on WhatsApp.</div>
+                        </div>
+                        <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="dev-badge-footer">
+                    <span>💬 WhatsApp Chat: +91 6002630803</span>
+                    <span>Direct Developer Support</span>
+                </div>
+            </div>
         </div>
 
         <!-- Settings Screen (No bottom nav tab; accessed strictly from Daily Header Gear) -->
@@ -1181,6 +1601,16 @@
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"></path></svg>
                 </button>
                 <h1 class="screen-title" style="font-size:26px">Settings</h1>
+            </div>
+
+            <!-- App Branding & Identity Card -->
+            <div class="settings-branding-card">
+                <img src="logo.png" alt="Sadhana Card Logo" class="settings-app-logo">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                    <div class="settings-app-name">Sadhana Card</div>
+                    <div class="settings-app-tagline">Personal Devotional Journal</div>
+                    <div class="settings-sangha">ISKCON Bongaigaon Namhatta Sangha</div>
+                </div>
             </div>
 
             <!-- Theme Mode Card -->
@@ -1238,8 +1668,11 @@
         <!-- Terms Consent Modal / Onboarding Screen -->
         <div class="modal-backdrop" id="terms-consent-modal">
             <div class="modal-content" style="max-width:340px">
-                <div class="modal-title" style="font-size:20px">Devotional Consent</div>
-                <div style="font-size:12.5px;color:#6B5A4C;line-height:1.45" id="consent-modal-desc">
+                <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px">
+                    <img src="logo.png" alt="Sadhana Card Logo" style="width:58px;height:58px;border-radius:16px;box-shadow:0 6px 16px rgba(94,33,18,0.25);border:2px solid #F4B26B">
+                    <div class="modal-title" style="font-size:20px;margin-top:4px">Devotional Consent</div>
+                </div>
+                <div style="font-size:12.5px;color:#6B5A4C;line-height:1.45;text-align:center" id="consent-modal-desc">
                     Welcome to Sadhana Card. Please review and accept our Terms of Use and Privacy Policy to begin your spiritual journaling.
                 </div>
                 <div style="display:flex;flex-direction:column;gap:10px;margin:6px 0">
@@ -1290,6 +1723,12 @@
                     <button type="button" class="modal-btn save" onclick="savePickedTime()">Done</button>
                 </div>
             </div>
+        </div>
+
+        <!-- App Toast Notification -->
+        <div class="app-toast" id="app-toast">
+            <span id="toast-icon">✨</span>
+            <span id="toast-text">Weekly report copied!</span>
         </div>
     </div>
 
@@ -1679,6 +2118,320 @@
             document.getElementById('weekly-pathan-hrs').textContent = `${Math.floor(sumPathan / 60)}h ${sumPathan % 60}m`;
             document.getElementById('weekly-sravan-hrs').textContent = `${Math.floor(sumSravan / 60)}h ${sumSravan % 60}m`;
             document.getElementById('weekly-both-hrs').textContent = `${Math.floor(sumBoth / 60)}h ${sumBoth % 60}m`;
+
+            // Weekly Highlights Computation (if present)
+            let bestIdx = 0;
+            let bestScore = -1;
+            dailyTotals.forEach((tot, idx) => {
+                if (tot !== null && tot > bestScore) {
+                    bestScore = tot;
+                    bestIdx = idx;
+                }
+            });
+            const hlBestDay = document.getElementById('highlight-best-day');
+            if (hlBestDay) hlBestDay.textContent = fullDayNames[bestIdx];
+            const hlBestScore = document.getElementById('highlight-best-score');
+            if (hlBestScore) hlBestScore.textContent = bestScore >= 0 ? `${bestScore} / 20 pts` : '—';
+
+            // Average wake-up calculation
+            const wakeMins = weekEntries.map(e => {
+                if (!e.wakeTime) return null;
+                const [h, m, ampm] = parseTime(e.wakeTime);
+                return toMinuteOfDay(h, m, ampm);
+            }).filter(m => m !== null);
+
+            const hlAvgWake = document.getElementById('highlight-avg-wake');
+            if (hlAvgWake) {
+                if (wakeMins.length > 0) {
+                    const avgMin = Math.round(wakeMins.reduce((a, b) => a + b, 0) / wakeMins.length);
+                    let avgH = Math.floor(avgMin / 60);
+                    const avgM = avgMin % 60;
+                    const ampm = avgH >= 12 ? 'PM' : 'AM';
+                    if (avgH > 12) avgH -= 12;
+                    if (avgH === 0) avgH = 12;
+                    hlAvgWake.textContent = `${avgH}:${avgM < 10 ? '0' + avgM : avgM} ${ampm}`;
+                } else {
+                    hlAvgWake.textContent = '—';
+                }
+            }
+
+            // Total study and practical service combined
+            const sumSeva = weekEntries.reduce((a, b) => a + (b.sevaMinutes || 0), 0);
+            const totalDevotionalMins = sumBoth + sumSeva;
+            const hlStudySeva = document.getElementById('highlight-study-seva');
+            if (hlStudySeva) hlStudySeva.textContent = `${Math.floor(totalDevotionalMins / 60)}h ${totalDevotionalMins % 60}m`;
+
+            // Load feedback and counselor details if elements exist
+            loadWeeklyFeedback();
+        }
+
+        // --- WhatsApp Direct Feedback & Feature Request System ---
+        const DEVELOPER_WHATSAPP_NUMBER = '916002630803';
+
+        function openWhatsAppFeedback(type) {
+            let message = '';
+            if (type === 'feedback') {
+                message = 'Hello Developer! 👋\n\nI would like to share some feedback about your app.\n\nMy feedback:\n';
+            } else if (type === 'feature') {
+                message = 'Hello Developer! 👋\n\nI have a suggestion for a new feature.';
+            } else if (type === 'bug') {
+                message = 'Hello Developer! 👋\n\nI found a bug in the app.';
+            } else if (type === 'contact') {
+                message = 'Hello Developer! 👋\n\nI am using your app and would like to get in touch.';
+            }
+
+            const url = 'https://wa.me/' + DEVELOPER_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message);
+            window.open(url, '_blank');
+        }
+
+        // --- Weekly Feedback & Reflection System ---
+        let currentFeedback = {
+            status: 'reviewed',
+            counselorNotes: 'Very steady wake-up routine and japa this week. Please maintain reading 30+ mins of Srimad Bhagavatam daily.',
+            isStamped: true,
+            chantingRating: 4,
+            energyLevel: 'high',
+            sadhakaNotes: 'Felt deep peace during Tuesday mangala arati and chanting. Reading BG Chapter 9 gave many answers.',
+            sankalpa: 'Wake up before 3:15 AM every day and chant 16 rounds before 7:30 AM.'
+        };
+
+        function getFeedbackStorageKey() {
+            return `sadhana_feedback_week_${currentWeekOffset}`;
+        }
+
+        function loadWeeklyFeedback() {
+            const key = getFeedbackStorageKey();
+            const stored = localStorage.getItem(key);
+            if (stored) {
+                try {
+                    currentFeedback = JSON.parse(stored);
+                } catch(e) {}
+            } else if (currentWeekOffset === 0) {
+                // Use default devotional feedback for current week
+            } else {
+                currentFeedback = {
+                    status: 'pending',
+                    counselorNotes: '',
+                    isStamped: false,
+                    chantingRating: 0,
+                    energyLevel: 'steady',
+                    sadhakaNotes: '',
+                    sankalpa: ''
+                };
+            }
+
+            renderFeedbackUI();
+        }
+
+        function renderFeedbackUI() {
+            // Status pills
+            document.querySelectorAll('.status-pill').forEach(btn => btn.classList.remove('active'));
+            const statusBtn = document.getElementById(`status-${currentFeedback.status || 'reviewed'}`);
+            if (statusBtn) statusBtn.classList.add('active');
+
+            // Notes
+            const counselorInput = document.getElementById('counselor-notes-input');
+            const sadhakaInput = document.getElementById('sadhaka-notes-input');
+            const sankalpaInput = document.getElementById('sadhaka-sankalpa-input');
+            if (counselorInput) counselorInput.value = currentFeedback.counselorNotes || '';
+            if (sadhakaInput) sadhakaInput.value = currentFeedback.sadhakaNotes || '';
+            if (sankalpaInput) sankalpaInput.value = currentFeedback.sankalpa || '';
+
+            // Stars
+            renderChantingStars(currentFeedback.chantingRating || 4);
+
+            // Energy buttons
+            document.querySelectorAll('.energy-buttons .energy-btn').forEach(btn => btn.classList.remove('active'));
+            const energyBtn = document.getElementById(`energy-${currentFeedback.energyLevel || 'high'}`);
+            if (energyBtn) energyBtn.classList.add('active');
+
+            // Stamp UI
+            renderStampUI();
+        }
+
+        function renderStampUI() {
+            const counselorName = document.getElementById('counselor').value || 'HG Madhava Das';
+            const stampToggleBtn = document.getElementById('stamp-toggle-btn');
+            const stampDateText = document.getElementById('stamp-date-text');
+            const stampLabel = document.getElementById('stamp-counselor-label');
+
+            if (stampLabel) stampLabel.textContent = `Verified by ${counselorName}`;
+
+            if (stampToggleBtn && stampDateText) {
+                if (currentFeedback.isStamped) {
+                    stampToggleBtn.textContent = 'Blessed ✓';
+                    stampToggleBtn.style.background = '#2E6B34';
+                    stampDateText.textContent = `Status: Approved · Haribol! Radhe Radhe`;
+                } else {
+                    stampToggleBtn.textContent = 'Sign & Bless';
+                    stampToggleBtn.style.background = '#5E2112';
+                    stampDateText.textContent = `Awaiting counselor digital sign-off`;
+                }
+            }
+        }
+
+        function setCounselorStatus(status) {
+            currentFeedback.status = status;
+            document.querySelectorAll('.status-pill').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`status-${status}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            autoSaveFeedback();
+        }
+
+        function appendGuidance(text) {
+            const textarea = document.getElementById('counselor-notes-input');
+            if (!textarea) return;
+            if (textarea.value.trim().length > 0) {
+                textarea.value = textarea.value.trim() + '\n' + text;
+            } else {
+                textarea.value = text;
+            }
+            currentFeedback.counselorNotes = textarea.value;
+            autoSaveFeedback();
+            showToast('Guidance note added ✨');
+        }
+
+        function toggleCounselorStamp() {
+            currentFeedback.isStamped = !currentFeedback.isStamped;
+            renderStampUI();
+            autoSaveFeedback();
+            if (currentFeedback.isStamped) {
+                showToast('Counselor blessing applied! ⚜️');
+            } else {
+                showToast('Counselor blessing removed');
+            }
+        }
+
+        function setChantingRating(stars) {
+            currentFeedback.chantingRating = stars;
+            renderChantingStars(stars);
+            autoSaveFeedback();
+        }
+
+        function renderChantingStars(count) {
+            const stars = document.querySelectorAll('#japa-stars-container .star-item');
+            stars.forEach((star, idx) => {
+                if (idx < count) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function setEnergyLevel(level) {
+            currentFeedback.energyLevel = level;
+            document.querySelectorAll('.energy-buttons .energy-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`energy-${level}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            autoSaveFeedback();
+        }
+
+        function autoSaveFeedback() {
+            const counselorInput = document.getElementById('counselor-notes-input');
+            const sadhakaInput = document.getElementById('sadhaka-notes-input');
+            const sankalpaInput = document.getElementById('sadhaka-sankalpa-input');
+            if (counselorInput) currentFeedback.counselorNotes = counselorInput.value;
+            if (sadhakaInput) currentFeedback.sadhakaNotes = sadhakaInput.value;
+            if (sankalpaInput) currentFeedback.sankalpa = sankalpaInput.value;
+            localStorage.setItem(getFeedbackStorageKey(), JSON.stringify(currentFeedback));
+        }
+
+        function saveWeeklyJournalExplicitly() {
+            autoSaveFeedback();
+            showToast('Weekly Sadhana Journal Saved & Locked 🔒');
+        }
+
+        function shareWeeklyReport() {
+            autoSaveFeedback();
+            const sadhaka = document.getElementById('sadhaka').value || 'Bhakta Rahul';
+            const counselor = document.getElementById('counselor').value || 'HG Madhava Das';
+            const weekRange = document.getElementById('weekly-header-range').textContent;
+            const weekScore = document.getElementById('weekly-total-score').textContent;
+            const pathan = document.getElementById('weekly-pathan-hrs').textContent;
+            const sravan = document.getElementById('weekly-sravan-hrs').textContent;
+            const both = document.getElementById('weekly-both-hrs').textContent;
+            const bestDay = document.getElementById('highlight-best-day').textContent;
+            const bestScore = document.getElementById('highlight-best-score').textContent;
+            const avgWake = document.getElementById('highlight-avg-wake').textContent;
+
+            const daysBreakdown = dayNames.map((d, i) => {
+                const s = [scoreBedtime(weekEntries[i].bedtime), scoreWakeUp(weekEntries[i].wakeTime), scoreDaySleep(weekEntries[i].napMinutes, weekEntries[i].trainJourney), scoreJapa(weekEntries[i].japaTime)].filter(x => x !== null);
+                const tot = s.length > 0 ? s.reduce((a, b) => a + b, 0) : '—';
+                return `${d}: ${tot}/20`;
+            }).join(' | ');
+
+            const text = 
+`🪷 *SADHANA CARD — WEEKLY REPORT* 🪷
+📅 *Week:* ${weekRange}
+👤 *Sadhaka:* ${sadhaka}
+🙏 *Counselor:* ${counselor}
+
+📊 *Total Score:* ${weekScore} / 140 pts (${Math.round((parseInt(weekScore,10)/140)*100)}%)
+🏆 *Best Day:* ${bestDay} (${bestScore})
+🌅 *Avg Wake-Up:* ${avgWake}
+📿 *Japa Attentiveness:* ${currentFeedback.chantingRating || 4}/5 Stars ⭐
+⚡ *Enthusiasm (Utsaha):* ${(currentFeedback.energyLevel || 'steady').toUpperCase()}
+
+Daily Scores:
+${daysBreakdown}
+
+📚 *Hearing & Study:*
+• Pathan (Reading): ${pathan}
+• Sravan (Lectures): ${sravan}
+• Total Read + Hear: ${both}
+
+💭 *Sadhaka Realizations:*
+"${currentFeedback.sadhakaNotes || 'Grateful for devotee association and consistent chanting.'}"
+
+🎯 *Next Week's Sankalpa:*
+"${currentFeedback.sankalpa || 'Maintain steady wake up and 16 rounds before morning program.'}"
+
+✍️ *Counselor Feedback:*
+"${currentFeedback.counselorNotes || 'Keep up the devotional dedication.'}"
+[Status: ${(currentFeedback.status || 'reviewed').toUpperCase()}${currentFeedback.isStamped ? ' · VERIFIED & BLESSED ⚜️' : ''}]
+
+— Hare Krishna! Sri Sri Radha Raman ji ki Jai!`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('📋 Weekly report copied for WhatsApp!');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('📋 Weekly report copied for WhatsApp!');
+            } catch(e) {
+                alert('Weekly Report summary:\n\n' + text);
+            }
+            document.body.removeChild(ta);
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('app-toast');
+            const toastText = document.getElementById('toast-text');
+            if (!toast) return;
+            toastText.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
         }
 
         // --- Navigation Tabs ---
@@ -1710,12 +2463,27 @@
             const str = `${startDay} – ${endDay} Oct 2026`;
             document.getElementById('weekly-header-range').textContent = str;
             document.getElementById('daily-week-label').textContent = `WEEK · ${startDay} – ${endDay} OCT 2026`;
+            updateWeeklyMatrix();
         }
 
         function saveNames() {
             // autosave to localStorage
-            localStorage.setItem('sadhaka', document.getElementById('sadhaka').value);
-            localStorage.setItem('counselor', document.getElementById('counselor').value);
+            const sadhaka = document.getElementById('sadhaka').value;
+            const counselor = document.getElementById('counselor').value;
+            localStorage.setItem('sadhaka', sadhaka);
+            localStorage.setItem('counselor', counselor);
+            const counselorNameEl = document.getElementById('feedback-counselor-name');
+            if (counselorNameEl) counselorNameEl.textContent = counselor || 'Counselor';
+            const stampLabelEl = document.getElementById('stamp-counselor-label');
+            if (stampLabelEl) stampLabelEl.textContent = `Verified by ${counselor || 'Counselor'}`;
+        }
+
+        function loadSavedNames() {
+            const savedSadhaka = localStorage.getItem('sadhaka');
+            const savedCounselor = localStorage.getItem('counselor');
+            if (savedSadhaka) document.getElementById('sadhaka').value = savedSadhaka;
+            if (savedCounselor) document.getElementById('counselor').value = savedCounselor;
+            saveNames();
         }
 
         // --- Settings & Themes ---
@@ -1804,6 +2572,7 @@
         }
 
         // Init
+        loadSavedNames();
         setTheme(currentThemeMode);
         renderDaySwitcher();
         renderCurrentDay();
