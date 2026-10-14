@@ -1121,6 +1121,16 @@
             border-color: #166534;
             color: #86EFAC;
         }
+        .feedback-action-icon-tile.feedback-req {
+            color: #2563EB;
+            background: #EFF6FF;
+            border-color: #BFDBFE;
+        }
+        .phone-frame.dark .feedback-action-icon-tile.feedback-req {
+            background: #172554;
+            border-color: #1E40AF;
+            color: #93C5FD;
+        }
         .feedback-action-content {
             flex: 1;
             display: flex;
@@ -1512,42 +1522,16 @@
                 </div>
 
                 <div class="feedback-actions-list">
-                    <!-- Request a Feature -->
-                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('feature')" aria-label="Request a Feature">
-                        <div class="feedback-action-icon-tile feature-req">
+                    <!-- Request a Feature or Report a Bug -->
+                    <button type="button" class="feedback-action-row" onclick="openFeedbackModal()" aria-label="Request a Feature or Report a Bug">
+                        <div class="feedback-action-icon-tile feedback-req">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="9" y1="18" x2="15" y2="18"></line>
-                                <line x1="10" y1="22" x2="14" y2="22"></line>
-                                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                             </svg>
                         </div>
                         <div class="feedback-action-content">
-                            <div class="feedback-action-title">Request a Feature</div>
-                            <div class="feedback-action-desc">Have an idea for a new feature? Let us know.</div>
-                        </div>
-                        <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </button>
-
-                    <!-- Report a Bug -->
-                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback('bug')" aria-label="Report a Bug">
-                        <div class="feedback-action-icon-tile bug-report">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="8" y="9" width="8" height="10" rx="4"></rect>
-                                <path d="m19 7-3 2"></path>
-                                <path d="m5 7 3 2"></path>
-                                <path d="m19 19-3-2"></path>
-                                <path d="m5 19 3-2"></path>
-                                <path d="M20 13h-4"></path>
-                                <path d="M4 13h4"></path>
-                                <path d="m10 4 1 2"></path>
-                                <path d="m14 4-1 2"></path>
-                            </svg>
-                        </div>
-                        <div class="feedback-action-content">
-                            <div class="feedback-action-title">Report a Bug</div>
-                            <div class="feedback-action-desc">Found a problem? Help us identify and fix it.</div>
+                            <div class="feedback-action-title">Request a Feature or Report a Bug</div>
+                            <div class="feedback-action-desc">Share an idea, suggest an improvement, or report a problem you've found.</div>
                         </div>
                         <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="9 18 15 12 9 6"></polyline>
@@ -1684,6 +1668,72 @@
                     <button type="button" class="modal-btn cancel" onclick="closeTimePicker(false)">Clear</button>
                     <button type="button" class="modal-btn cancel" onclick="closeTimePicker(null)">Cancel</button>
                     <button type="button" class="modal-btn save" onclick="savePickedTime()">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unified Feedback & Feature Request Modal -->
+        <div class="modal-backdrop" id="feedback-modal" style="display:none; align-items:center; justify-content:center;">
+            <div class="modal-content" style="max-width:340px; max-height:85vh; overflow-y:auto; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div class="modal-title" style="font-size:20px;">Share Feedback</div>
+                        <div style="font-size:11.5px; color:#78695C;">Help us improve Sadhana Card</div>
+                    </div>
+                    <button type="button" onclick="closeFeedbackModal()" style="background:none; border:none; cursor:pointer; color:#78695C; font-size:18px;">✕</button>
+                </div>
+
+                <!-- Feedback Type Selector -->
+                <div style="font-size:12px; font-weight:700; color:#5E2112;">Feedback Type</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button type="button" id="fb-type-feature" onclick="setFeedbackType('feature')"
+                        style="padding:8px 6px; border-radius:10px; border:2px solid #D97706; background:#FEF3C7; color:#92400E; font-weight:700; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        💡 Feature
+                    </button>
+                    <button type="button" id="fb-type-bug" onclick="setFeedbackType('bug')"
+                        style="padding:8px 6px; border-radius:10px; border:1px solid #E8DCC6; background:#fff; color:#78695C; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        🐞 Bug Report
+                    </button>
+                </div>
+
+                <!-- Subject Field -->
+                <div>
+                    <label for="fb-subject" style="display:block; font-size:11.5px; font-weight:700; color:#5E2112; margin-bottom:4px;">Subject *</label>
+                    <input type="text" id="fb-subject" placeholder="e.g. Export feature request"
+                        style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:13px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14;">
+                    <div id="fb-subject-error" style="display:none; color:#DC2626; font-size:10.5px; margin-top:2px;">Subject is required</div>
+                </div>
+
+                <!-- Description Field -->
+                <div>
+                    <label for="fb-description" style="display:block; font-size:11.5px; font-weight:700; color:#5E2112; margin-bottom:4px;">Detailed Description *</label>
+                    <textarea id="fb-description" rows="3" placeholder="Describe your suggestion or issue in detail..."
+                        style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12.5px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
+                    <div id="fb-desc-error" style="display:none; color:#DC2626; font-size:10.5px; margin-top:2px;">Description is required</div>
+                </div>
+
+                <!-- Conditional Bug Report Fields -->
+                <div id="fb-bug-fields" style="display:none; flex-direction:column; gap:10px;">
+                    <div>
+                        <label for="fb-repro" style="display:block; font-size:11.5px; font-weight:600; color:#78695C; margin-bottom:4px;">Steps to Reproduce (optional)</label>
+                        <textarea id="fb-repro" rows="2" placeholder="1. Tap date&#10;2. Select bedtime..."
+                            style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
+                    </div>
+                    <div>
+                        <label for="fb-expected" style="display:block; font-size:11.5px; font-weight:600; color:#78695C; margin-bottom:4px;">Expected vs Actual Behavior (optional)</label>
+                        <textarea id="fb-expected" rows="2" placeholder="Expected score: 5&#10;Actual: 0"
+                            style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div style="font-size:11px; color:#78695C; line-height:14px;">
+                    Submitting opens WhatsApp to send your feedback directly to the developer.
+                </div>
+
+                <!-- Actions -->
+                <div class="modal-actions" style="margin-top:4px;">
+                    <button type="button" class="modal-btn cancel" onclick="closeFeedbackModal()">Cancel</button>
+                    <button type="button" class="modal-btn save" onclick="submitFeedbackForm()">Submit</button>
                 </div>
             </div>
         </div>
@@ -2128,19 +2178,101 @@
             loadWeeklyFeedback();
         }
 
-        // --- WhatsApp Direct Feedback & Feature Request System ---
+        // --- WhatsApp Direct Unified Feedback & Feature Request System ---
         const DEVELOPER_WHATSAPP_NUMBER = '916002630803';
+        let currentFeedbackType = 'feature';
 
-        function openWhatsAppFeedback(type) {
-            let message = '';
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedback-modal');
+            if (!modal) return;
+            setFeedbackType('feature');
+            document.getElementById('fb-subject').value = '';
+            document.getElementById('fb-description').value = '';
+            document.getElementById('fb-repro').value = '';
+            document.getElementById('fb-expected').value = '';
+            document.getElementById('fb-subject-error').style.display = 'none';
+            document.getElementById('fb-desc-error').style.display = 'none';
+            modal.style.display = 'flex';
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedback-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function setFeedbackType(type) {
+            currentFeedbackType = type;
+            const btnFeature = document.getElementById('fb-type-feature');
+            const btnBug = document.getElementById('fb-type-bug');
+            const bugFields = document.getElementById('fb-bug-fields');
+
             if (type === 'feature') {
-                message = 'Hello Developer! 👋\n\nI have a suggestion for a new feature.';
-            } else if (type === 'bug') {
-                message = 'Hello Developer! 👋\n\nI found a bug in the app.';
+                btnFeature.style.borderColor = '#D97706';
+                btnFeature.style.background = '#FEF3C7';
+                btnFeature.style.color = '#92400E';
+                btnFeature.style.borderWidth = '2px';
+
+                btnBug.style.borderColor = '#E8DCC6';
+                btnBug.style.background = '#fff';
+                btnBug.style.color = '#78695C';
+                btnBug.style.borderWidth = '1px';
+
+                if (bugFields) bugFields.style.display = 'none';
+            } else {
+                btnBug.style.borderColor = '#DC2626';
+                btnBug.style.background = '#FEE2E2';
+                btnBug.style.color = '#991B1B';
+                btnBug.style.borderWidth = '2px';
+
+                btnFeature.style.borderColor = '#E8DCC6';
+                btnFeature.style.background = '#fff';
+                btnFeature.style.color = '#78695C';
+                btnFeature.style.borderWidth = '1px';
+
+                if (bugFields) bugFields.style.display = 'flex';
+            }
+        }
+
+        function submitFeedbackForm() {
+            const subject = document.getElementById('fb-subject').value.trim();
+            const description = document.getElementById('fb-description').value.trim();
+            const repro = document.getElementById('fb-repro').value.trim();
+            const expected = document.getElementById('fb-expected').value.trim();
+
+            let isValid = true;
+            if (!subject) {
+                document.getElementById('fb-subject-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('fb-subject-error').style.display = 'none';
             }
 
+            if (!description) {
+                document.getElementById('fb-desc-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('fb-desc-error').style.display = 'none';
+            }
+
+            if (!isValid) return;
+
+            const typeLabel = currentFeedbackType === 'feature' ? 'Feature Request' : 'Bug Report';
+            let message = `Hello Developer! 👋\n\n📝 *Feedback Type:* ${typeLabel}\n📌 *Subject:* ${subject}\n\n💬 *Description:*\n${description}\n`;
+
+            if (currentFeedbackType === 'bug') {
+                if (repro) message += `\n🔁 *Steps to Reproduce:*\n${repro}\n`;
+                if (expected) message += `\n⚖️ *Expected vs Actual Behavior:*\n${expected}\n`;
+            }
+            message += '\n_Sent via ISKCON Sadhana Card App_';
+
+            closeFeedbackModal();
             const url = 'https://wa.me/' + DEVELOPER_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message);
             window.open(url, '_blank');
+        }
+
+        function openWhatsAppFeedback(type) {
+            setFeedbackType(type === 'bug' ? 'bug' : 'feature');
+            openFeedbackModal();
         }
 
         // --- Weekly Feedback & Reflection System ---

@@ -2,7 +2,11 @@ package com.sadhana.card.data.export
 
 import android.content.Context
 import android.content.ContextWrapper
+import com.sadhana.card.domain.model.BedtimeCategory
+import com.sadhana.card.domain.model.DaySleepCategory
+import com.sadhana.card.domain.model.JapaCategory
 import com.sadhana.card.domain.model.SadhanaEntry
+import com.sadhana.card.domain.model.WakeUpCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -125,6 +129,60 @@ class SadhanaWeeklyExcelExporterTest {
 
         // Verify summary row
         assertTrue("Summary total score missing", xml.contains("Total Score = 37 / 140 pts"))
+    }
+
+    @Test
+    fun testWorksheetXmlGeneration_exportsCategoryLabelsAccurately() {
+        val startOfWeek = LocalDate.of(2026, 10, 11)
+        val entries = listOf(
+            SadhanaEntry(
+                date = startOfWeek, // Sunday
+                bedtimeCategory = BedtimeCategory.BY_9_30_PM,            // "9:30 PM or before" -> 5 pts
+                wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,          // "Before 3:00 AM" -> 5 pts
+                daySleepCategory = DaySleepCategory.UP_TO_30_MIN,        // "30 minutes or less" -> 5 pts
+                japaCategory = JapaCategory.BY_7_15_AM,                  // "All 16 rounds completed by 7:15 AM" -> 5 pts
+                japaCompleted = true,
+                pathanMinutes = 45,
+                sravanMinutes = 30,
+                sevaMinutes = 60,
+                sevaTags = listOf("Cooking")
+            ),
+            SadhanaEntry(
+                date = startOfWeek.plusDays(1), // Monday with incomplete japa
+                bedtimeCategory = BedtimeCategory.BEFORE_10_00_PM,       // "Before 10:00 PM" -> 4 pts
+                wakeUpCategory = WakeUpCategory.BEFORE_3_30_AM,          // "Before 3:30 AM" -> 4 pts
+                daySleepCategory = DaySleepCategory.FROM_31_TO_45_MIN,   // "31–45 minutes" -> 4 pts
+                japaCategory = JapaCategory.BY_9_00_AM,                  // Incomplete -> 0 pts
+                japaCompleted = false,
+                pathanMinutes = 30,
+                sravanMinutes = 45,
+                sevaMinutes = 30,
+                sevaTags = listOf("Calling")
+            )
+        )
+
+        val xml = exporter.buildWorksheetXml(
+            sadhakaName = "Arjuna Das",
+            counselorName = "H.G. Gauranga Das",
+            startOfWeek = startOfWeek,
+            entries = entries
+        )
+
+        // Verify Sunday category labels and 20/20 points
+        assertTrue("Bedtime category label missing", xml.contains("9:30 PM or before"))
+        assertTrue("Wake-up category label missing", xml.contains("Before 3:00 AM"))
+        assertTrue("Day sleep category label missing", xml.contains("30 minutes or less"))
+        assertTrue("Japa category label missing", xml.contains("All 16 rounds completed by 7:15 AM"))
+        assertTrue("Sunday total 20 / 20 missing", xml.contains("20 / 20"))
+
+        // Verify Monday incomplete japa label and 12/20 points (4+4+4+0)
+        assertTrue("Monday bedtime category missing", xml.contains("Before 10:00 PM"))
+        assertTrue("Monday wake-up category missing", xml.contains("Before 3:30 AM"))
+        assertTrue("Monday incomplete japa missing", xml.contains("(Incomplete)"))
+        assertTrue("Monday total 12 / 20 missing", xml.contains("12 / 20"))
+
+        // Verify weekly total: 20 + 12 = 32
+        assertTrue("Weekly total score missing", xml.contains("Total Score = 32 / 140 pts"))
     }
 
     @Test

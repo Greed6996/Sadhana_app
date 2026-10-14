@@ -1,12 +1,18 @@
 package com.sadhana.card.domain.scorer
 
+import com.sadhana.card.domain.model.BedtimeCategory
+import com.sadhana.card.domain.model.DaySleepCategory
+import com.sadhana.card.domain.model.JapaCategory
 import com.sadhana.card.domain.model.SadhanaEntry
+import com.sadhana.card.domain.model.WakeUpCategory
 import java.time.LocalTime
 
 /**
  * Pure Kotlin scoring engine for Sadhana Card.
  * No Android framework dependencies.
- * All time comparisons use minute-of-day integers.
+ *
+ * Supports both category-based scoring (new) and time-based scoring (legacy).
+ * Category fields take precedence when present.
  */
 object SadhanaScorer {
 
@@ -18,16 +24,48 @@ object SadhanaScorer {
         val totalScore: Int?
     )
 
+    // ── Category-based scoring (primary) ──────────────────────────────
+
     /**
-     * Bedtime scoring (0–5):
-     * <= 21:30 -> 5
-     * 21:31–22:00 -> 4
-     * 22:01–22:30 -> 3
-     * 22:31–22:45 -> 2
-     * 22:46–23:00 -> 1
-     * after 23:00 -> 0
-     * EDGE CASE: 00:00 to 03:59 are late-night and score 0 (treated as after 23:00, not early).
-     * 04:00 to 21:30 score 5.
+     * Bedtime score from selected category.
+     */
+    fun scoreBedtimeCategory(category: BedtimeCategory?): Int? {
+        return category?.points
+    }
+
+    /**
+     * Wake-up score from selected category.
+     */
+    fun scoreWakeUpCategory(category: WakeUpCategory?): Int? {
+        return category?.points
+    }
+
+    /**
+     * Day sleep score from selected category.
+     * Note: Train journey allowance is NOT applied to category-based scoring
+     * because the user selects the effective duration category directly.
+     */
+    fun scoreDaySleepCategory(category: DaySleepCategory?): Int? {
+        return category?.points
+    }
+
+    /**
+     * Japa score from selected category and completion state.
+     * If japaCompleted is false, score is always 0 (if a category is selected)
+     * or null (if no category is selected).
+     */
+    fun scoreJapaCategory(category: JapaCategory?, japaCompleted: Boolean): Int? {
+        if (category == null) return null
+        return if (japaCompleted) category.points else 0
+    }
+
+    // ── Legacy time-based scoring (fallback for historical data) ──────
+
+    /**
+     * Bedtime scoring (0–5) from exact time.
+     * <= 21:30 -> 5, 21:31–22:00 -> 4, 22:01–22:30 -> 3,
+     * 22:31–22:45 -> 2, 22:46–23:00 -> 1, after 23:00 -> 0.
+     * EDGE CASE: 00:00 to 03:59 are late-night and score 0.
      * null -> null (not logged)
      */
     fun scoreBedtime(time: LocalTime?): Int? {
@@ -52,42 +90,28 @@ object SadhanaScorer {
     }
 
     /**
-     * Wake-up scoring (0–5):
-     * before 03:00 -> 5
-     * 03:00–03:30 -> 4
-     * 03:31–04:00 -> 3
-     * 04:01–04:15 -> 2
-     * 04:16–04:30 -> 1
-     * after 04:30 -> 0
+     * Wake-up scoring (0–5) from exact time.
+     * before 03:00 -> 5, 03:00–03:30 -> 4, 03:31–04:00 -> 3,
+     * 04:01–04:15 -> 2, 04:16–04:30 -> 1, after 04:30 -> 0.
      * null -> null (not logged)
      */
     fun scoreWakeUp(time: LocalTime?): Int? {
         if (time == null) return null
         val m = minuteOfDay(time)
         return when {
-            // Before 03:00 (m < 180) -> 5
             m < 3 * 60 -> 5
-            // 03:00 to 03:30 (180 <= m <= 210) -> 4
             m in (3 * 60)..(3 * 60 + 30) -> 4
-            // 03:31 to 04:00 (211 <= m <= 240) -> 3
             m in (3 * 60 + 31)..(4 * 60) -> 3
-            // 04:01 to 04:15 (241 <= m <= 255) -> 2
             m in (4 * 60 + 1)..(4 * 60 + 15) -> 2
-            // 04:16 to 04:30 (256 <= m <= 270) -> 1
             m in (4 * 60 + 16)..(4 * 60 + 30) -> 1
-            // After 04:30 -> 0
             else -> 0
         }
     }
 
     /**
-     * Day sleep scoring (0–5):
+     * Day sleep scoring (0–5) from exact minutes with optional train journey allowance.
      * effective = max(0, napMinutes - (if trainJourney 60 else 0))
-     * effective <= 30 -> 5
-     * 31–45 -> 4
-     * 46–60 -> 2
-     * > 60 -> 0
-     * Note: Gap at 3 points is intentional per the source card.
+     * effective <= 30 -> 5, 31–45 -> 4, 46–60 -> 2, > 60 -> 0.
      * null -> null (not logged)
      */
     fun scoreDaySleep(napMinutes: Int?, trainJourney: Boolean = false): Int? {
@@ -103,36 +127,28 @@ object SadhanaScorer {
     }
 
     /**
-     * Japa scoring, 16 rounds completed by (0–5):
-     * <= 07:15 -> 5
-     * 07:16–09:00 -> 4
-     * 09:01–11:59 -> 3
-     * 12:00–15:00 -> 2
-     * 15:01–18:00 -> 1
-     * after 18:00 -> 0
+     * Japa scoring (0–5) from exact time.
+     * <= 07:15 -> 5, 07:16–09:00 -> 4, 09:01–11:59 -> 3,
+     * 12:00–15:00 -> 2, 15:01–18:00 -> 1, after 18:00 -> 0.
      * null -> null (not logged)
      */
     fun scoreJapa(time: LocalTime?): Int? {
         if (time == null) return null
         val m = minuteOfDay(time)
         return when {
-            // <= 07:15 (m <= 435) -> 5
             m <= 7 * 60 + 15 -> 5
-            // 07:16 to 09:00 (436 <= m <= 540) -> 4
             m in (7 * 60 + 16)..(9 * 60) -> 4
-            // 09:01 to 11:59 (541 <= m <= 719) -> 3
             m in (9 * 60 + 1)..(11 * 60 + 59) -> 3
-            // 12:00 to 15:00 (720 <= m <= 900) -> 2
             m in (12 * 60)..(15 * 60) -> 2
-            // 15:01 to 18:00 (901 <= m <= 1080) -> 1
             m in (15 * 60 + 1)..(18 * 60) -> 1
-            // After 18:00 -> 0
             else -> 0
         }
     }
 
+    // ── Unified daily scoring ─────────────────────────────────────────
+
     /**
-     * Computes daily scores.
+     * Computes daily scores using the legacy time-based inputs.
      * If all fields are null (unlogged day), totalScore is null.
      * Otherwise totalScore is sum of the non-null scores (max 20).
      */
@@ -160,13 +176,50 @@ object SadhanaScorer {
         )
     }
 
+    /**
+     * Scores a [SadhanaEntry] using category fields when available,
+     * falling back to legacy time-based fields for backward compatibility.
+     */
     fun scoreEntry(entry: SadhanaEntry): DailyScores {
-        return scoreDaily(
-            bedtime = entry.bedtime,
-            wakeTime = entry.wakeTime,
-            napMinutes = entry.napMinutes,
-            trainJourney = entry.trainJourney,
-            japaTime = entry.japaTime
+        // Bedtime: category takes precedence over legacy time
+        val bed = if (entry.bedtimeCategory != null) {
+            scoreBedtimeCategory(entry.bedtimeCategory)
+        } else {
+            scoreBedtime(entry.bedtime)
+        }
+
+        // Wake-up: category takes precedence
+        val wake = if (entry.wakeUpCategory != null) {
+            scoreWakeUpCategory(entry.wakeUpCategory)
+        } else {
+            scoreWakeUp(entry.wakeTime)
+        }
+
+        // Day sleep: category takes precedence
+        // When using category, train journey allowance is NOT applied
+        // because the user already selects the effective duration category.
+        val nap = if (entry.daySleepCategory != null) {
+            scoreDaySleepCategory(entry.daySleepCategory)
+        } else {
+            scoreDaySleep(entry.napMinutes, entry.trainJourney)
+        }
+
+        // Japa: category takes precedence
+        val japa = if (entry.japaCategory != null) {
+            scoreJapaCategory(entry.japaCategory, entry.japaCompleted)
+        } else {
+            scoreJapa(entry.japaTime)
+        }
+
+        val logged = listOfNotNull(bed, wake, nap, japa)
+        val total = if (logged.isEmpty()) null else logged.sum()
+
+        return DailyScores(
+            bedScore = bed,
+            wakeScore = wake,
+            napScore = nap,
+            japaScore = japa,
+            totalScore = total
         )
     }
 

@@ -1,8 +1,14 @@
 package com.sadhana.card.domain.scorer
 
+import com.sadhana.card.domain.model.BedtimeCategory
+import com.sadhana.card.domain.model.DaySleepCategory
+import com.sadhana.card.domain.model.JapaCategory
+import com.sadhana.card.domain.model.SadhanaEntry
+import com.sadhana.card.domain.model.WakeUpCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.LocalDate
 import java.time.LocalTime
 
 class SadhanaScorerTest {
@@ -375,5 +381,172 @@ class SadhanaScorerTest {
         assertEquals("1h 15m", SadhanaScorer.formatMinutesToHoursMinutes(75))
         assertEquals("2h 0m", SadhanaScorer.formatMinutesToHoursMinutes(120))
         assertEquals("3h 45m", SadhanaScorer.formatMinutesToHoursMinutes(225))
+    }
+
+    // ---------------------------------------------------------
+    // BEDTIME CATEGORY TESTS (6 options: 5, 4, 3, 2, 1, 0)
+    // ---------------------------------------------------------
+
+    @Test
+    fun testBedtimeCategory_allSixCategories() {
+        assertEquals(5, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.BY_9_30_PM))
+        assertEquals(4, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.BEFORE_10_00_PM))
+        assertEquals(3, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.BEFORE_10_30_PM))
+        assertEquals(2, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.BEFORE_10_45_PM))
+        assertEquals(1, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.BEFORE_11_00_PM))
+        assertEquals(0, SadhanaScorer.scoreBedtimeCategory(BedtimeCategory.AFTER_11_00_PM))
+        assertNull(SadhanaScorer.scoreBedtimeCategory(null))
+    }
+
+    // ---------------------------------------------------------
+    // WAKE-UP CATEGORY TESTS (6 options: 5, 4, 3, 2, 1, 0)
+    // ---------------------------------------------------------
+
+    @Test
+    fun testWakeUpCategory_allSixCategories() {
+        assertEquals(5, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.BEFORE_3_00_AM))
+        assertEquals(4, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.BEFORE_3_30_AM))
+        assertEquals(3, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.BEFORE_4_00_AM))
+        assertEquals(2, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.BEFORE_4_15_AM))
+        assertEquals(1, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.BEFORE_4_30_AM))
+        assertEquals(0, SadhanaScorer.scoreWakeUpCategory(WakeUpCategory.AFTER_4_30_AM))
+        assertNull(SadhanaScorer.scoreWakeUpCategory(null))
+    }
+
+    // ---------------------------------------------------------
+    // DAY SLEEP CATEGORY TESTS (4 options: 5, 4, 2, 0)
+    // ---------------------------------------------------------
+
+    @Test
+    fun testDaySleepCategory_allFourCategories() {
+        assertEquals(5, SadhanaScorer.scoreDaySleepCategory(DaySleepCategory.UP_TO_30_MIN))
+        assertEquals(4, SadhanaScorer.scoreDaySleepCategory(DaySleepCategory.FROM_31_TO_45_MIN))
+        assertEquals(2, SadhanaScorer.scoreDaySleepCategory(DaySleepCategory.FROM_46_TO_60_MIN))
+        assertEquals(0, SadhanaScorer.scoreDaySleepCategory(DaySleepCategory.MORE_THAN_60_MIN))
+        assertNull(SadhanaScorer.scoreDaySleepCategory(null))
+    }
+
+    // ---------------------------------------------------------
+    // JAPA CATEGORY TESTS (6 options: 5, 4, 3, 2, 1, 0 + completion check)
+    // ---------------------------------------------------------
+
+    @Test
+    fun testJapaCategory_whenCompleted_allSixCategories() {
+        assertEquals(5, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM, japaCompleted = true))
+        assertEquals(4, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = true))
+        assertEquals(3, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM, japaCompleted = true))
+        assertEquals(2, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM, japaCompleted = true))
+        assertEquals(1, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM, japaCompleted = true))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM, japaCompleted = true))
+    }
+
+    @Test
+    fun testJapaCategory_whenIncomplete_alwaysZero() {
+        // When japaCompleted is false, all categories score 0 points
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM, japaCompleted = false))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = false))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM, japaCompleted = false))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM, japaCompleted = false))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM, japaCompleted = false))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM, japaCompleted = false))
+    }
+
+    @Test
+    fun testJapaCategory_nullCategoryReturnsNullRegardlessOfCompletion() {
+        assertNull(SadhanaScorer.scoreJapaCategory(null, japaCompleted = true))
+        assertNull(SadhanaScorer.scoreJapaCategory(null, japaCompleted = false))
+    }
+
+    // ---------------------------------------------------------
+    // SADHANA ENTRY INTEGRATED SCORING (scoreEntry)
+    // ---------------------------------------------------------
+
+    @Test
+    fun testScoreEntry_allCategoriesSelectedAndCompleted_scores20Max() {
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 14),
+            bedtimeCategory = BedtimeCategory.BY_9_30_PM,             // 5
+            wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,          // 5
+            daySleepCategory = DaySleepCategory.UP_TO_30_MIN,        // 5
+            japaCategory = JapaCategory.BY_7_15_AM,                  // 5
+            japaCompleted = true
+        )
+        val scores = SadhanaScorer.scoreEntry(entry)
+        assertEquals(5, scores.bedScore)
+        assertEquals(5, scores.wakeScore)
+        assertEquals(5, scores.napScore)
+        assertEquals(5, scores.japaScore)
+        assertEquals(20, scores.totalScore)
+    }
+
+    @Test
+    fun testScoreEntry_categoryTakesPrecedenceOverLegacyFields() {
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 14),
+            // Category says 5 points
+            bedtimeCategory = BedtimeCategory.BY_9_30_PM,
+            // Legacy says 23:30 (0 points)
+            bedtime = LocalTime.of(23, 30),
+            // Category says 5 points
+            wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,
+            // Legacy says 05:00 (0 points)
+            wakeTime = LocalTime.of(5, 0),
+            // Category says 5 points
+            daySleepCategory = DaySleepCategory.UP_TO_30_MIN,
+            // Legacy says 120 mins (0 points)
+            napMinutes = 120,
+            // Category says 5 points
+            japaCategory = JapaCategory.BY_7_15_AM,
+            japaCompleted = true,
+            // Legacy says 20:00 (0 points)
+            japaTime = LocalTime.of(20, 0)
+        )
+        val scores = SadhanaScorer.scoreEntry(entry)
+        // Must use category scores (5 each = 20 total), not legacy (0)
+        assertEquals(5, scores.bedScore)
+        assertEquals(5, scores.wakeScore)
+        assertEquals(5, scores.napScore)
+        assertEquals(5, scores.japaScore)
+        assertEquals(20, scores.totalScore)
+    }
+
+    @Test
+    fun testScoreEntry_incompleteJapaScoresZeroTotal() {
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 14),
+            bedtimeCategory = BedtimeCategory.BY_9_30_PM,             // 5
+            wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,          // 5
+            daySleepCategory = DaySleepCategory.UP_TO_30_MIN,        // 5
+            japaCategory = JapaCategory.BY_7_15_AM,                  // 0 because incomplete
+            japaCompleted = false
+        )
+        val scores = SadhanaScorer.scoreEntry(entry)
+        assertEquals(5, scores.bedScore)
+        assertEquals(5, scores.wakeScore)
+        assertEquals(5, scores.napScore)
+        assertEquals(0, scores.japaScore)
+        assertEquals(15, scores.totalScore)
+    }
+
+    @Test
+    fun testScoreEntry_fallbackToLegacyWhenCategoryIsNull() {
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 14),
+            bedtimeCategory = null,
+            bedtime = LocalTime.of(21, 15), // 5
+            wakeUpCategory = null,
+            wakeTime = LocalTime.of(3, 15),  // 4
+            daySleepCategory = null,
+            napMinutes = 40,                 // 4
+            trainJourney = false,
+            japaCategory = null,
+            japaTime = LocalTime.of(8, 0)    // 4
+        )
+        val scores = SadhanaScorer.scoreEntry(entry)
+        assertEquals(5, scores.bedScore)
+        assertEquals(4, scores.wakeScore)
+        assertEquals(4, scores.napScore)
+        assertEquals(4, scores.japaScore)
+        assertEquals(17, scores.totalScore)
     }
 }

@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sadhana.card.data.preferences.CURRENT_TERMS_VERSION
 import com.sadhana.card.data.preferences.UserPreferencesRepository
+import com.sadhana.card.domain.model.BedtimeCategory
+import com.sadhana.card.domain.model.DaySleepCategory
+import com.sadhana.card.domain.model.JapaCategory
 import com.sadhana.card.domain.model.SadhanaEntry
+import com.sadhana.card.domain.model.WakeUpCategory
 import com.sadhana.card.domain.repository.SadhanaRepository
 import com.sadhana.card.domain.scorer.SadhanaScorer
 import com.sadhana.card.domain.util.DateUtils
@@ -155,6 +159,8 @@ class DailyEntryViewModel internal constructor(
         selectedDateFlow.value = LocalDate.now()
     }
 
+    // ── Legacy update methods (kept for any remaining usage) ──────────
+
     fun updateBedtime(time: LocalTime?) {
         updateCurrentEntry { it.copy(bedtime = time) }
     }
@@ -174,6 +180,30 @@ class DailyEntryViewModel internal constructor(
     fun updateJapaTime(time: LocalTime?) {
         updateCurrentEntry { it.copy(japaTime = time) }
     }
+
+    // ── New category-based update methods ─────────────────────────────
+
+    fun updateBedtimeCategory(category: BedtimeCategory?) {
+        updateCurrentEntry { it.copy(bedtimeCategory = category, bedtime = null) }
+    }
+
+    fun updateWakeUpCategory(category: WakeUpCategory?) {
+        updateCurrentEntry { it.copy(wakeUpCategory = category, wakeTime = null) }
+    }
+
+    fun updateDaySleepCategory(category: DaySleepCategory?) {
+        updateCurrentEntry { it.copy(daySleepCategory = category, napMinutes = null) }
+    }
+
+    fun updateJapaCategory(category: JapaCategory?) {
+        updateCurrentEntry { it.copy(japaCategory = category, japaTime = null) }
+    }
+
+    fun updateJapaCompleted(completed: Boolean) {
+        updateCurrentEntry { it.copy(japaCompleted = completed) }
+    }
+
+    // ── Unscored activity updates ─────────────────────────────────────
 
     fun updatePathanMinutes(minutes: Int?) {
         updateCurrentEntry { it.copy(pathanMinutes = minutes ?: 0) }

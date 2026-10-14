@@ -18,7 +18,7 @@
 <br />
 
 <p align="center">
-  <a href="https://github.com/Greed6996/Sadhana_app/releases/latest/download/Sadhana-Card.apk">
+  <a href="https://github.com/Greed6996/Sadhana_app/releases">
     <img src="https://img.shields.io/badge/📲%20Download%20Latest%20APK-Direct%20Download-brightgreen?style=for-the-badge&logo=android&logoColor=white" alt="Download Latest APK" height="44" />
   </a>
   <a href="https://github.com/Greed6996/Sadhana_app/releases/latest">
@@ -26,7 +26,7 @@
   </a>
 </p>
 
-> 📲 **Mobile Users:** Can't see the "Releases" tab on your phone? Tap **[📥 Download Sadhana-Card.apk Directly](https://github.com/Greed6996/Sadhana_app/releases/latest/download/Sadhana-Card.apk)** to get the latest app installer with one tap!
+> 📲 **Mobile Users:** Can't see the "Releases" tab on your phone? Tap **[📥 Download Sadhana-Card.apk Directly](https://github.com/Greed6996/Sadhana_app/releases)** to get the latest app installer with one tap!
 
 *A calm, modern, and disciplined digital companion designed to replace traditional paper cards with effortless daily devotional logging.*
 

@@ -24,7 +24,7 @@ object DatabaseModule {
             context,
             SadhanaDatabase::class.java,
             SadhanaDatabase.DATABASE_NAME
-        ).fallbackToDestructiveMigration().build()
+        ).addMigrations(SadhanaDatabase.MIGRATION_1_2).build()
     }
 
     @Provides

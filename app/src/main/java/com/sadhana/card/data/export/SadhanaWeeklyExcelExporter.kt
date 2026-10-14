@@ -240,7 +240,9 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 18: Recorded bedtime
         sb.append("""<row r="18" ht="26" customHeight="1"><c r="A18" s="9" t="inlineStr"><is><t>Recorded bedtime</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = day.entry?.bedtime?.format(TIME_FORMATTER) ?: "—"
+            val text = day.entry?.bedtimeCategory?.label
+                ?: day.entry?.bedtime?.format(TIME_FORMATTER)
+                ?: "—"
             sb.append("""<c r="${day.col}18" s="10" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")
@@ -267,7 +269,9 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 27: Recorded wake-up time
         sb.append("""<row r="27" ht="26" customHeight="1"><c r="A27" s="9" t="inlineStr"><is><t>Recorded wake-up time</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = day.entry?.wakeTime?.format(TIME_FORMATTER) ?: "—"
+            val text = day.entry?.wakeUpCategory?.label
+                ?: day.entry?.wakeTime?.format(TIME_FORMATTER)
+                ?: "—"
             sb.append("""<c r="${day.col}27" s="12" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")
@@ -293,7 +297,8 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 35: Recorded day-sleep duration
         sb.append("""<row r="35" ht="26" customHeight="1"><c r="A35" s="9" t="inlineStr"><is><t>Recorded day-sleep duration (minutes)</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = if (day.entry?.napMinutes != null) "${day.entry.napMinutes} mins" else "—"
+            val text = day.entry?.daySleepCategory?.label
+                ?: if (day.entry?.napMinutes != null) "${day.entry.napMinutes} mins" else "—"
             sb.append("""<c r="${day.col}35" s="12" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")
@@ -332,7 +337,17 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 45: Recorded Japa completion time
         sb.append("""<row r="45" ht="26" customHeight="1"><c r="A45" s="9" t="inlineStr"><is><t>Recorded Japa completion time</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = day.entry?.japaTime?.format(TIME_FORMATTER) ?: "—"
+            val entry = day.entry
+            val japaCat = entry?.japaCategory
+            val japaTime = entry?.japaTime
+            val text = when {
+                japaCat != null -> {
+                    if (entry.japaCompleted) japaCat.label
+                    else "${japaCat.label} (Incomplete)"
+                }
+                japaTime != null -> japaTime.format(TIME_FORMATTER)
+                else -> "—"
+            }
             sb.append("""<c r="${day.col}45" s="12" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")

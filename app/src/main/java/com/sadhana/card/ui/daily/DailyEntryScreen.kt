@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Bed
@@ -26,22 +24,14 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.Hearing
 import androidx.compose.material.icons.filled.HourglassTop
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,26 +42,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sadhana.card.domain.model.BedtimeCategory
+import com.sadhana.card.domain.model.DaySleepCategory
+import com.sadhana.card.domain.model.JapaCategory
+import com.sadhana.card.domain.model.WakeUpCategory
 import com.sadhana.card.domain.util.DateUtils
 import com.sadhana.card.ui.components.DedicationBanner
 import com.sadhana.card.ui.components.HeaderFieldsRow
+import com.sadhana.card.ui.components.JapaCompletionToggle
 import com.sadhana.card.ui.components.MinutesStepper
 import com.sadhana.card.ui.components.SadhanaEntryCard
 import com.sadhana.card.ui.components.ScoreCard
+import com.sadhana.card.ui.components.ScoringCategoryCard
+import com.sadhana.card.ui.components.ScoringOptionRow
 import com.sadhana.card.ui.components.SectionHeader
 import com.sadhana.card.ui.components.ServiceTagPicker
-import com.sadhana.card.ui.components.TimeField
 import com.sadhana.card.ui.components.TrainJourneySwitch
 import com.sadhana.card.ui.components.WeekDaySelector
-import com.sadhana.card.ui.theme.BorderCream
-import com.sadhana.card.ui.theme.CreamBackground
 import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.SaffronAccent
-import com.sadhana.card.ui.theme.SurfaceWhite
-import com.sadhana.card.ui.theme.TextDark
-import java.time.LocalTime
+import java.time.LocalDate
 
 /**
  * Screen 1: Daily Entry screen rebuilt entirely in native Jetpack Compose.
@@ -90,11 +80,12 @@ fun DailyEntryScreen(
         onPreviousWeek = viewModel::previousWeek,
         onNextWeek = viewModel::nextWeek,
         onGoToToday = viewModel::goToToday,
-        onUpdateBedtime = viewModel::updateBedtime,
-        onUpdateWakeTime = viewModel::updateWakeTime,
-        onUpdateNapMinutes = viewModel::updateNapMinutes,
+        onUpdateBedtimeCategory = viewModel::updateBedtimeCategory,
+        onUpdateWakeUpCategory = viewModel::updateWakeUpCategory,
+        onUpdateDaySleepCategory = viewModel::updateDaySleepCategory,
         onUpdateTrainJourney = viewModel::updateTrainJourney,
-        onUpdateJapaTime = viewModel::updateJapaTime,
+        onUpdateJapaCategory = viewModel::updateJapaCategory,
+        onUpdateJapaCompleted = viewModel::updateJapaCompleted,
         onUpdatePathanMinutes = viewModel::updatePathanMinutes,
         onUpdateSravanMinutes = viewModel::updateSravanMinutes,
         onUpdateSevaMinutes = viewModel::updateSevaMinutes,
@@ -109,15 +100,16 @@ fun DailyEntryScreen(
 @Composable
 fun DailyEntryContent(
     uiState: DailyEntryUiState,
-    onSelectDate: (java.time.LocalDate) -> Unit,
+    onSelectDate: (LocalDate) -> Unit,
     onPreviousWeek: () -> Unit,
     onNextWeek: () -> Unit,
     onGoToToday: () -> Unit,
-    onUpdateBedtime: (LocalTime?) -> Unit,
-    onUpdateWakeTime: (LocalTime?) -> Unit,
-    onUpdateNapMinutes: (Int?) -> Unit,
+    onUpdateBedtimeCategory: (BedtimeCategory?) -> Unit,
+    onUpdateWakeUpCategory: (WakeUpCategory?) -> Unit,
+    onUpdateDaySleepCategory: (DaySleepCategory?) -> Unit,
     onUpdateTrainJourney: (Boolean) -> Unit,
-    onUpdateJapaTime: (LocalTime?) -> Unit,
+    onUpdateJapaCategory: (JapaCategory?) -> Unit,
+    onUpdateJapaCompleted: (Boolean) -> Unit,
     onUpdatePathanMinutes: (Int?) -> Unit,
     onUpdateSravanMinutes: (Int?) -> Unit,
     onUpdateSevaMinutes: (Int?) -> Unit,
@@ -229,75 +221,70 @@ fun DailyEntryContent(
             SectionHeader(title = "Sleep & Wake Regulation")
         }
 
-        // Bedtime
+        // Bedtime — Category selector
         item(key = "bedtime") {
-            SadhanaEntryCard(
-                title = "Rest / Bedtime",
-                hint = "Target: ≤ 21:30 (5 pts)",
+            ScoringCategoryCard(
+                title = "Bedtime",
+                subtitle = "Select when you went to bed",
                 icon = Icons.Default.NightsStay,
                 score = uiState.score.bedScore,
-                maxScore = 5,
-                trailingControl = {
-                    TimeField(
-                        time = uiState.entry.bedtime,
-                        onTimeSelected = onUpdateBedtime,
-                        title = "Select Bedtime",
-                        presetTimes = listOf(
-                            LocalTime.of(21, 0),
-                            LocalTime.of(21, 30),
-                            LocalTime.of(22, 0),
-                            LocalTime.of(22, 30)
+                maxScore = 5
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    BedtimeCategory.entries.forEach { category ->
+                        ScoringOptionRow(
+                            label = category.label,
+                            points = category.points,
+                            isSelected = uiState.entry.bedtimeCategory == category,
+                            onClick = { onUpdateBedtimeCategory(category) }
                         )
-                    )
+                    }
                 }
-            )
+            }
         }
 
-        // Wake-up Time
+        // Wake-up — Category selector
         item(key = "wake_time") {
-            SadhanaEntryCard(
-                title = "Wake-up Time",
-                hint = "Target: < 03:00 (5 pts), ≤ 03:30 (4 pts)",
+            ScoringCategoryCard(
+                title = "Wake-up",
+                subtitle = "Select when you woke up",
                 icon = Icons.Default.WbSunny,
                 score = uiState.score.wakeScore,
-                maxScore = 5,
-                trailingControl = {
-                    TimeField(
-                        time = uiState.entry.wakeTime,
-                        onTimeSelected = onUpdateWakeTime,
-                        title = "Select Wake-up Time",
-                        presetTimes = listOf(
-                            LocalTime.of(2, 45),
-                            LocalTime.of(3, 0),
-                            LocalTime.of(3, 30),
-                            LocalTime.of(4, 0)
+                maxScore = 5
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    WakeUpCategory.entries.forEach { category ->
+                        ScoringOptionRow(
+                            label = category.label,
+                            points = category.points,
+                            isSelected = uiState.entry.wakeUpCategory == category,
+                            onClick = { onUpdateWakeUpCategory(category) }
                         )
-                    )
+                    }
                 }
-            )
+            }
         }
 
-        // Daytime Sleep (Nap)
+        // Daytime Sleep — Category selector
         item(key = "day_nap") {
-            SadhanaEntryCard(
-                title = "Daytime Sleep (Nap)",
-                hint = if (uiState.entry.trainJourney) {
-                    "Train Journey: +60 min exemption active"
-                } else {
-                    "Target: ≤ 30 min (5 pts), ≤ 45 min (4 pts)"
-                },
+            ScoringCategoryCard(
+                title = "Day sleep",
+                subtitle = "Select your total daytime sleep",
                 icon = Icons.Default.Bed,
                 score = uiState.score.napScore,
-                maxScore = 5,
-                trailingControl = {
-                    MinutesStepper(
-                        minutes = uiState.entry.napMinutes,
-                        onMinutesChanged = onUpdateNapMinutes,
-                        step = 15,
-                        title = "Day Sleep"
-                    )
+                maxScore = 5
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    DaySleepCategory.entries.forEach { category ->
+                        ScoringOptionRow(
+                            label = category.label,
+                            points = category.points,
+                            isSelected = uiState.entry.daySleepCategory == category,
+                            onClick = { onUpdateDaySleepCategory(category) }
+                        )
+                    }
                 }
-            )
+            }
         }
 
         // Train Journey Toggle
@@ -313,27 +300,32 @@ fun DailyEntryContent(
             SectionHeader(title = "Chanting (Japa)")
         }
 
+        // Japa — 16 rounds — Category selector with completion toggle
         item(key = "japa") {
-            SadhanaEntryCard(
-                title = "16 Rounds Finished By",
-                hint = "Target: ≤ 07:15 (5 pts), ≤ 09:00 (4 pts)",
+            ScoringCategoryCard(
+                title = "Japa — 16 rounds",
+                subtitle = "Select when you completed all 16 rounds",
                 icon = Icons.Default.HourglassTop,
                 score = uiState.score.japaScore,
                 maxScore = 5,
-                trailingControl = {
-                    TimeField(
-                        time = uiState.entry.japaTime,
-                        onTimeSelected = onUpdateJapaTime,
-                        title = "16 Rounds Finished By",
-                        presetTimes = listOf(
-                            LocalTime.of(7, 0),
-                            LocalTime.of(7, 15),
-                            LocalTime.of(8, 30),
-                            LocalTime.of(11, 30)
-                        )
+                extraContent = {
+                    JapaCompletionToggle(
+                        checked = uiState.entry.japaCompleted,
+                        onCheckedChange = onUpdateJapaCompleted
                     )
                 }
-            )
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    JapaCategory.entries.forEach { category ->
+                        ScoringOptionRow(
+                            label = category.label,
+                            points = category.points,
+                            isSelected = uiState.entry.japaCategory == category,
+                            onClick = { onUpdateJapaCategory(category) }
+                        )
+                    }
+                }
+            }
         }
 
         // 8. Section: SRAVAN & PATHAN
@@ -428,7 +420,7 @@ fun HeaderIconButton(
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
+        androidx.compose.material3.Icon(
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
