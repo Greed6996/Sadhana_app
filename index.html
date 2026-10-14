@@ -303,22 +303,170 @@
             color: #8C5228;
             border: 1px solid #E8DCC6;
         }
-        .time-trigger-btn {
-            min-height: 48px;
-            padding: 0 14px;
-            border-radius: 14px;
-            border: 1.5px solid #5E2112;
-            background: #FBF6EC;
-            color: #5E2112;
-            font-family: 'Newsreader', serif;
-            font-size: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            flex: none;
-            transition: all 0.2s ease;
+        /* Category Accordion Cards */
+        .category-accordion-card {
+            background: #fff;
+            border: 1px solid #E8DCC6;
+            border-radius: 18px;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .time-trigger-btn:hover {
+        .category-accordion-card.is-open {
+            border-color: #5E2112;
+            box-shadow: 0 4px 16px rgba(94, 33, 18, 0.08);
+        }
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            cursor: pointer;
+            user-select: none;
+            background: transparent;
+            transition: background 0.15s ease;
+        }
+        .accordion-header:hover {
+            background: #FAF6EF;
+        }
+        .accordion-title-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .accordion-summary {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #6B5A4C;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .accordion-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .accordion-chevron {
+            width: 18px;
+            height: 18px;
+            stroke: #7A3406;
+            transition: transform 0.25s ease;
+        }
+        .category-accordion-card.is-open .accordion-chevron {
+            transform: rotate(180deg);
+        }
+        .accordion-body {
+            display: none;
+            padding: 8px 14px 14px 14px;
+            border-top: 1px solid #F1E6D2;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .category-accordion-card.is-open .accordion-body {
+            display: flex;
+        }
+        .category-option-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1.5px solid #F1E6D2;
+            background: #FDFBF7;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            gap: 8px;
+        }
+        .category-option-row:hover {
+            background: #F9F3EA;
+            border-color: #D8C7B0;
+        }
+        .category-option-row.selected {
+            border-color: #5E2112;
+            background: #FFF7EE;
+        }
+        .category-option-row.disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .option-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+        .option-radio {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #C4B29E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+        .category-option-row.selected .option-radio {
+            border-color: #5E2112;
+        }
+        .option-radio-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #5E2112;
+            display: none;
+        }
+        .category-option-row.selected .option-radio-dot {
+            display: block;
+        }
+        .option-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2B1A12;
+            line-height: 1.25;
+        }
+        .category-option-row.selected .option-label {
+            font-weight: 700;
+            color: #5E2112;
+        }
+        .option-pts-badge {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 99px;
+            flex-shrink: 0;
+            background: #F1E6D2;
+            color: #6B5A4C;
+        }
+        .option-pts-badge.pts-5 {
             background: #F8DCC0;
+            color: #6B2D05;
+        }
+        .option-pts-badge.pts-4 {
+            background: #FCE7D0;
+            color: #7A3406;
+        }
+        .option-pts-badge.pts-3 {
+            background: #FDF0DE;
+            color: #8C4410;
+        }
+        .option-pts-badge.pts-2 {
+            background: #F3EAE0;
+            color: #78695C;
+        }
+        .option-pts-badge.pts-1 {
+            background: #EFE8DC;
+            color: #8C7866;
+        }
+        .option-pts-badge.pts-0 {
+            background: #ECE5DA;
+            color: #9A897A;
         }
         /* Stepper */
         .stepper-box {
@@ -678,10 +826,63 @@
             color: #CDBBA8;
             border-color: #4A3428;
         }
-        .phone-frame.dark .time-trigger-btn {
+        .phone-frame.dark .category-accordion-card {
             background: #2A1C14;
+            border-color: #4A3428;
+        }
+        .phone-frame.dark .category-accordion-card.is-open {
             border-color: #F4B26B;
+        }
+        .phone-frame.dark .accordion-header:hover {
+            background: #332219;
+        }
+        .phone-frame.dark .accordion-summary {
+            color: #CDBBA8;
+        }
+        .phone-frame.dark .accordion-chevron {
+            stroke: #F4B26B;
+        }
+        .phone-frame.dark .accordion-body {
+            border-color: #3D2719;
+        }
+        .phone-frame.dark .category-option-row {
+            background: #221610;
+            border-color: #3D2719;
+        }
+        .phone-frame.dark .category-option-row:hover {
+            background: #2D1D15;
+            border-color: #5A3A26;
+        }
+        .phone-frame.dark .category-option-row.selected {
+            border-color: #F4B26B;
+            background: #382419;
+        }
+        .phone-frame.dark .option-radio {
+            border-color: #6E533F;
+        }
+        .phone-frame.dark .category-option-row.selected .option-radio {
+            border-color: #F4B26B;
+        }
+        .phone-frame.dark .option-radio-dot {
+            background: #F4B26B;
+        }
+        .phone-frame.dark .option-label {
+            color: #FBF1DF;
+        }
+        .phone-frame.dark .category-option-row.selected .option-label {
             color: #F4B26B;
+        }
+        .phone-frame.dark .option-pts-badge {
+            background: #3D2719;
+            color: #CDBBA8;
+        }
+        .phone-frame.dark .option-pts-badge.pts-5 {
+            background: #E68A34;
+            color: #1F140E;
+        }
+        .phone-frame.dark .option-pts-badge.pts-4 {
+            background: #C46820;
+            color: #FBF1DF;
         }
         .phone-frame.dark .stepper-btn {
             background: #3D2719;
@@ -1291,75 +1492,97 @@
             <!-- NIDRA Section -->
             <div class="section-header">NIDRA · SLEEP</div>
 
-            <!-- Bedtime -->
-            <div class="entry-card">
-                <div class="icon-tile">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+            <!-- Bedtime Accordion -->
+            <div class="category-accordion-card is-open" id="card-bedtime">
+                <div class="accordion-header" onclick="toggleAccordion('card-bedtime')">
+                    <div class="icon-tile">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+                    </div>
+                    <div class="accordion-title-wrap">
+                        <div class="entry-title">Bedtime</div>
+                        <div class="accordion-summary" id="bedtime-summary">9:30 PM or before</div>
+                    </div>
+                    <div class="accordion-right">
+                        <span class="score-pill" id="bedtime-pill">+5 pts</span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
                 </div>
-                <div class="entry-info">
-                    <div class="entry-title">Bedtime</div>
-                    <div class="entry-hint">5 pts if by 9:30 PM</div>
-                    <span class="score-pill" id="bedtime-pill">+4 pts</span>
-                </div>
-                <button type="button" class="time-trigger-btn" id="bedtime-btn" onclick="openTimePicker('bedtime')">9:45 PM</button>
+                <div class="accordion-body" id="bedtime-options-list"></div>
             </div>
 
-            <!-- Wake-up -->
-            <div class="entry-card">
-                <div class="icon-tile">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18M7 19a5 5 0 0 1 10 0M12 5v4M5.6 10.6l1.4 1.4M18.4 10.6L17 12"></path></svg>
+            <!-- Wake-up Accordion -->
+            <div class="category-accordion-card is-open" id="card-wakeup">
+                <div class="accordion-header" onclick="toggleAccordion('card-wakeup')">
+                    <div class="icon-tile">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19h18M7 19a5 5 0 0 1 10 0M12 5v4M5.6 10.6l1.4 1.4M18.4 10.6L17 12"></path></svg>
+                    </div>
+                    <div class="accordion-title-wrap">
+                        <div class="entry-title">Wake-up</div>
+                        <div class="accordion-summary" id="waketime-summary">Before 3:00 AM</div>
+                    </div>
+                    <div class="accordion-right">
+                        <span class="score-pill" id="waketime-pill">+5 pts</span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
                 </div>
-                <div class="entry-info">
-                    <div class="entry-title">Wake-up</div>
-                    <div class="entry-hint">5 pts if before 3:00 AM</div>
-                    <span class="score-pill" id="waketime-pill">+4 pts</span>
-                </div>
-                <button type="button" class="time-trigger-btn" id="waketime-btn" onclick="openTimePicker('wakeTime')">3:20 AM</button>
+                <div class="accordion-body" id="wakeup-options-list"></div>
             </div>
 
-            <!-- Day Sleep -->
-            <div class="entry-card-stacked">
-                <div style="display:flex;align-items:center;gap:12px">
+            <!-- Day Sleep Accordion -->
+            <div class="category-accordion-card is-open" id="card-daysleep">
+                <div class="accordion-header" onclick="toggleAccordion('card-daysleep')">
                     <div class="icon-tile">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg>
                     </div>
-                    <div class="entry-info">
+                    <div class="accordion-title-wrap">
                         <div class="entry-title">Day sleep</div>
-                        <div class="entry-hint">5 pts up to 30 min</div>
-                        <span class="score-pill" id="nap-pill">+4 pts</span>
+                        <div class="accordion-summary" id="nap-summary">30 minutes or less</div>
                     </div>
-                    <div class="stepper-box">
-                        <button type="button" class="stepper-btn" onclick="changeMinutes('napMinutes', -5)">−</button>
-                        <div class="stepper-input-col">
-                            <input type="text" inputmode="numeric" class="stepper-input" id="nap-input" value="40" onchange="setCustomMinutes('napMinutes', this.value)">
-                            <span class="unit-label">min</span>
-                        </div>
-                        <button type="button" class="stepper-btn" onclick="changeMinutes('napMinutes', 5)">+</button>
+                    <div class="accordion-right">
+                        <span class="score-pill" id="nap-pill">+5 pts</span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
                 </div>
-                <label class="checkbox-row" for="train-chk">
-                    <input type="checkbox" id="train-chk" onchange="toggleTrainJourney(this.checked)">
-                    <div style="display:flex;flex-direction:column;gap:1px">
-                        <span style="font-size:14px;font-weight:500">Train journey / travel</span>
-                        <span style="font-size:12px;color:#6B5A4C">Adds a 60-minute allowance before scoring</span>
-                    </div>
-                </label>
+                <div class="accordion-body">
+                    <div id="daysleep-options-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+                    <label class="checkbox-row" for="train-chk" style="margin-top:4px;">
+                        <input type="checkbox" id="train-chk" onchange="toggleTrainJourney(this.checked)">
+                        <div style="display:flex;flex-direction:column;gap:1px">
+                            <span style="font-size:13.5px;font-weight:600">Train journey / travel</span>
+                            <span style="font-size:11.5px;color:#6B5A4C">Adds a 60-minute allowance before scoring</span>
+                        </div>
+                    </label>
+                </div>
             </div>
 
             <!-- JAPA Section -->
             <div class="section-header">JAPA</div>
 
-            <!-- 16 rounds done by -->
-            <div class="entry-card">
-                <div class="icon-tile">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="4" r="1" fill="#7A3406"></circle><circle cx="18" cy="8" r="1" fill="#7A3406"></circle><circle cx="18" cy="16" r="1" fill="#7A3406"></circle><circle cx="12" cy="20" r="1" fill="#7A3406"></circle><circle cx="6" cy="16" r="1" fill="#7A3406"></circle><circle cx="6" cy="8" r="1" fill="#7A3406"></circle></svg>
+            <!-- Japa Accordion -->
+            <div class="category-accordion-card is-open" id="card-japa">
+                <div class="accordion-header" onclick="toggleAccordion('card-japa')">
+                    <div class="icon-tile">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="4" r="1" fill="#7A3406"></circle><circle cx="18" cy="8" r="1" fill="#7A3406"></circle><circle cx="18" cy="16" r="1" fill="#7A3406"></circle><circle cx="12" cy="20" r="1" fill="#7A3406"></circle><circle cx="6" cy="16" r="1" fill="#7A3406"></circle><circle cx="6" cy="8" r="1" fill="#7A3406"></circle></svg>
+                    </div>
+                    <div class="accordion-title-wrap">
+                        <div class="entry-title">16 rounds done by</div>
+                        <div class="accordion-summary" id="japa-summary">All 16 rounds completed by 7:15 AM</div>
+                    </div>
+                    <div class="accordion-right">
+                        <span class="score-pill" id="japa-pill">+5 pts</span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
                 </div>
-                <div class="entry-info">
-                    <div class="entry-title">16 rounds done by</div>
-                    <div class="entry-hint">5 pts if by 7:15 AM</div>
-                    <span class="score-pill" id="japa-pill">+4 pts</span>
+                <div class="accordion-body">
+                    <label class="checkbox-row" for="japa-chk" style="border-top:none;padding-top:2px;margin-bottom:6px;">
+                        <input type="checkbox" id="japa-chk" onchange="toggleJapaCompleted(this.checked)">
+                        <div style="display:flex;flex-direction:column;gap:1px">
+                            <span style="font-size:13.5px;font-weight:700;color:#5E2112;">16 Rounds Completed</span>
+                            <span style="font-size:11.5px;color:#6B5A4C">Check to earn points for completion time</span>
+                        </div>
+                    </label>
+                    <div id="japa-options-list" style="display:flex;flex-direction:column;gap:6px;"></div>
                 </div>
-                <button type="button" class="time-trigger-btn" id="japa-btn" onclick="openTimePicker('japaTime')">8:10 AM</button>
             </div>
 
             <!-- STUDY & SERVICE Section -->
@@ -1522,8 +1745,8 @@
                 </div>
 
                 <div class="feedback-actions-list">
-                    <!-- Request a Feature or Report a Bug -->
-                    <button type="button" class="feedback-action-row" onclick="openFeedbackModal()" aria-label="Request a Feature or Report a Bug">
+                    <!-- Request a Feature or Report a Bug (Direct WhatsApp Launch) -->
+                    <button type="button" class="feedback-action-row" onclick="openWhatsAppFeedback()" aria-label="Request a Feature or Report a Bug">
                         <div class="feedback-action-icon-tile feedback-req">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
@@ -1531,7 +1754,7 @@
                         </div>
                         <div class="feedback-action-content">
                             <div class="feedback-action-title">Request a Feature or Report a Bug</div>
-                            <div class="feedback-action-desc">Share an idea, suggest an improvement, or report a problem you've found.</div>
+                            <div class="feedback-action-desc">Share an idea, suggest an improvement, or report a problem directly on WhatsApp.</div>
                         </div>
                         <svg class="feedback-action-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="9 18 15 12 9 6"></polyline>
@@ -1650,94 +1873,6 @@
             </button>
         </nav>
 
-        <!-- Time Picker Modal -->
-        <div class="modal-backdrop" id="time-modal">
-            <div class="modal-content">
-                <div class="modal-title" id="modal-field-title">Set Bedtime</div>
-                <div class="time-inputs">
-                    <input type="number" id="modal-hour" class="time-input-box" min="1" max="12" value="9">
-                    <span style="font-size:24px;font-weight:700;color:#5E2112">:</span>
-                    <input type="number" id="modal-minute" class="time-input-box" min="0" max="59" value="45">
-                    <button type="button" class="ampm-btn" id="modal-ampm" onclick="toggleAmPm()">PM</button>
-                </div>
-                <div>
-                    <div style="font-size:12px;font-weight:700;color:#6B5A4C;margin-bottom:6px">Quick select</div>
-                    <div class="quick-chips" id="quick-chips-box"></div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="modal-btn cancel" onclick="closeTimePicker(false)">Clear</button>
-                    <button type="button" class="modal-btn cancel" onclick="closeTimePicker(null)">Cancel</button>
-                    <button type="button" class="modal-btn save" onclick="savePickedTime()">Done</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Unified Feedback & Feature Request Modal -->
-        <div class="modal-backdrop" id="feedback-modal" style="display:none; align-items:center; justify-content:center;">
-            <div class="modal-content" style="max-width:340px; max-height:85vh; overflow-y:auto; gap:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div class="modal-title" style="font-size:20px;">Share Feedback</div>
-                        <div style="font-size:11.5px; color:#78695C;">Help us improve Sadhana Card</div>
-                    </div>
-                    <button type="button" onclick="closeFeedbackModal()" style="background:none; border:none; cursor:pointer; color:#78695C; font-size:18px;">✕</button>
-                </div>
-
-                <!-- Feedback Type Selector -->
-                <div style="font-size:12px; font-weight:700; color:#5E2112;">Feedback Type</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                    <button type="button" id="fb-type-feature" onclick="setFeedbackType('feature')"
-                        style="padding:8px 6px; border-radius:10px; border:2px solid #D97706; background:#FEF3C7; color:#92400E; font-weight:700; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        💡 Feature
-                    </button>
-                    <button type="button" id="fb-type-bug" onclick="setFeedbackType('bug')"
-                        style="padding:8px 6px; border-radius:10px; border:1px solid #E8DCC6; background:#fff; color:#78695C; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        🐞 Bug Report
-                    </button>
-                </div>
-
-                <!-- Subject Field -->
-                <div>
-                    <label for="fb-subject" style="display:block; font-size:11.5px; font-weight:700; color:#5E2112; margin-bottom:4px;">Subject *</label>
-                    <input type="text" id="fb-subject" placeholder="e.g. Export feature request"
-                        style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:13px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14;">
-                    <div id="fb-subject-error" style="display:none; color:#DC2626; font-size:10.5px; margin-top:2px;">Subject is required</div>
-                </div>
-
-                <!-- Description Field -->
-                <div>
-                    <label for="fb-description" style="display:block; font-size:11.5px; font-weight:700; color:#5E2112; margin-bottom:4px;">Detailed Description *</label>
-                    <textarea id="fb-description" rows="3" placeholder="Describe your suggestion or issue in detail..."
-                        style="width:100%; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12.5px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
-                    <div id="fb-desc-error" style="display:none; color:#DC2626; font-size:10.5px; margin-top:2px;">Description is required</div>
-                </div>
-
-                <!-- Conditional Bug Report Fields -->
-                <div id="fb-bug-fields" style="display:none; flex-direction:column; gap:10px;">
-                    <div>
-                        <label for="fb-repro" style="display:block; font-size:11.5px; font-weight:600; color:#78695C; margin-bottom:4px;">Steps to Reproduce (optional)</label>
-                        <textarea id="fb-repro" rows="2" placeholder="1. Tap date&#10;2. Select bedtime..."
-                            style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
-                    </div>
-                    <div>
-                        <label for="fb-expected" style="display:block; font-size:11.5px; font-weight:600; color:#78695C; margin-bottom:4px;">Expected vs Actual Behavior (optional)</label>
-                        <textarea id="fb-expected" rows="2" placeholder="Expected score: 5&#10;Actual: 0"
-                            style="width:100%; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #D0C2AE; font-size:12px; font-family:'DM Sans',sans-serif; background:#FDFBF7; color:#2A1C14; resize:vertical;"></textarea>
-                    </div>
-                </div>
-
-                <div style="font-size:11px; color:#78695C; line-height:14px;">
-                    Submitting opens WhatsApp to send your feedback directly to the developer.
-                </div>
-
-                <!-- Actions -->
-                <div class="modal-actions" style="margin-top:4px;">
-                    <button type="button" class="modal-btn cancel" onclick="closeFeedbackModal()">Cancel</button>
-                    <button type="button" class="modal-btn save" onclick="submitFeedbackForm()">Submit</button>
-                </div>
-            </div>
-        </div>
-
         <!-- App Toast Notification -->
         <div class="app-toast" id="app-toast">
             <span id="toast-icon">✨</span>
@@ -1746,68 +1881,66 @@
     </div>
 
     <script>
-        // --- SadhanaScorer Logic (matches SadhanaScorer.kt exactly) ---
-        function scoreBedtime(timeStr) {
-            if (!timeStr) return null;
-            const [h, m, ampm] = parseTime(timeStr);
-            const totalM = toMinuteOfDay(h, m, ampm);
-            if (totalM < 4 * 60) return 0; // 00:00 to 03:59 late night
-            if (totalM <= 21 * 60 + 30) return 5;
-            if (totalM <= 22 * 60) return 4;
-            if (totalM <= 22 * 60 + 30) return 3;
-            if (totalM <= 22 * 60 + 45) return 2;
-            if (totalM <= 23 * 60) return 1;
-            return 0;
+        // --- Predefined Scoring Categories (matches domain models and scoring rules) ---
+        const BEDTIME_CATEGORIES = [
+            { id: 'BED_930_OR_BEFORE', label: '9:30 PM or before', points: 5 },
+            { id: 'BED_BEFORE_1000', label: 'Before 10:00 PM', points: 4 },
+            { id: 'BED_BEFORE_1030', label: 'Before 10:30 PM', points: 3 },
+            { id: 'BED_BEFORE_1045', label: 'Before 10:45 PM', points: 2 },
+            { id: 'BED_BEFORE_1100', label: 'Before 11:00 PM', points: 1 },
+            { id: 'BED_1100_OR_LATER', label: '11:00 PM or later', points: 0 }
+        ];
+
+        const WAKE_CATEGORIES = [
+            { id: 'WAKE_BEFORE_300', label: 'Before 3:00 AM', points: 5 },
+            { id: 'WAKE_BEFORE_330', label: 'Before 3:30 AM', points: 4 },
+            { id: 'WAKE_BEFORE_400', label: 'Before 4:00 AM', points: 3 },
+            { id: 'WAKE_BEFORE_415', label: 'Before 4:15 AM', points: 2 },
+            { id: 'WAKE_BEFORE_430', label: 'Before 4:30 AM', points: 1 },
+            { id: 'WAKE_430_OR_LATER', label: '4:30 AM or later', points: 0 }
+        ];
+
+        const NAP_CATEGORIES = [
+            { id: 'NAP_30_OR_LESS', label: '30 minutes or less', points: 5 },
+            { id: 'NAP_31_TO_45', label: '31–45 minutes', points: 4 },
+            { id: 'NAP_46_TO_60', label: '46–60 minutes', points: 2 },
+            { id: 'NAP_MORE_THAN_60', label: 'More than 60 minutes', points: 0 }
+        ];
+
+        const JAPA_CATEGORIES = [
+            { id: 'JAPA_BY_715', label: 'All 16 rounds completed by 7:15 AM', points: 5 },
+            { id: 'JAPA_BY_900', label: 'All 16 rounds completed by 9:00 AM', points: 4 },
+            { id: 'JAPA_BY_1159', label: 'All 16 rounds completed by 11:59 AM', points: 3 },
+            { id: 'JAPA_BY_1500', label: 'All 16 rounds completed by 3:00 PM', points: 2 },
+            { id: 'JAPA_BY_1800', label: 'All 16 rounds completed by 6:00 PM', points: 1 },
+            { id: 'JAPA_AFTER_1800', label: 'Completed after 6:00 PM', points: 0 }
+        ];
+
+        function scoreBedtimeCategory(catId) {
+            const cat = BEDTIME_CATEGORIES.find(c => c.id === catId);
+            return cat ? cat.points : 0;
         }
 
-        function scoreWakeUp(timeStr) {
-            if (!timeStr) return null;
-            const [h, m, ampm] = parseTime(timeStr);
-            const totalM = toMinuteOfDay(h, m, ampm);
-            if (totalM < 3 * 60) return 5;
-            if (totalM <= 3 * 60 + 30) return 4;
-            if (totalM <= 4 * 60) return 3;
-            if (totalM <= 4 * 60 + 15) return 2;
-            if (totalM <= 4 * 60 + 30) return 1;
-            return 0;
+        function scoreWakeUpCategory(catId) {
+            const cat = WAKE_CATEGORIES.find(c => c.id === catId);
+            return cat ? cat.points : 0;
         }
 
-        function scoreDaySleep(napMinutes, trainJourney) {
-            if (napMinutes === null || napMinutes === undefined || isNaN(napMinutes)) return null;
-            const effective = Math.max(0, napMinutes - (trainJourney ? 60 : 0));
-            if (effective <= 30) return 5;
-            if (effective <= 45) return 4;
-            if (effective <= 60) return 2;
-            return 0;
+        function scoreDaySleepCategory(catId, trainJourney) {
+            const cat = NAP_CATEGORIES.find(c => c.id === catId);
+            if (!cat) return 0;
+            if (trainJourney) {
+                // Adds a 60-minute allowance before scoring
+                if (cat.id === 'NAP_30_OR_LESS' || cat.id === 'NAP_31_TO_45' || cat.id === 'NAP_46_TO_60') return 5;
+                return 4; // MORE_THAN_60 with 60min allowance
+            }
+            return cat.points;
         }
 
-        function scoreJapa(timeStr) {
-            if (!timeStr) return null;
-            const [h, m, ampm] = parseTime(timeStr);
-            const totalM = toMinuteOfDay(h, m, ampm);
-            if (totalM <= 7 * 60 + 15) return 5;
-            if (totalM <= 9 * 60) return 4;
-            if (totalM <= 11 * 60 + 59) return 3;
-            if (totalM <= 15 * 60) return 2;
-            if (totalM <= 18 * 60) return 1;
-            return 0;
-        }
-
-        function toMinuteOfDay(h, m, ampm) {
-            let hour24 = h % 12;
-            if (ampm === 'PM') hour24 += 12;
-            return hour24 * 60 + m;
-        }
-
-        function parseTime(str) {
-            const parts = str.match(/(\d+):(\d+)\s*(AM|PM)/i);
-            if (!parts) return [9, 0, 'PM'];
-            return [parseInt(parts[1], 10), parseInt(parts[2], 10), parts[3].toUpperCase()];
-        }
-
-        function formatHM(h, m, ampm) {
-            const minStr = m < 10 ? '0' + m : '' + m;
-            return `${h}:${minStr} ${ampm}`;
+        function scoreJapaCategory(catId, japaCompleted) {
+            if (japaCompleted === false) return 0;
+            const cat = JAPA_CATEGORIES.find(c => c.id === catId);
+            return cat ? cat.points : 0;
         }
 
         // --- Weekly State Model (7 Days: Sun to Sat) ---
@@ -1817,13 +1950,13 @@
         const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         const defaultData = [
-            { bedtime: '9:45 PM', wakeTime: '3:20 AM', napMinutes: 40, trainJourney: false, japaTime: '8:10 AM', pathanMinutes: 45, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Cooking'] },
-            { bedtime: '9:20 PM', wakeTime: '3:45 AM', napMinutes: 20, trainJourney: false, japaTime: '8:45 AM', pathanMinutes: 30, sravanMinutes: 45, sevaMinutes: 90, sevaTags: ['Mentoring'] },
-            { bedtime: '10:15 PM', wakeTime: '3:15 AM', napMinutes: 25, trainJourney: false, japaTime: '7:10 AM', pathanMinutes: 60, sravanMinutes: 30, sevaMinutes: 45, sevaTags: ['Lecturing'] },
-            { bedtime: '9:40 PM', wakeTime: '2:50 AM', napMinutes: 50, trainJourney: false, japaTime: '10:00 AM', pathanMinutes: 20, sravanMinutes: 60, sevaMinutes: 0, sevaTags: [] },
-            { bedtime: '9:30 PM', wakeTime: '3:25 AM', napMinutes: 40, trainJourney: false, japaTime: '8:30 AM', pathanMinutes: 40, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Calling'] },
-            { bedtime: '10:40 PM', wakeTime: '4:10 AM', napMinutes: 15, trainJourney: false, japaTime: '12:30 PM', pathanMinutes: 0, sravanMinutes: 20, sevaMinutes: 120, sevaTags: ['Temple cleaning'] },
-            { bedtime: '10:20 PM', wakeTime: '4:20 AM', napMinutes: 35, trainJourney: false, japaTime: '10:30 AM', pathanMinutes: 25, sravanMinutes: 40, sevaMinutes: 30, sevaTags: ['Cooking'] }
+            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_330', napCategory: 'NAP_31_TO_45', trainJourney: false, japaCategory: 'JAPA_BY_900', japaCompleted: true, pathanMinutes: 45, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Cooking'] },
+            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_400', napCategory: 'NAP_30_OR_LESS', trainJourney: false, japaCategory: 'JAPA_BY_900', japaCompleted: true, pathanMinutes: 30, sravanMinutes: 45, sevaMinutes: 90, sevaTags: ['Mentoring'] },
+            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_330', napCategory: 'NAP_30_OR_LESS', trainJourney: false, japaCategory: 'JAPA_BY_715', japaCompleted: true, pathanMinutes: 60, sravanMinutes: 30, sevaMinutes: 45, sevaTags: ['Lecturing'] },
+            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_300', napCategory: 'NAP_46_TO_60', trainJourney: false, japaCategory: 'JAPA_BY_1159', japaCompleted: true, pathanMinutes: 20, sravanMinutes: 60, sevaMinutes: 0, sevaTags: [] },
+            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_330', napCategory: 'NAP_31_TO_45', trainJourney: false, japaCategory: 'JAPA_BY_900', japaCompleted: true, pathanMinutes: 40, sravanMinutes: 30, sevaMinutes: 60, sevaTags: ['Calling'] },
+            { bedtimeCategory: 'BED_BEFORE_1045', wakeCategory: 'WAKE_BEFORE_415', napCategory: 'NAP_30_OR_LESS', trainJourney: false, japaCategory: 'JAPA_BY_1500', japaCompleted: true, pathanMinutes: 0, sravanMinutes: 20, sevaMinutes: 120, sevaTags: ['Temple cleaning'] },
+            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_430', napCategory: 'NAP_31_TO_45', trainJourney: false, japaCategory: 'JAPA_BY_1159', japaCompleted: true, pathanMinutes: 25, sravanMinutes: 40, sevaMinutes: 30, sevaTags: ['Cooking'] }
         ];
 
         let weekEntries = JSON.parse(JSON.stringify(defaultData));
@@ -1844,45 +1977,158 @@
             });
         }
 
+        function renderCategoryOptions() {
+            const entry = weekEntries[selectedDayIndex];
+
+            // Bedtime options
+            const bedList = document.getElementById('bedtime-options-list');
+            if (bedList) {
+                bedList.innerHTML = '';
+                BEDTIME_CATEGORIES.forEach(cat => {
+                    const row = document.createElement('div');
+                    const isSel = entry.bedtimeCategory === cat.id;
+                    row.className = 'category-option-row' + (isSel ? ' selected' : '');
+                    row.onclick = () => selectBedtimeOption(cat.id);
+                    row.innerHTML = `
+                        <div class="option-left">
+                            <div class="option-radio"><div class="option-radio-dot"></div></div>
+                            <div class="option-label">${cat.label}</div>
+                        </div>
+                        <span class="option-pts-badge pts-${cat.points}">+${cat.points} pts</span>
+                    `;
+                    bedList.appendChild(row);
+                });
+            }
+
+            // Wake-up options
+            const wakeList = document.getElementById('wakeup-options-list');
+            if (wakeList) {
+                wakeList.innerHTML = '';
+                WAKE_CATEGORIES.forEach(cat => {
+                    const row = document.createElement('div');
+                    const isSel = entry.wakeCategory === cat.id;
+                    row.className = 'category-option-row' + (isSel ? ' selected' : '');
+                    row.onclick = () => selectWakeUpOption(cat.id);
+                    row.innerHTML = `
+                        <div class="option-left">
+                            <div class="option-radio"><div class="option-radio-dot"></div></div>
+                            <div class="option-label">${cat.label}</div>
+                        </div>
+                        <span class="option-pts-badge pts-${cat.points}">+${cat.points} pts</span>
+                    `;
+                    wakeList.appendChild(row);
+                });
+            }
+
+            // Day sleep options
+            const napList = document.getElementById('daysleep-options-list');
+            if (napList) {
+                napList.innerHTML = '';
+                NAP_CATEGORIES.forEach(cat => {
+                    const row = document.createElement('div');
+                    const isSel = entry.napCategory === cat.id;
+                    const pts = scoreDaySleepCategory(cat.id, entry.trainJourney);
+                    row.className = 'category-option-row' + (isSel ? ' selected' : '');
+                    row.onclick = () => selectDaySleepOption(cat.id);
+                    row.innerHTML = `
+                        <div class="option-left">
+                            <div class="option-radio"><div class="option-radio-dot"></div></div>
+                            <div class="option-label">${cat.label}</div>
+                        </div>
+                        <span class="option-pts-badge pts-${pts}">+${pts} pts</span>
+                    `;
+                    napList.appendChild(row);
+                });
+            }
+
+            // Japa options
+            const japaList = document.getElementById('japa-options-list');
+            if (japaList) {
+                japaList.innerHTML = '';
+                const isCompleted = entry.japaCompleted !== false;
+                JAPA_CATEGORIES.forEach(cat => {
+                    const row = document.createElement('div');
+                    const isSel = entry.japaCategory === cat.id;
+                    const pts = isCompleted ? cat.points : 0;
+                    row.className = 'category-option-row' + (isSel ? ' selected' : '') + (!isCompleted ? ' disabled' : '');
+                    row.onclick = () => {
+                        if (!isCompleted) {
+                            entry.japaCompleted = true;
+                            document.getElementById('japa-chk').checked = true;
+                        }
+                        selectJapaOption(cat.id);
+                    };
+                    row.innerHTML = `
+                        <div class="option-left">
+                            <div class="option-radio"><div class="option-radio-dot"></div></div>
+                            <div class="option-label">${cat.label}</div>
+                        </div>
+                        <span class="option-pts-badge pts-${pts}">+${pts} pts</span>
+                    `;
+                    japaList.appendChild(row);
+                });
+            }
+        }
+
         function renderCurrentDay() {
             const entry = weekEntries[selectedDayIndex];
             document.getElementById('day-score-title').textContent = `${fullDayNames[selectedDayIndex]}’s score`;
 
-            // Buttons
-            document.getElementById('bedtime-btn').textContent = entry.bedtime || '—';
-            document.getElementById('waketime-btn').textContent = entry.wakeTime || '—';
-            document.getElementById('nap-input').value = entry.napMinutes !== null ? entry.napMinutes : '';
-            document.getElementById('train-chk').checked = !!entry.trainJourney;
-            document.getElementById('japa-btn').textContent = entry.japaTime || '—';
+            // Bedtime summary & pill
+            const bedCat = BEDTIME_CATEGORIES.find(c => c.id === entry.bedtimeCategory) || BEDTIME_CATEGORIES[0];
+            const bedScore = bedCat ? bedCat.points : 0;
+            const bedSummary = document.getElementById('bedtime-summary');
+            if (bedSummary) bedSummary.textContent = bedCat ? bedCat.label : 'Select Bedtime';
+            updatePill('bedtime-pill', bedScore);
 
+            // Wake-up summary & pill
+            const wakeCat = WAKE_CATEGORIES.find(c => c.id === entry.wakeCategory) || WAKE_CATEGORIES[0];
+            const wakeScore = wakeCat ? wakeCat.points : 0;
+            const wakeSummary = document.getElementById('waketime-summary');
+            if (wakeSummary) wakeSummary.textContent = wakeCat ? wakeCat.label : 'Select Wake-up Time';
+            updatePill('waketime-pill', wakeScore);
+
+            // Day Sleep summary & pill
+            const napCat = NAP_CATEGORIES.find(c => c.id === entry.napCategory) || NAP_CATEGORIES[0];
+            const napScore = scoreDaySleepCategory(entry.napCategory, entry.trainJourney);
+            const napSummary = document.getElementById('nap-summary');
+            if (napSummary) napSummary.textContent = (napCat ? napCat.label : 'Select Day sleep') + (entry.trainJourney ? ' (+60m allowance)' : '');
+            const trainChk = document.getElementById('train-chk');
+            if (trainChk) trainChk.checked = !!entry.trainJourney;
+            updatePill('nap-pill', napScore);
+
+            // Japa summary & pill
+            const japaCompleted = entry.japaCompleted !== false;
+            const japaChk = document.getElementById('japa-chk');
+            if (japaChk) japaChk.checked = japaCompleted;
+            const japaCat = JAPA_CATEGORIES.find(c => c.id === entry.japaCategory) || JAPA_CATEGORIES[0];
+            const japaScore = japaCompleted ? (japaCat ? japaCat.points : 0) : 0;
+            const japaSummary = document.getElementById('japa-summary');
+            if (japaSummary) {
+                japaSummary.textContent = japaCompleted
+                    ? (japaCat ? japaCat.label : '16 rounds completed')
+                    : '16 rounds incomplete (0 pts)';
+            }
+            updatePill('japa-pill', japaScore);
+
+            // Study & Service inputs
             document.getElementById('pathan-input').value = entry.pathanMinutes || 0;
             document.getElementById('sravan-input').value = entry.sravanMinutes || 0;
             document.getElementById('seva-input').value = entry.sevaMinutes || 0;
 
-            // Score Pills
-            updatePill('bedtime-pill', scoreBedtime(entry.bedtime));
-            updatePill('waketime-pill', scoreWakeUp(entry.wakeTime));
-            updatePill('nap-pill', scoreDaySleep(entry.napMinutes, entry.trainJourney));
-            updatePill('japa-pill', scoreJapa(entry.japaTime));
-
             // Total Score
-            const scores = [
-                scoreBedtime(entry.bedtime),
-                scoreWakeUp(entry.wakeTime),
-                scoreDaySleep(entry.napMinutes, entry.trainJourney),
-                scoreJapa(entry.japaTime)
-            ].filter(s => s !== null);
-
-            const total = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) : '—';
+            const total = bedScore + wakeScore + napScore + japaScore;
             document.getElementById('total-score-val').textContent = total;
-            const pct = typeof total === 'number' ? (total / 20) * 100 : 0;
+            const pct = (total / 20) * 100;
             document.getElementById('score-progress').style.width = pct + '%';
 
+            renderCategoryOptions();
             renderTags();
         }
 
         function updatePill(elemId, score) {
             const el = document.getElementById(elemId);
+            if (!el) return;
             if (score === null || score === undefined) {
                 el.style.display = 'none';
             } else {
@@ -1894,6 +2140,42 @@
                     el.className = 'score-pill';
                 }
             }
+        }
+
+        function toggleAccordion(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            card.classList.toggle('is-open');
+        }
+
+        function selectBedtimeOption(id) {
+            weekEntries[selectedDayIndex].bedtimeCategory = id;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function selectWakeUpOption(id) {
+            weekEntries[selectedDayIndex].wakeCategory = id;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function selectDaySleepOption(id) {
+            weekEntries[selectedDayIndex].napCategory = id;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function selectJapaOption(id) {
+            weekEntries[selectedDayIndex].japaCategory = id;
+            renderCurrentDay();
+            updateWeeklyMatrix();
+        }
+
+        function toggleJapaCompleted(checked) {
+            weekEntries[selectedDayIndex].japaCompleted = checked;
+            renderCurrentDay();
+            updateWeeklyMatrix();
         }
 
         function renderTags() {
@@ -1949,7 +2231,7 @@
             switchTab('daily');
         }
 
-        // --- Stepper Controls ---
+        // --- Stepper Controls for Study & Service ---
         function changeMinutes(field, delta) {
             let curr = parseInt(weekEntries[selectedDayIndex][field], 10) || 0;
             curr = Math.max(0, curr + delta);
@@ -1983,78 +2265,6 @@
             }
         }
 
-        // --- Time Picker Dialog Modal ---
-        let activeTimeField = null;
-
-        const quickPresets = {
-            bedtime: ['9:15 PM', '9:30 PM', '9:45 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'],
-            wakeTime: ['2:45 AM', '3:00 AM', '3:15 AM', '3:30 AM', '3:45 AM', '4:00 AM', '4:30 AM'],
-            japaTime: ['6:45 AM', '7:00 AM', '7:15 AM', '7:30 AM', '8:00 AM', '9:00 AM', '11:30 AM', '1:00 PM']
-        };
-
-        const titles = {
-            bedtime: 'Set Bedtime',
-            wakeTime: 'Set Wake-up Time',
-            japaTime: 'Set 16 Rounds Completion'
-        };
-
-        function openTimePicker(field) {
-            activeTimeField = field;
-            document.getElementById('modal-field-title').textContent = titles[field];
-            const currentVal = weekEntries[selectedDayIndex][field];
-
-            let [h, m, ampm] = currentVal ? parseTime(currentVal) : (field === 'bedtime' ? [9, 30, 'PM'] : field === 'wakeTime' ? [3, 0, 'AM'] : [7, 15, 'AM']);
-            document.getElementById('modal-hour').value = h;
-            document.getElementById('modal-minute').value = m < 10 ? '0' + m : m;
-            document.getElementById('modal-ampm').textContent = ampm;
-
-            const chipsBox = document.getElementById('quick-chips-box');
-            chipsBox.innerHTML = '';
-            (quickPresets[field] || []).forEach(preset => {
-                const chip = document.createElement('button');
-                chip.type = 'button';
-                chip.className = 'quick-chip';
-                chip.textContent = preset;
-                chip.onclick = () => {
-                    const [qh, qm, qampm] = parseTime(preset);
-                    document.getElementById('modal-hour').value = qh;
-                    document.getElementById('modal-minute').value = qm < 10 ? '0' + qm : qm;
-                    document.getElementById('modal-ampm').textContent = qampm;
-                };
-                chipsBox.appendChild(chip);
-            });
-
-            document.getElementById('time-modal').style.display = 'flex';
-        }
-
-        function toggleAmPm() {
-            const btn = document.getElementById('modal-ampm');
-            btn.textContent = btn.textContent === 'AM' ? 'PM' : 'AM';
-        }
-
-        function closeTimePicker(clear) {
-            if (clear === false && activeTimeField) {
-                weekEntries[selectedDayIndex][activeTimeField] = null;
-                renderCurrentDay();
-                updateWeeklyMatrix();
-            }
-            document.getElementById('time-modal').style.display = 'none';
-        }
-
-        function savePickedTime() {
-            if (!activeTimeField) return;
-            let h = parseInt(document.getElementById('modal-hour').value, 10) || 9;
-            let m = parseInt(document.getElementById('modal-minute').value, 10) || 0;
-            h = Math.max(1, Math.min(12, h));
-            m = Math.max(0, Math.min(59, m));
-            const ampm = document.getElementById('modal-ampm').textContent;
-
-            weekEntries[selectedDayIndex][activeTimeField] = formatHM(h, m, ampm);
-            closeTimePicker(true);
-            renderCurrentDay();
-            updateWeeklyMatrix();
-        }
-
         // --- Weekly Matrix Computations ---
         function getCellClass(score) {
             if (score === null || score === undefined) return 'cell-unlogged';
@@ -2070,18 +2280,23 @@
             container.innerHTML = '';
 
             const rowDefs = [
-                { key: 'bed', label: 'Bedtime', unit: 'pts', getter: (e) => scoreBedtime(e.bedtime), isScore: true },
-                { key: 'wake', label: 'Wake-up', unit: 'pts', getter: (e) => scoreWakeUp(e.wakeTime), isScore: true },
-                { key: 'nap', label: 'Day sleep', unit: 'pts', getter: (e) => scoreDaySleep(e.napMinutes, e.trainJourney), isScore: true },
-                { key: 'japa', label: 'Japa', unit: 'pts', getter: (e) => scoreJapa(e.japaTime), isScore: true },
+                { key: 'bed', label: 'Bedtime', unit: 'pts', getter: (e) => scoreBedtimeCategory(e.bedtimeCategory), isScore: true },
+                { key: 'wake', label: 'Wake-up', unit: 'pts', getter: (e) => scoreWakeUpCategory(e.wakeCategory), isScore: true },
+                { key: 'nap', label: 'Day sleep', unit: 'pts', getter: (e) => scoreDaySleepCategory(e.napCategory, e.trainJourney), isScore: true },
+                { key: 'japa', label: 'Japa', unit: 'pts', getter: (e) => scoreJapaCategory(e.japaCategory, e.japaCompleted), isScore: true },
                 { key: 'pathan', label: 'Pathan', unit: 'min', getter: (e) => e.pathanMinutes || 0, isScore: false },
                 { key: 'sravan', label: 'Sravan', unit: 'min', getter: (e) => e.sravanMinutes || 0, isScore: false },
                 { key: 'seva', label: 'Seva', unit: 'min', getter: (e) => e.sevaMinutes || 0, isScore: false }
             ];
 
             const dailyTotals = weekEntries.map(e => {
-                const s = [scoreBedtime(e.bedtime), scoreWakeUp(e.wakeTime), scoreDaySleep(e.napMinutes, e.trainJourney), scoreJapa(e.japaTime)].filter(x => x !== null);
-                return s.length > 0 ? s.reduce((a, b) => a + b, 0) : null;
+                const s = [
+                    scoreBedtimeCategory(e.bedtimeCategory),
+                    scoreWakeUpCategory(e.wakeCategory),
+                    scoreDaySleepCategory(e.napCategory, e.trainJourney),
+                    scoreJapaCategory(e.japaCategory, e.japaCompleted)
+                ];
+                return s.reduce((a, b) => a + b, 0);
             });
 
             rowDefs.forEach(row => {
@@ -2132,7 +2347,7 @@
             document.getElementById('weekly-sravan-hrs').textContent = `${Math.floor(sumSravan / 60)}h ${sumSravan % 60}m`;
             document.getElementById('weekly-both-hrs').textContent = `${Math.floor(sumBoth / 60)}h ${sumBoth % 60}m`;
 
-            // Weekly Highlights Computation (if present)
+            // Weekly Highlights Computation
             let bestIdx = 0;
             let bestScore = -1;
             dailyTotals.forEach((tot, idx) => {
@@ -2146,26 +2361,17 @@
             const hlBestScore = document.getElementById('highlight-best-score');
             if (hlBestScore) hlBestScore.textContent = bestScore >= 0 ? `${bestScore} / 20 pts` : '—';
 
-            // Average wake-up calculation
-            const wakeMins = weekEntries.map(e => {
-                if (!e.wakeTime) return null;
-                const [h, m, ampm] = parseTime(e.wakeTime);
-                return toMinuteOfDay(h, m, ampm);
-            }).filter(m => m !== null);
-
+            // Average wake-up category representation
             const hlAvgWake = document.getElementById('highlight-avg-wake');
             if (hlAvgWake) {
-                if (wakeMins.length > 0) {
-                    const avgMin = Math.round(wakeMins.reduce((a, b) => a + b, 0) / wakeMins.length);
-                    let avgH = Math.floor(avgMin / 60);
-                    const avgM = avgMin % 60;
-                    const ampm = avgH >= 12 ? 'PM' : 'AM';
-                    if (avgH > 12) avgH -= 12;
-                    if (avgH === 0) avgH = 12;
-                    hlAvgWake.textContent = `${avgH}:${avgM < 10 ? '0' + avgM : avgM} ${ampm}`;
-                } else {
-                    hlAvgWake.textContent = '—';
-                }
+                const wakeScores = weekEntries.map(e => scoreWakeUpCategory(e.wakeCategory));
+                const avgWakeScore = wakeScores.reduce((a, b) => a + b, 0) / wakeScores.length;
+                if (avgWakeScore >= 4.5) hlAvgWake.textContent = 'Before 3:00 AM';
+                else if (avgWakeScore >= 3.5) hlAvgWake.textContent = '3:00 – 3:30 AM';
+                else if (avgWakeScore >= 2.5) hlAvgWake.textContent = '3:30 – 4:00 AM';
+                else if (avgWakeScore >= 1.5) hlAvgWake.textContent = '4:00 – 4:15 AM';
+                else if (avgWakeScore >= 0.5) hlAvgWake.textContent = '4:15 – 4:30 AM';
+                else hlAvgWake.textContent = '4:30 AM or later';
             }
 
             // Total study and practical service combined
@@ -2178,101 +2384,13 @@
             loadWeeklyFeedback();
         }
 
-        // --- WhatsApp Direct Unified Feedback & Feature Request System ---
+        // --- WhatsApp Direct Feedback & Feature Request System ---
         const DEVELOPER_WHATSAPP_NUMBER = '916002630803';
-        let currentFeedbackType = 'feature';
 
-        function openFeedbackModal() {
-            const modal = document.getElementById('feedback-modal');
-            if (!modal) return;
-            setFeedbackType('feature');
-            document.getElementById('fb-subject').value = '';
-            document.getElementById('fb-description').value = '';
-            document.getElementById('fb-repro').value = '';
-            document.getElementById('fb-expected').value = '';
-            document.getElementById('fb-subject-error').style.display = 'none';
-            document.getElementById('fb-desc-error').style.display = 'none';
-            modal.style.display = 'flex';
-        }
-
-        function closeFeedbackModal() {
-            const modal = document.getElementById('feedback-modal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        function setFeedbackType(type) {
-            currentFeedbackType = type;
-            const btnFeature = document.getElementById('fb-type-feature');
-            const btnBug = document.getElementById('fb-type-bug');
-            const bugFields = document.getElementById('fb-bug-fields');
-
-            if (type === 'feature') {
-                btnFeature.style.borderColor = '#D97706';
-                btnFeature.style.background = '#FEF3C7';
-                btnFeature.style.color = '#92400E';
-                btnFeature.style.borderWidth = '2px';
-
-                btnBug.style.borderColor = '#E8DCC6';
-                btnBug.style.background = '#fff';
-                btnBug.style.color = '#78695C';
-                btnBug.style.borderWidth = '1px';
-
-                if (bugFields) bugFields.style.display = 'none';
-            } else {
-                btnBug.style.borderColor = '#DC2626';
-                btnBug.style.background = '#FEE2E2';
-                btnBug.style.color = '#991B1B';
-                btnBug.style.borderWidth = '2px';
-
-                btnFeature.style.borderColor = '#E8DCC6';
-                btnFeature.style.background = '#fff';
-                btnFeature.style.color = '#78695C';
-                btnFeature.style.borderWidth = '1px';
-
-                if (bugFields) bugFields.style.display = 'flex';
-            }
-        }
-
-        function submitFeedbackForm() {
-            const subject = document.getElementById('fb-subject').value.trim();
-            const description = document.getElementById('fb-description').value.trim();
-            const repro = document.getElementById('fb-repro').value.trim();
-            const expected = document.getElementById('fb-expected').value.trim();
-
-            let isValid = true;
-            if (!subject) {
-                document.getElementById('fb-subject-error').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('fb-subject-error').style.display = 'none';
-            }
-
-            if (!description) {
-                document.getElementById('fb-desc-error').style.display = 'block';
-                isValid = false;
-            } else {
-                document.getElementById('fb-desc-error').style.display = 'none';
-            }
-
-            if (!isValid) return;
-
-            const typeLabel = currentFeedbackType === 'feature' ? 'Feature Request' : 'Bug Report';
-            let message = `Hello Developer! 👋\n\n📝 *Feedback Type:* ${typeLabel}\n📌 *Subject:* ${subject}\n\n💬 *Description:*\n${description}\n`;
-
-            if (currentFeedbackType === 'bug') {
-                if (repro) message += `\n🔁 *Steps to Reproduce:*\n${repro}\n`;
-                if (expected) message += `\n⚖️ *Expected vs Actual Behavior:*\n${expected}\n`;
-            }
-            message += '\n_Sent via ISKCON Sadhana Card App_';
-
-            closeFeedbackModal();
+        function openWhatsAppFeedback() {
+            const message = "Hare Krishna! 🙏\n\nI would like to share feedback / request a feature for the Sadhana Card App:\n\n";
             const url = 'https://wa.me/' + DEVELOPER_WHATSAPP_NUMBER + '?text=' + encodeURIComponent(message);
             window.open(url, '_blank');
-        }
-
-        function openWhatsAppFeedback(type) {
-            setFeedbackType(type === 'bug' ? 'bug' : 'feature');
-            openFeedbackModal();
         }
 
         // --- Weekly Feedback & Reflection System ---
@@ -2447,8 +2565,11 @@
             const avgWake = document.getElementById('highlight-avg-wake').textContent;
 
             const daysBreakdown = dayNames.map((d, i) => {
-                const s = [scoreBedtime(weekEntries[i].bedtime), scoreWakeUp(weekEntries[i].wakeTime), scoreDaySleep(weekEntries[i].napMinutes, weekEntries[i].trainJourney), scoreJapa(weekEntries[i].japaTime)].filter(x => x !== null);
-                const tot = s.length > 0 ? s.reduce((a, b) => a + b, 0) : '—';
+                const e = weekEntries[i];
+                const tot = scoreBedtimeCategory(e.bedtimeCategory) +
+                            scoreWakeUpCategory(e.wakeCategory) +
+                            scoreDaySleepCategory(e.napCategory, e.trainJourney) +
+                            scoreJapaCategory(e.japaCategory, e.japaCompleted);
                 return `${d}: ${tot}/20`;
             }).join(' | ');
 

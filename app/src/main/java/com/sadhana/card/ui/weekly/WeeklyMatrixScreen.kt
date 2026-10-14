@@ -857,15 +857,10 @@ fun launchWhatsApp(context: Context, message: String) {
 /**
  * Feedback type enum for the unified feedback form.
  */
-enum class FeedbackFormType(val displayName: String) {
-    FEATURE_REQUEST("Feature Request"),
-    BUG_REPORT("Bug Report")
-}
-
 /**
  * Polished "Feedback & Feature Requests" section on the Weekly page.
- * Displays a single unified entry that opens a modal form allowing users
- * to submit either a Feature Request or a Bug Report.
+ * Displays a single unified entry that immediately opens WhatsApp click-to-chat
+ * with a prefilled message.
  */
 @Composable
 fun FeedbackAndFeatureRequestsSection(
@@ -873,7 +868,6 @@ fun FeedbackAndFeatureRequestsSection(
 ) {
     val context = LocalContext.current
     val isDark = MaterialTheme.colorScheme.background == DarkBg
-    var showFeedbackDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -931,7 +925,7 @@ fun FeedbackAndFeatureRequestsSection(
             }
         }
 
-        // Single Unified Entry Row
+        // Single Unified Entry Row - Direct WhatsApp launch
         UnifiedFeedbackActionRow(
             title = "Request a Feature or Report a Bug",
             description = "Share an idea, suggest an improvement, or report a problem you've found.",
@@ -939,32 +933,9 @@ fun FeedbackAndFeatureRequestsSection(
             iconTint = if (isDark) Color(0xFF93C5FD) else Color(0xFF2563EB),
             iconBg = if (isDark) Color(0xFF172554) else Color(0xFFEFF6FF),
             iconBorder = if (isDark) Color(0xFF1E40AF) else Color(0xFFBFDBFE),
-            onClick = { showFeedbackDialog = true }
-        )
-    }
-
-    if (showFeedbackDialog) {
-        UnifiedFeedbackDialog(
-            onDismiss = { showFeedbackDialog = false },
-            onSubmit = { formType, subject, description, reproSteps, expectedActual ->
-                val typeLabel = formType.displayName
-                val message = buildString {
-                    append("Hello Developer! 👋\n\n")
-                    append("📝 *Feedback Type:* $typeLabel\n")
-                    append("📌 *Subject:* $subject\n\n")
-                    append("💬 *Description:*\n$description\n")
-                    if (formType == FeedbackFormType.BUG_REPORT) {
-                        if (reproSteps.isNotBlank()) {
-                            append("\n🔁 *Steps to Reproduce:*\n$reproSteps\n")
-                        }
-                        if (expectedActual.isNotBlank()) {
-                            append("\n⚖️ *Expected vs Actual Behavior:*\n$expectedActual\n")
-                        }
-                    }
-                    append("\n_Sent via ISKCON Sadhana Card App_")
-                }
+            onClick = {
+                val message = "Hello Developer! 👋\n\nI would like to share feedback / request a feature / report an issue in the Sadhana Card app."
                 launchWhatsApp(context, message)
-                showFeedbackDialog = false
             }
         )
     }
@@ -1045,322 +1016,6 @@ fun UnifiedFeedbackActionRow(
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             modifier = Modifier.size(18.dp)
         )
-    }
-}
-
-/**
- * Unified feedback dialog supporting both Feature Request and Bug Report workflows.
- */
-@Composable
-fun UnifiedFeedbackDialog(
-    onDismiss: () -> Unit,
-    onSubmit: (
-        type: FeedbackFormType,
-        subject: String,
-        description: String,
-        reproSteps: String,
-        expectedActual: String
-    ) -> Unit
-) {
-    var selectedType by remember { mutableStateOf(FeedbackFormType.FEATURE_REQUEST) }
-    var subject by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var reproSteps by remember { mutableStateOf("") }
-    var expectedActual by remember { mutableStateOf("") }
-
-    var subjectTouched by remember { mutableStateOf(false) }
-    var descriptionTouched by remember { mutableStateOf(false) }
-
-    val isSubjectError = subjectTouched && subject.isBlank()
-    val isDescriptionError = descriptionTouched && description.isBlank()
-
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(24.dp))
-                .padding(20.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Share Feedback",
-                            fontFamily = NewsreaderFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Help us improve Sadhana Card",
-                            fontFamily = DmSansFontFamily,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-
-                // Type Selection: Feature Request vs Bug Report
-                Text(
-                    text = "Feedback Type",
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    val isFeature = selectedType == FeedbackFormType.FEATURE_REQUEST
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (isFeature) {
-                                    if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7)
-                                } else {
-                                    MaterialTheme.colorScheme.surface
-                                }
-                            )
-                            .border(
-                                BorderStroke(
-                                    if (isFeature) 2.dp else 1.dp,
-                                    if (isFeature) (if (isDark) Color(0xFFD97706) else Color(0xFFB45309))
-                                    else MaterialTheme.colorScheme.outline
-                                ),
-                                RoundedCornerShape(12.dp)
-                            )
-                            .clickable { selectedType = FeedbackFormType.FEATURE_REQUEST }
-                            .padding(vertical = 10.dp, horizontal = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Lightbulb,
-                                contentDescription = null,
-                                tint = if (isFeature) (if (isDark) Color(0xFFFCD34D) else Color(0xFFB45309))
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = "Feature",
-                                fontFamily = DmSansFontFamily,
-                                fontWeight = if (isFeature) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.sp,
-                                color = if (isFeature) MaterialTheme.colorScheme.onSurface
-                                else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    val isBug = selectedType == FeedbackFormType.BUG_REPORT
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (isBug) {
-                                    if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2)
-                                } else {
-                                    MaterialTheme.colorScheme.surface
-                                }
-                            )
-                            .border(
-                                BorderStroke(
-                                    if (isBug) 2.dp else 1.dp,
-                                    if (isBug) (if (isDark) Color(0xFFDC2626) else Color(0xFFB91C1C))
-                                    else MaterialTheme.colorScheme.outline
-                                ),
-                                RoundedCornerShape(12.dp)
-                            )
-                            .clickable { selectedType = FeedbackFormType.BUG_REPORT }
-                            .padding(vertical = 10.dp, horizontal = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.BugReport,
-                                contentDescription = null,
-                                tint = if (isBug) (if (isDark) Color(0xFFFCA5A5) else Color(0xFFDC2626))
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = "Bug Report",
-                                fontFamily = DmSansFontFamily,
-                                fontWeight = if (isBug) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.sp,
-                                color = if (isBug) MaterialTheme.colorScheme.onSurface
-                                else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                // Subject Field
-                OutlinedTextField(
-                    value = subject,
-                    onValueChange = {
-                        subject = it
-                        if (subjectTouched) subjectTouched = false
-                    },
-                    label = { Text("Subject *") },
-                    placeholder = {
-                        Text(
-                            if (selectedType == FeedbackFormType.FEATURE_REQUEST) "e.g. Export to PDF format"
-                            else "e.g. Score calculation on Sunday"
-                        )
-                    },
-                    isError = isSubjectError,
-                    supportingText = if (isSubjectError) {
-                        { Text("Subject is required", color = MaterialTheme.colorScheme.error) }
-                    } else null,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                // Description Field
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = {
-                        description = it
-                        if (descriptionTouched) descriptionTouched = false
-                    },
-                    label = { Text("Detailed Description *") },
-                    placeholder = {
-                        Text(
-                            if (selectedType == FeedbackFormType.FEATURE_REQUEST) "Describe your suggestion and why it would be helpful..."
-                            else "Describe what happened and any relevant details..."
-                        )
-                    },
-                    isError = isDescriptionError,
-                    supportingText = if (isDescriptionError) {
-                        { Text("Description is required", color = MaterialTheme.colorScheme.error) }
-                    } else null,
-                    minLines = 3,
-                    maxLines = 5,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                // Conditional Bug Report Fields
-                if (selectedType == FeedbackFormType.BUG_REPORT) {
-                    OutlinedTextField(
-                        value = reproSteps,
-                        onValueChange = { reproSteps = it },
-                        label = { Text("Steps to Reproduce (optional)") },
-                        placeholder = { Text("1. Tap on Sunday...\n2. Select 9:30 PM...") },
-                        minLines = 2,
-                        maxLines = 4,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = expectedActual,
-                        onValueChange = { expectedActual = it },
-                        label = { Text("Expected vs Actual Behavior (optional)") },
-                        placeholder = { Text("Expected: score 5\nActual: showed 0") },
-                        minLines = 2,
-                        maxLines = 4,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                }
-
-                Text(
-                    text = "Submitting will open WhatsApp to send your feedback directly to the developer.",
-                    fontFamily = DmSansFontFamily,
-                    fontSize = 11.5.sp,
-                    lineHeight = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                // Action Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Text(
-                            text = "Cancel",
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            subjectTouched = true
-                            descriptionTouched = true
-                            if (subject.isNotBlank() && description.isNotBlank()) {
-                                onSubmit(
-                                    selectedType,
-                                    subject.trim(),
-                                    description.trim(),
-                                    reproSteps.trim(),
-                                    expectedActual.trim()
-                                )
-                            }
-                        },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = RustPrimary
-                        )
-                    ) {
-                        Text(
-                            text = "Submit",
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFBF1DF)
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
