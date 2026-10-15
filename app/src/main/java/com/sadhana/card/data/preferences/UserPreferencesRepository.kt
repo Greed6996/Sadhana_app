@@ -28,7 +28,8 @@ data class UserPreferences(
     val isDedicationExpanded: Boolean = true,
     val acceptedTerms: Boolean = false,
     val acceptedTermsVersion: Int = 0,
-    val themeMode: ThemeMode = ThemeMode.SYSTEM
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val dismissedUpdateVersion: Int = 0
 ) {
     val isTermsAccepted: Boolean
         get() = acceptedTerms && acceptedTermsVersion >= CURRENT_TERMS_VERSION
@@ -45,6 +46,7 @@ interface UserPreferencesRepository {
     suspend fun setDedicationExpanded(expanded: Boolean)
     suspend fun setTermsAccepted(accepted: Boolean, version: Int = CURRENT_TERMS_VERSION)
     suspend fun setThemeMode(themeMode: ThemeMode)
+    suspend fun setDismissedUpdateVersion(version: Int)
 }
 
 /**
@@ -62,6 +64,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val ACCEPTED_TERMS = booleanPreferencesKey("acceptedTerms")
         val ACCEPTED_TERMS_VERSION = intPreferencesKey("acceptedTermsVersion")
         val THEME_MODE = stringPreferencesKey("themeMode")
+        val DISMISSED_UPDATE_VERSION = intPreferencesKey("dismissed_update_version")
         // Legacy fallback
         val LEGACY_HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
     }
@@ -81,6 +84,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             val version = preferences[PreferencesKeys.ACCEPTED_TERMS_VERSION] ?: if (accepted) 1 else 0
             val themeModeStr = preferences[PreferencesKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name
             val themeMode = runCatching { ThemeMode.valueOf(themeModeStr) }.getOrDefault(ThemeMode.SYSTEM)
+            val dismissedVersion = preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] ?: 0
 
             UserPreferences(
                 sadhakaName = preferences[PreferencesKeys.SADHAKA_NAME] ?: "",
@@ -88,7 +92,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 isDedicationExpanded = preferences[PreferencesKeys.DEDICATION_EXPANDED] ?: true,
                 acceptedTerms = accepted,
                 acceptedTermsVersion = version,
-                themeMode = themeMode
+                themeMode = themeMode,
+                dismissedUpdateVersion = dismissedVersion
             )
         }
 
@@ -120,6 +125,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setThemeMode(themeMode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME_MODE] = themeMode.name
+        }
+    }
+
+    override suspend fun setDismissedUpdateVersion(version: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = version
         }
     }
 }

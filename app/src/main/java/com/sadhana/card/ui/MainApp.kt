@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sadhana.card.data.preferences.ThemeMode
+import com.sadhana.card.data.update.UpdateState
 import com.sadhana.card.ui.daily.DailyEntryScreen
 import com.sadhana.card.ui.daily.DailyEntryViewModel
 import com.sadhana.card.ui.legal.TermsConsentScreen
@@ -24,6 +25,7 @@ import com.sadhana.card.ui.navigation.SadhanaBottomBar
 import com.sadhana.card.ui.navigation.Screen
 import com.sadhana.card.ui.settings.SettingsScreen
 import com.sadhana.card.ui.splash.SplashScreen
+import com.sadhana.card.ui.update.UpdateDialog
 import com.sadhana.card.ui.weekly.WeeklyMatrixScreen
 import com.sadhana.card.ui.weekly.WeeklyMatrixViewModel
 import kotlinx.coroutines.launch
@@ -43,7 +45,16 @@ fun MainApp(
 ) {
     val isTermsAccepted by mainViewModel.isTermsAccepted.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
+    val updateState by mainViewModel.updateState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+
+    UpdateDialog(
+        updateState = updateState,
+        onDismiss = mainViewModel::dismissUpdate,
+        onUpdateNow = mainViewModel::downloadUpdate,
+        onInstallNow = mainViewModel::installUpdate,
+        onResetState = mainViewModel::resetUpdateState
+    )
 
     if (isTermsAccepted == null) {
         // Read BEFORE the first screen renders: show lightweight splash (no flash of terms)
@@ -99,7 +110,11 @@ fun MainApp(
                     },
                     onBack = {
                         rootNavController.popBackStack()
-                    }
+                    },
+                    onCheckForUpdates = {
+                        mainViewModel.checkForUpdates(isManual = true)
+                    },
+                    isCheckingForUpdates = updateState is UpdateState.Checking
                 )
             }
 

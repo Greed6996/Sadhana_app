@@ -59,6 +59,7 @@ class WeeklyMatrixViewModel @Inject constructor(
             override suspend fun setDedicationExpanded(expanded: Boolean) {}
             override suspend fun setTermsAccepted(accepted: Boolean, version: Int) {}
             override suspend fun setThemeMode(themeMode: ThemeMode) {}
+            override suspend fun setDismissedUpdateVersion(version: Int) {}
         },
         excelExporter = SadhanaWeeklyExcelExporter(android.content.ContextWrapper(null))
     )

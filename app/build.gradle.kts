@@ -12,12 +12,19 @@ android {
     namespace = "com.sadhana.card"
     compileSdk = 35
 
+    val envVersionCode = System.getenv("VERSION_CODE")?.toIntOrNull()
+        ?: (project.findProperty("versionCode") as? String)?.toIntOrNull()
+        ?: 1
+    val envVersionName = System.getenv("VERSION_NAME")
+        ?: (project.findProperty("versionName") as? String)
+        ?: "1.0.0"
+
     defaultConfig {
         applicationId = "com.sadhana.card"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = envVersionCode
+        versionName = envVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -71,6 +78,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

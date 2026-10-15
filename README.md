@@ -3,7 +3,7 @@
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║                           🪷  S A D H A N A   C A R D                        ║
+║                           🪷  S A D H A N A   C A R D                         ║
 ║                                                                              ║
 ║           Daily Devotional Journal & Spiritual Habit Tracker                 ║
 ║                                                                              ║

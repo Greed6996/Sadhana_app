@@ -149,5 +149,9 @@ class MainViewModelTest {
         override suspend fun setThemeMode(themeMode: ThemeMode) {
             prefs.value = prefs.value.copy(themeMode = themeMode)
         }
+
+        override suspend fun setDismissedUpdateVersion(version: Int) {
+            prefs.value = prefs.value.copy(dismissedUpdateVersion = version)
+        }
     }
 }

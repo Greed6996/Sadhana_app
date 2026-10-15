@@ -194,5 +194,9 @@ class DailyEntryViewModelTest {
         override suspend fun setThemeMode(themeMode: com.sadhana.card.data.preferences.ThemeMode) {
             prefsFlow.value = prefsFlow.value.copy(themeMode = themeMode)
         }
+
+        override suspend fun setDismissedUpdateVersion(version: Int) {
+            prefsFlow.value = prefsFlow.value.copy(dismissedUpdateVersion = version)
+        }
     }
 }
