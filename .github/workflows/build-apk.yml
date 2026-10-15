@@ -55,14 +55,22 @@ jobs:
 
       - name: Verify Production Release APK Signature
         run: |
-          APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner -type f | sort -V | tail -n 1)
-          if [ -z "$APKSIGNER" ]; then
-            echo "❌ apksigner binary not found in \$ANDROID_HOME/build-tools"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          if [ ! -f "$APKSIGNER" ]; then
+            echo "Installing Android SDK Build-Tools 35.0.0 via sdkmanager..."
+            echo y | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0"
+          fi
+          if [ ! -f "$APKSIGNER" ]; then
+            echo "❌ Failed to locate or install apksigner 35.0.0 at: $APKSIGNER"
             exit 1
           fi
 
           echo "Validating release APK signature using: $APKSIGNER"
-          SIGNATURE_OUTPUT=$("$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk)
+          if ! SIGNATURE_OUTPUT=$("$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk 2>&1); then
+            echo "❌ apksigner verification failed with output:"
+            echo "$SIGNATURE_OUTPUT"
+            exit 1
+          fi
 
           ACTUAL_SHA256=$(echo "$SIGNATURE_OUTPUT" | grep -i "Signer #1 certificate SHA-256 digest:" | awk '{print $NF}' | tr -d ':' | tr '[:upper:]' '[:lower:]')
           EXPECTED_SHA256="75e471ee7feb55afe62bdc75f4f14a69a76c49a5c184e4664e60a6676886b5aa"
