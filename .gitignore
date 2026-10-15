@@ -10,3 +10,13 @@ captures
 .cxx
 *.apk
 *.aab
+
+# Production & Local Signing Credentials (Never Commit)
+*.jks
+*.keystore
+*.p12
+*.jceks
+*.bks
+release.jks
+sadhana-release.jks
+*signing*.properties

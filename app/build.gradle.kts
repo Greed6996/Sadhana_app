@@ -1,3 +1,5 @@
+import java.security.KeyStore
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -23,6 +25,25 @@ android {
         }
     }
 
+    val releaseKeystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+    val releaseKeystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+    val releaseKeyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: "sadhana-release"
+    val releaseKeyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: releaseKeystorePassword
+
+    signingConfigs {
+        create("release") {
+            if (!releaseKeystorePath.isNullOrBlank()) {
+                val ksFile = file(releaseKeystorePath)
+                if (ksFile.exists()) {
+                    storeFile = ksFile
+                    storePassword = releaseKeystorePassword
+                    keyAlias = releaseKeyAlias
+                    keyPassword = releaseKeyPassword
+                }
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -31,10 +52,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -56,6 +78,68 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+val validateReleaseSigning = tasks.register("validateReleaseSigning") {
+    description = "Validates production release signing credentials and keystore integrity."
+    doLast {
+        val keystorePath = System.getenv("RELEASE_KEYSTORE_PATH")
+        val keystorePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+        val keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: "sadhana-release"
+        val keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: keystorePassword
+
+        if (keystorePath.isNullOrBlank()) {
+            throw GradleException(
+                "❌ [FATAL] Release build aborted: RELEASE_KEYSTORE_PATH environment variable is not set.\n" +
+                "Production release signing credentials are strictly required."
+            )
+        }
+        val ksFile = file(keystorePath)
+        if (!ksFile.exists() || !ksFile.isFile) {
+            throw GradleException(
+                "❌ [FATAL] Release build aborted: Keystore file does not exist at: $keystorePath"
+            )
+        }
+        if (keystorePassword.isNullOrBlank()) {
+            throw GradleException(
+                "❌ [FATAL] Release build aborted: RELEASE_KEYSTORE_PASSWORD environment variable is not set."
+            )
+        }
+        if (keyAlias.isNullOrBlank()) {
+            throw GradleException(
+                "❌ [FATAL] Release build aborted: RELEASE_KEY_ALIAS environment variable is not set."
+            )
+        }
+
+        try {
+            val keyStore = KeyStore.getInstance("PKCS12")
+            ksFile.inputStream().use { stream ->
+                keyStore.load(stream, keystorePassword.toCharArray())
+            }
+            if (!keyStore.containsAlias(keyAlias)) {
+                throw GradleException(
+                    "❌ [FATAL] Release build aborted: Alias '$keyAlias' was not found in keystore '${ksFile.name}'."
+                )
+            }
+            val key = keyStore.getKey(keyAlias, keyPassword.toCharArray())
+            if (key == null) {
+                throw GradleException(
+                    "❌ [FATAL] Release build aborted: Could not recover key for alias '$keyAlias' (password mismatch or missing key entry)."
+                )
+            }
+        } catch (e: GradleException) {
+            throw e
+        } catch (e: Exception) {
+            throw GradleException(
+                "❌ [FATAL] Release build aborted: Keystore validation error: ${e.message}",
+                e
+            )
+        }
+    }
+}
+
+tasks.matching { it.name == "packageRelease" }.configureEach {
+    dependsOn(validateReleaseSigning)
 }
 
 dependencies {
