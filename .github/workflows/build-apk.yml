@@ -45,8 +45,8 @@ jobs:
           printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "${{ runner.temp }}/release.jks"
         shell: bash
 
-      - name: Build Debug & Production Release APKs
-        run: ./gradlew assembleDebug assembleRelease
+      - name: Build Production Release APK
+        run: ./gradlew assembleRelease
         env:
           VERSION_CODE: ${{ github.run_number }}
           VERSION_NAME: ${{ format('1.0.{0}', github.run_number) }}
@@ -98,23 +98,14 @@ jobs:
         run: rm -f "${{ runner.temp }}/release.jks"
         shell: bash
 
-      - name: Prepare Named APK Binaries
-        run: |
-          cp app/build/outputs/apk/release/app-release.apk Sadhana-Card.apk
-          cp app/build/outputs/apk/debug/app-debug.apk Sadhana-Card-Debug.apk
+      - name: Prepare Named APK Binary
+        run: cp app/build/outputs/apk/release/app-release.apk Sadhana-Card.apk
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Sadhana-Card-Release-APK
           path: Sadhana-Card.apk
-          retention-days: 30
-
-      - name: Upload Debug Artifacts (Internal Testing)
-        uses: actions/upload-artifact@v4
-        with:
-          name: Sadhana-Card-Debug-APK
-          path: Sadhana-Card-Debug.apk
           retention-days: 30
 
       - name: Automatic GitHub Release
@@ -130,7 +121,6 @@ jobs:
 
             ### 📱 Direct Download for Android:
             - 🟢 **[Sadhana-Card.apk](https://github.com/Greed6996/Sadhana_app/releases/latest/download/Sadhana-Card.apk)** (Direct download, ready to install)
-            - 🛠️ `Sadhana-Card-Debug.apk` (Development build)
 
             ### ✨ Features:
             - 100% Offline & Private Devotional Habit Tracker
@@ -141,7 +131,6 @@ jobs:
             - Sanskrit verses & devotional dedication
           files: |
             Sadhana-Card.apk
-            Sadhana-Card-Debug.apk
           draft: false
           prerelease: false
           make_latest: true
