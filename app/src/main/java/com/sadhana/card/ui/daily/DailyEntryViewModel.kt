@@ -196,7 +196,13 @@ class DailyEntryViewModel internal constructor(
     }
 
     fun updateJapaCategory(category: JapaCategory?) {
-        updateCurrentEntry { it.copy(japaCategory = category, japaTime = null) }
+        updateCurrentEntry {
+            it.copy(
+                japaCategory = category,
+                japaCompleted = category != null,
+                japaTime = null
+            )
+        }
     }
 
     fun updateJapaCompleted(completed: Boolean) {

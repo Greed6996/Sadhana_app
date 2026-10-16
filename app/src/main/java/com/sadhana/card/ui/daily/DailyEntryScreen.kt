@@ -32,6 +32,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,6 +100,14 @@ fun DailyEntryScreen(
     )
 }
 
+enum class DailyEntryAccordionSection {
+    NONE,
+    BEDTIME,
+    WAKE_UP,
+    DAY_SLEEP,
+    JAPA
+}
+
 @Composable
 fun DailyEntryContent(
     uiState: DailyEntryUiState,
@@ -109,17 +120,18 @@ fun DailyEntryContent(
     onUpdateDaySleepCategory: (DaySleepCategory?) -> Unit,
     onUpdateTrainJourney: (Boolean) -> Unit,
     onUpdateJapaCategory: (JapaCategory?) -> Unit,
-    onUpdateJapaCompleted: (Boolean) -> Unit,
+    onUpdateJapaCompleted: (Boolean) -> Unit = {},
     onUpdatePathanMinutes: (Int?) -> Unit,
     onUpdateSravanMinutes: (Int?) -> Unit,
     onUpdateSevaMinutes: (Int?) -> Unit,
     onUpdateSevaTags: (List<String>) -> Unit,
-    onUpdateSadhakaName: (String) -> Unit,
-    onUpdateCounselorName: (String) -> Unit,
+    onUpdateSadhakaName: (String) -> Unit = {},
+    onUpdateCounselorName: (String) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val weekTitle = "WEEK OF ${DateUtils.formatWeekRangeUpper(uiState.startOfWeek)}"
+    var expandedSection by rememberSaveable { mutableStateOf(DailyEntryAccordionSection.NONE) }
 
     LazyColumn(
         modifier = modifier
@@ -184,22 +196,12 @@ fun DailyEntryContent(
             }
         }
 
-        // 2. Sadhaka & Counselor Name Inputs
-        item(key = "names") {
-            HeaderFieldsRow(
-                sadhakaName = uiState.sadhakaName,
-                onSadhakaNameChanged = onUpdateSadhakaName,
-                counselorName = uiState.counselorName,
-                onCounselorNameChanged = onUpdateCounselorName
-            )
-        }
-
-        // 3. Devotional Dedication Banner
+        // 2. Devotional Dedication Banner
         item(key = "dedication") {
             DedicationBanner()
         }
 
-        // 4. Week Day Selector (Sunday to Saturday)
+        // 3. Week Day Selector (Sunday to Saturday)
         item(key = "weekday_selector") {
             WeekDaySelector(
                 startOfWeek = uiState.startOfWeek,
@@ -208,7 +210,7 @@ fun DailyEntryContent(
             )
         }
 
-        // 5. Daily Score Summary Card
+        // 4. Daily Score Summary Card
         item(key = "score_summary") {
             ScoreCard(
                 score = uiState.score.totalScore,
@@ -216,19 +218,28 @@ fun DailyEntryContent(
             )
         }
 
-        // 6. Section: SLEEP & WAKE
+        // 5. Section: SLEEP & WAKE
         item(key = "section_sleep") {
             SectionHeader(title = "Sleep & Wake Regulation")
         }
 
-        // Bedtime — Category selector
+        // Bedtime — Category selector (Single-expand accordion)
         item(key = "bedtime") {
             ScoringCategoryCard(
                 title = "Bedtime",
                 subtitle = "Select when you went to bed",
                 icon = Icons.Default.NightsStay,
                 score = uiState.score.bedScore,
-                maxScore = 5
+                maxScore = 5,
+                isExpanded = expandedSection == DailyEntryAccordionSection.BEDTIME,
+                onHeaderClick = {
+                    expandedSection = if (expandedSection == DailyEntryAccordionSection.BEDTIME) {
+                        DailyEntryAccordionSection.NONE
+                    } else {
+                        DailyEntryAccordionSection.BEDTIME
+                    }
+                },
+                selectedLabel = uiState.entry.bedtimeCategory?.label
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     BedtimeCategory.entries.forEach { category ->
@@ -243,14 +254,23 @@ fun DailyEntryContent(
             }
         }
 
-        // Wake-up — Category selector
+        // Wake-up — Category selector (Single-expand accordion)
         item(key = "wake_time") {
             ScoringCategoryCard(
                 title = "Wake-up",
                 subtitle = "Select when you woke up",
                 icon = Icons.Default.WbSunny,
                 score = uiState.score.wakeScore,
-                maxScore = 5
+                maxScore = 5,
+                isExpanded = expandedSection == DailyEntryAccordionSection.WAKE_UP,
+                onHeaderClick = {
+                    expandedSection = if (expandedSection == DailyEntryAccordionSection.WAKE_UP) {
+                        DailyEntryAccordionSection.NONE
+                    } else {
+                        DailyEntryAccordionSection.WAKE_UP
+                    }
+                },
+                selectedLabel = uiState.entry.wakeUpCategory?.label
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     WakeUpCategory.entries.forEach { category ->
@@ -265,14 +285,23 @@ fun DailyEntryContent(
             }
         }
 
-        // Daytime Sleep — Category selector
+        // Daytime Sleep — Category selector (Single-expand accordion)
         item(key = "day_nap") {
             ScoringCategoryCard(
                 title = "Day sleep",
                 subtitle = "Select your total daytime sleep",
                 icon = Icons.Default.Bed,
                 score = uiState.score.napScore,
-                maxScore = 5
+                maxScore = 5,
+                isExpanded = expandedSection == DailyEntryAccordionSection.DAY_SLEEP,
+                onHeaderClick = {
+                    expandedSection = if (expandedSection == DailyEntryAccordionSection.DAY_SLEEP) {
+                        DailyEntryAccordionSection.NONE
+                    } else {
+                        DailyEntryAccordionSection.DAY_SLEEP
+                    }
+                },
+                selectedLabel = uiState.entry.daySleepCategory?.label
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     DaySleepCategory.entries.forEach { category ->
@@ -295,12 +324,12 @@ fun DailyEntryContent(
             )
         }
 
-        // 7. Section: CHANTING (JAPA)
+        // 6. Section: CHANTING (JAPA)
         item(key = "section_japa") {
             SectionHeader(title = "Chanting (Japa)")
         }
 
-        // Japa — 16 rounds — Category selector with completion toggle
+        // Japa — 16 rounds — Category selector (Single-expand accordion, direct selection, no checkbox)
         item(key = "japa") {
             ScoringCategoryCard(
                 title = "Japa — 16 rounds",
@@ -308,12 +337,15 @@ fun DailyEntryContent(
                 icon = Icons.Default.HourglassTop,
                 score = uiState.score.japaScore,
                 maxScore = 5,
-                extraContent = {
-                    JapaCompletionToggle(
-                        checked = uiState.entry.japaCompleted,
-                        onCheckedChange = onUpdateJapaCompleted
-                    )
-                }
+                isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
+                onHeaderClick = {
+                    expandedSection = if (expandedSection == DailyEntryAccordionSection.JAPA) {
+                        DailyEntryAccordionSection.NONE
+                    } else {
+                        DailyEntryAccordionSection.JAPA
+                    }
+                },
+                selectedLabel = uiState.entry.japaCategory?.label
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     JapaCategory.entries.forEach { category ->

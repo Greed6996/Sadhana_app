@@ -15,8 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
@@ -31,6 +39,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sadhana.card.ui.theme.CardShape
@@ -121,6 +130,9 @@ fun ScoringCategoryCard(
     icon: ImageVector? = null,
     score: Int?,
     maxScore: Int = 5,
+    isExpanded: Boolean = true,
+    onHeaderClick: (() -> Unit)? = null,
+    selectedLabel: String? = null,
     modifier: Modifier = Modifier,
     extraContent: @Composable (() -> Unit)? = null,
     options: @Composable () -> Unit
@@ -134,12 +146,19 @@ fun ScoringCategoryCard(
             .padding(14.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            // Header row: icon, title, subtitle, score
+            // Header row: icon, title, subtitle, score, chevron
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onHeaderClick != null) {
+                            Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable(role = Role.Button, onClick = onHeaderClick)
+                        } else Modifier
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (icon != null) {
@@ -168,27 +187,54 @@ fun ScoringCategoryCard(
                         fontSize = 15.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                    val displaySubtitle = if (!isExpanded && !selectedLabel.isNullOrBlank()) {
+                        selectedLabel
+                    } else {
+                        subtitle
+                    }
                     Text(
-                        text = subtitle,
+                        text = displaySubtitle,
                         fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = if (!isExpanded && !selectedLabel.isNullOrBlank()) FontWeight.Medium else FontWeight.Normal,
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (!isExpanded && !selectedLabel.isNullOrBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (score != null || maxScore > 0) {
                         Spacer(modifier = Modifier.height(4.dp))
                         ScorePill(score = score, max = maxScore)
                     }
                 }
+
+                if (onHeaderClick != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = if (isExpanded) "Collapse $title options" else "Expand $title options",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
-            // Extra content (e.g. Japa completion checkbox)
-            if (extraContent != null) {
-                extraContent()
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(animationSpec = tween(durationMillis = 250)) + fadeIn(animationSpec = tween(250)),
+                exit = shrinkVertically(animationSpec = tween(durationMillis = 200)) + fadeOut(animationSpec = tween(200))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    if (extraContent != null) {
+                        extraContent()
+                    }
+                    options()
+                }
             }
-
-            // Option rows
-            options()
         }
     }
 }

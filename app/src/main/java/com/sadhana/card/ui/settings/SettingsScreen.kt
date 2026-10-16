@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +35,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextOverflow
 import com.sadhana.card.BuildConfig
+import com.sadhana.card.ui.components.ProfileDialog
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,8 +78,26 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     appVersion: String = BuildConfig.VERSION_NAME,
     onCheckForUpdates: () -> Unit = {},
-    isCheckingForUpdates: Boolean = false
+    isCheckingForUpdates: Boolean = false,
+    sadhakaName: String = "",
+    counselorName: String = "",
+    onSaveProfile: (sadhaka: String, counselor: String) -> Unit = { _, _ -> }
 ) {
+    var showProfileDialog by remember { mutableStateOf(false) }
+
+    if (showProfileDialog) {
+        ProfileDialog(
+            initialSadhakaName = sadhakaName,
+            initialCounselorName = counselorName,
+            isOnboarding = false,
+            onDismiss = { showProfileDialog = false },
+            onSave = { newSadhaka, newCounselor ->
+                onSaveProfile(newSadhaka, newCounselor)
+                showProfileDialog = false
+            }
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -111,7 +136,74 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Section 1: Appearance / Theme
+            // Section 1: Profile (Sadhaka & Counselor)
+            SettingsSection(title = "Profile") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(role = Role.Button, onClick = { showProfileDialog = true })
+                        .padding(vertical = 8.dp, horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "Edit Profile (Sadhaka & Counselor)",
+                                fontFamily = DmSansFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            val profileSubtitle = if (sadhakaName.isNotBlank()) {
+                                if (counselorName.isNotBlank()) {
+                                    "$sadhakaName • Counselor: $counselorName"
+                                } else {
+                                    sadhakaName
+                                }
+                            } else {
+                                "Tap to set Sadhaka and Counselor names"
+                            }
+                            Text(
+                                text = profileSubtitle,
+                                fontFamily = DmSansFontFamily,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = "Edit Profile",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+
+            // Section 2: Appearance / Theme
             SettingsSection(title = "Appearance") {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -258,7 +350,7 @@ fun SettingsScreen(
                         }
 
                         Text(
-                            text = "v$appVersion",
+                            text = "v${BuildConfig.VERSION_NAME}",
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,

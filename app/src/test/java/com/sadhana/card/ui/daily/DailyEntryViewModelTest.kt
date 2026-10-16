@@ -127,6 +127,37 @@ class DailyEntryViewModelTest {
         assertEquals(true, fakePreferences.userPreferencesFlow.first().hasAcceptedTerms)
     }
 
+    @Test
+    fun testUpdateJapaCategory_immediatelyAwardsPointsAndSetsJapaCompleted() = runTest(testDispatcher) {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val date = LocalDate.of(2026, 10, 11)
+        viewModel.selectDate(date)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Select Before 7:15 AM -> immediately awards 5 points and sets japaCompleted = true
+        viewModel.updateJapaCategory(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM)
+        testDispatcher.scheduler.advanceTimeBy(350)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM, state.entry.japaCategory)
+        assertEquals(true, state.entry.japaCompleted)
+        assertEquals(5, state.score.japaScore)
+
+        val saved = fakeRepository.getEntry(date).first()
+        assertNotNull(saved)
+        assertEquals(true, saved?.japaCompleted)
+        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM, saved?.japaCategory)
+
+        // Change to null -> sets japaCompleted = false and japaScore = null
+        viewModel.updateJapaCategory(null)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(false, viewModel.uiState.value.entry.japaCompleted)
+        assertEquals(null, viewModel.uiState.value.score.japaScore)
+    }
+
     // --- Fakes ---
 
     private class FakeSadhanaRepository : SadhanaRepository {

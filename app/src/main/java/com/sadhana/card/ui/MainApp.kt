@@ -6,10 +6,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sadhana.card.ui.components.ProfileDialog
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,7 +50,10 @@ fun MainApp(
     val isTermsAccepted by mainViewModel.isTermsAccepted.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     val updateState by mainViewModel.updateState.collectAsStateWithLifecycle()
+    val sadhakaName by mainViewModel.sadhakaName.collectAsStateWithLifecycle()
+    val counselorName by mainViewModel.counselorName.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+    var isOnboardingProfileDismissed by rememberSaveable { mutableStateOf(false) }
 
     UpdateDialog(
         updateState = updateState,
@@ -55,6 +62,26 @@ fun MainApp(
         onInstallNow = mainViewModel::installUpdate,
         onResetState = mainViewModel::resetUpdateState
     )
+
+    // Onboarding popup: Immediately after accepting Terms or on app launch if terms are accepted but sadhakaName is blank
+    val shouldShowOnboardingProfile = isTermsAccepted == true &&
+        sadhakaName.isBlank() &&
+        !isOnboardingProfileDismissed
+
+    if (shouldShowOnboardingProfile) {
+        ProfileDialog(
+            initialSadhakaName = sadhakaName,
+            initialCounselorName = counselorName,
+            isOnboarding = true,
+            onDismiss = {
+                isOnboardingProfileDismissed = true
+            },
+            onSave = { newSadhaka, newCounselor ->
+                mainViewModel.saveProfile(newSadhaka, newCounselor)
+                isOnboardingProfileDismissed = true
+            }
+        )
+    }
 
     if (isTermsAccepted == null) {
         // Read BEFORE the first screen renders: show lightweight splash (no flash of terms)
@@ -114,7 +141,12 @@ fun MainApp(
                     onCheckForUpdates = {
                         mainViewModel.checkForUpdates(isManual = true)
                     },
-                    isCheckingForUpdates = updateState is UpdateState.Checking
+                    isCheckingForUpdates = updateState is UpdateState.Checking,
+                    sadhakaName = sadhakaName,
+                    counselorName = counselorName,
+                    onSaveProfile = { newSadhaka, newCounselor ->
+                        mainViewModel.saveProfile(newSadhaka, newCounselor)
+                    }
                 )
             }
 

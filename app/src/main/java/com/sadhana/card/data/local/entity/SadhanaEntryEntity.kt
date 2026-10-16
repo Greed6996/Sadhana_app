@@ -59,7 +59,7 @@ fun SadhanaEntryEntity.toDomain(): SadhanaEntry = SadhanaEntry(
     wakeUpCategory = wakeUpCategory?.let { runCatching { WakeUpCategory.valueOf(it) }.getOrNull() },
     daySleepCategory = daySleepCategory?.let { runCatching { DaySleepCategory.valueOf(it) }.getOrNull() },
     japaCategory = japaCategory?.let { runCatching { JapaCategory.valueOf(it) }.getOrNull() },
-    japaCompleted = japaCompleted,
+    japaCompleted = japaCompleted || (japaCategory != null),
     pathanMinutes = pathanMinutes,
     sravanMinutes = sravanMinutes,
     sevaMinutes = sevaMinutes,

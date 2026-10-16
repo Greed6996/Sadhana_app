@@ -118,6 +118,22 @@ class MainViewModelTest {
         assertEquals(ThemeMode.DARK, fakeRepository.userPreferencesFlow.first().themeMode)
     }
 
+    @Test
+    fun saveProfile_persistsAndUpdatesState() = runTest {
+        viewModel = MainViewModel(fakeRepository)
+        advanceUntilIdle()
+        assertEquals("", viewModel.sadhakaName.value)
+        assertEquals("", viewModel.counselorName.value)
+
+        viewModel.saveProfile("Radharani Dasi", "Jayapataka Swami")
+        advanceUntilIdle()
+
+        assertEquals("Radharani Dasi", viewModel.sadhakaName.value)
+        assertEquals("Jayapataka Swami", viewModel.counselorName.value)
+        assertEquals("Radharani Dasi", fakeRepository.userPreferencesFlow.first().sadhakaName)
+        assertEquals("Jayapataka Swami", fakeRepository.userPreferencesFlow.first().counselorName)
+    }
+
     private class FakeUserPreferencesRepository : UserPreferencesRepository {
         private val prefs = MutableStateFlow(UserPreferences())
 

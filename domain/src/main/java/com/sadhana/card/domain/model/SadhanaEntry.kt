@@ -42,12 +42,12 @@ enum class DaySleepCategory(val points: Int, val label: String) {
  * Predefined scoring categories for Japa – 16 rounds.
  */
 enum class JapaCategory(val points: Int, val label: String) {
-    BY_7_15_AM(5, "All 16 rounds completed by 7:15 AM"),
-    BY_9_00_AM(4, "All 16 rounds completed by 9:00 AM"),
-    BY_11_59_AM(3, "All 16 rounds completed by 11:59 AM"),
-    BY_3_00_PM(2, "All 16 rounds completed by 3:00 PM"),
-    BY_6_00_PM(1, "All 16 rounds completed by 6:00 PM"),
-    AFTER_6_00_PM(0, "Completed after 6:00 PM");
+    BY_7_15_AM(5, "Before 7:15 AM"),
+    BY_9_00_AM(4, "Before 9:00 AM"),
+    BY_11_59_AM(3, "Before 11:59 AM"),
+    BY_3_00_PM(2, "Before 3:00 PM"),
+    BY_6_00_PM(1, "Before 6:00 PM"),
+    AFTER_6_00_PM(0, "After 6:00 PM");
 }
 
 /**

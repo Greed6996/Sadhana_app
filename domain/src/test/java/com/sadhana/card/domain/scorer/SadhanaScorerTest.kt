@@ -441,6 +441,17 @@ class SadhanaScorerTest {
     }
 
     @Test
+    fun testJapaCategory_directScoringWithoutCompletionFlag() {
+        assertEquals(5, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM))
+        assertEquals(4, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM))
+        assertEquals(3, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM))
+        assertEquals(2, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM))
+        assertEquals(1, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM))
+        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM))
+        assertNull(SadhanaScorer.scoreJapaCategory(null))
+    }
+
+    @Test
     fun testJapaCategory_whenIncomplete_alwaysZero() {
         // When japaCompleted is false, all categories score 0 points
         assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM, japaCompleted = false))

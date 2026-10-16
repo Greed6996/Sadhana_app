@@ -50,9 +50,15 @@ object SadhanaScorer {
     }
 
     /**
+     * Japa score from selected category.
+     * Selecting any category directly awards its points (5, 4, 3, 2, 1, or 0 pts).
+     */
+    fun scoreJapaCategory(category: JapaCategory?): Int? {
+        return category?.points
+    }
+
+    /**
      * Japa score from selected category and completion state.
-     * If japaCompleted is false, score is always 0 (if a category is selected)
-     * or null (if no category is selected).
      */
     fun scoreJapaCategory(category: JapaCategory?, japaCompleted: Boolean): Int? {
         if (category == null) return null

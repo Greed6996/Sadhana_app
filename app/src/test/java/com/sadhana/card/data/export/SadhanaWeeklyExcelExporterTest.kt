@@ -172,7 +172,7 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue("Bedtime category label missing", xml.contains("9:30 PM or before"))
         assertTrue("Wake-up category label missing", xml.contains("Before 3:00 AM"))
         assertTrue("Day sleep category label missing", xml.contains("30 minutes or less"))
-        assertTrue("Japa category label missing", xml.contains("All 16 rounds completed by 7:15 AM"))
+        assertTrue("Japa category label missing", xml.contains("Before 7:15 AM"))
         assertTrue("Sunday total 20 / 20 missing", xml.contains("20 / 20"))
 
         // Verify Monday incomplete japa label and 12/20 points (4+4+4+0)

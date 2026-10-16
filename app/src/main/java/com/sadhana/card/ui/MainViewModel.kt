@@ -51,6 +51,22 @@ class MainViewModel @Inject constructor(
             initialValue = com.sadhana.card.data.preferences.ThemeMode.SYSTEM
         )
 
+    val sadhakaName: StateFlow<String> = userPreferencesRepository.userPreferencesFlow
+        .map { it.sadhakaName }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = ""
+        )
+
+    val counselorName: StateFlow<String> = userPreferencesRepository.userPreferencesFlow
+        .map { it.counselorName }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = ""
+        )
+
     val updateState: StateFlow<UpdateState> = updateManager?.updateState
         ?: MutableStateFlow(UpdateState.Idle).asStateFlow()
 
@@ -67,6 +83,13 @@ class MainViewModel @Inject constructor(
 
     suspend fun setThemeMode(themeMode: com.sadhana.card.data.preferences.ThemeMode) {
         userPreferencesRepository.setThemeMode(themeMode)
+    }
+
+    fun saveProfile(sadhaka: String, counselor: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateSadhakaName(sadhaka)
+            userPreferencesRepository.updateCounselorName(counselor)
+        }
     }
 
     fun checkForUpdates(isManual: Boolean = true) {
