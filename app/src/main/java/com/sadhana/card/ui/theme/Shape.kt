@@ -13,8 +13,8 @@ val SadhanaShapes = Shapes(
 )
 
 val PillShape = RoundedCornerShape(99.dp)
-val CardShape = RoundedCornerShape(18.dp)
+val CardShape = RoundedCornerShape(20.dp)
 val BannerShape = RoundedCornerShape(20.dp)
 val InputShape = RoundedCornerShape(12.dp)
 val TileShape = RoundedCornerShape(12.dp)
-val DayButtonShape = RoundedCornerShape(14.dp)
+val DayButtonShape = RoundedCornerShape(16.dp)

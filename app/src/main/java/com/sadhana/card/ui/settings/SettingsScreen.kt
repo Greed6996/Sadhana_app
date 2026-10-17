@@ -350,7 +350,7 @@ fun SettingsScreen(
                         }
 
                         Text(
-                            text = "v${BuildConfig.VERSION_NAME}",
+                            text = "Version $appVersion",
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
@@ -450,12 +450,12 @@ private fun SettingsSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(20.dp)
                 )
                 .padding(16.dp)
         ) {

@@ -1,136 +1,77 @@
 package com.sadhana.card.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BannerShape
-import com.sadhana.card.ui.theme.DarkBg
+import com.sadhana.card.ui.theme.CardShape
+import com.sadhana.card.ui.theme.DarkBorder
+import com.sadhana.card.ui.theme.DarkPrimary
+import com.sadhana.card.ui.theme.DarkSurface
+import com.sadhana.card.ui.theme.DarkTextMuted
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.RustPrimary
 
 /**
- * Expandable devotional banner celebrating Srila Prabhupada and the Sadhana Card.
- * High contrast (>4.5:1) in both Light and Dark themes.
+ * Dedication Card matching the V5 Dark Rings design:
+ * - Elevated Dark Charcoal card (#17171B), 20.dp rounded corners, 1.dp border (#26262C)
+ * - Gold title: "Sri Sri Guru Gouranga Jayate"
+ * - Dedication text in muted gray (#8E8E99)
+ * - Italicized Sanskrit verse underneath
  */
 @Composable
 fun DedicationBanner(
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-
-    val bannerBg = if (isDark) MaterialTheme.colorScheme.surface else RustPrimary
-    val titleColor = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFFFBF1DF)
-    val iconTint = if (isDark) MaterialTheme.colorScheme.primary else Color(0xFFF8DCC0)
-
-    val baseModifier = modifier
-        .fillMaxWidth()
-        .clip(BannerShape)
-        .background(bannerBg)
-
-    val borderedModifier = if (isDark) {
-        baseModifier.border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
-    } else {
-        baseModifier
-    }
-
     Column(
-        modifier = borderedModifier
-            .clickable(role = Role.Button) { isExpanded = !isExpanded }
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
             .padding(16.dp)
             .semantics {
-                contentDescription = "Sadhana Card Dedication. Tap to ${if (isExpanded) "collapse" else "expand"}."
+                contentDescription = "Sadhana Card Dedication: Sri Sri Guru Gouranga Jayate"
             },
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Sadhana Card for Sadhaka",
-                fontFamily = NewsreaderFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp,
-                color = titleColor
-            )
-            Icon(
-                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                tint = iconTint
-            )
-        }
-
         Text(
-            text = "Offered with humility and devotion at the lotus feet of His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda.",
+            text = "Sri Sri Guru Gouranga Jayate",
             fontFamily = DmSansFontFamily,
-            fontSize = 12.5.sp,
-            lineHeight = 17.sp,
-            color = Color(0xFFFBF1DF).copy(alpha = 0.92f)
+            fontWeight = FontWeight.Bold,
+            fontSize = 15.sp,
+            color = DarkPrimary
         )
 
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                HorizontalDivider(
-                    color = Color(0xFFFBF1DF).copy(alpha = 0.25f),
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-                Text(
-                    text = "śrī-caitanya-mano-'bhīṣṭaṁ sthāpitaṁ yena bhū-tale\nsvayaṁ rūpaḥ kadā mahyaṁ dadāti sva-padāntikam",
-                    fontFamily = NewsreaderFontFamily,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.5.sp,
-                    lineHeight = 19.sp,
-                    color = Color(0xFFFBF1DF)
-                )
-                Text(
-                    text = "A sincere sadhaka regulates bodily demands of sleep and eating in order to dedicate maximum energy to chanting the holy names and hearing transcendental literatures.",
-                    fontFamily = DmSansFontFamily,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    color = Color(0xFFFBF1DF).copy(alpha = 0.85f)
-                )
-            }
-        }
+        Text(
+            text = "Sadhana Card for Sadhaka for the pleasure of my Counselor, Authorities, Sri Gurudev, Srila Prabhupada, Sri Sri Gaur Nitai,",
+            fontFamily = DmSansFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            lineHeight = 16.5.sp,
+            color = DarkTextMuted
+        )
+
+        Text(
+            text = "yukta ahara viharasya yukta cestasya karmasu / Yukta svapnava bodhasya yogo bhavati dukha ha",
+            fontFamily = DmSansFontFamily,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Normal,
+            fontSize = 11.5.sp,
+            lineHeight = 16.sp,
+            color = DarkTextMuted.copy(alpha = 0.85f)
+        )
     }
 }

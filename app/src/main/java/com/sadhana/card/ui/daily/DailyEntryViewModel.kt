@@ -170,7 +170,7 @@ class DailyEntryViewModel internal constructor(
     }
 
     fun updateNapMinutes(minutes: Int?) {
-        updateCurrentEntry { it.copy(napMinutes = minutes) }
+        updateCurrentEntry { it.copy(napMinutes = minutes, daySleepCategory = null) }
     }
 
     fun updateTrainJourney(enabled: Boolean) {
@@ -192,7 +192,14 @@ class DailyEntryViewModel internal constructor(
     }
 
     fun updateDaySleepCategory(category: DaySleepCategory?) {
-        updateCurrentEntry { it.copy(daySleepCategory = category, napMinutes = null) }
+        val approxMinutes = when (category) {
+            DaySleepCategory.UP_TO_30_MIN -> 30
+            DaySleepCategory.FROM_31_TO_45_MIN -> 40
+            DaySleepCategory.FROM_46_TO_60_MIN -> 55
+            DaySleepCategory.MORE_THAN_60_MIN -> 75
+            null -> null
+        }
+        updateCurrentEntry { it.copy(daySleepCategory = category, napMinutes = approxMinutes) }
     }
 
     fun updateJapaCategory(category: JapaCategory?) {

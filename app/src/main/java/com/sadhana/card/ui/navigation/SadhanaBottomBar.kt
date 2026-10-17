@@ -1,5 +1,8 @@
 package com.sadhana.card.ui.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,27 +11,34 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sadhana.card.ui.theme.DarkBg
+import com.sadhana.card.ui.theme.DarkBorder
+import com.sadhana.card.ui.theme.DarkPrimary
+import com.sadhana.card.ui.theme.DarkTextMuted
 import com.sadhana.card.ui.theme.DmSansFontFamily
 
+/**
+ * Bottom navigation bar matching the V5 Dark Rings design:
+ * Clean minimalist bar with "Daily" and "Weekly" tabs.
+ * Active tab features Warm Saffron Gold text with a gold underline indicator bar.
+ */
 @Composable
 fun SadhanaBottomBar(
     currentRoute: String?,
@@ -40,55 +50,52 @@ fun SadhanaBottomBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline))
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(DarkBg)
+            .border(BorderStroke(1.dp, DarkBorder))
+            .padding(horizontal = 24.dp, vertical = 12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEach { screen ->
                 val isSelected = currentRoute == screen.route
+                val contentColor = if (isSelected) DarkPrimary else DarkTextMuted
 
-                val (bg, contentColor) = if (isSelected) {
-                    Pair(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), MaterialTheme.colorScheme.primary)
-                } else {
-                    Pair(Color.Transparent, MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-
-                Box(
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .defaultMinSize(minHeight = 56.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(bg)
                         .clickable(role = Role.Tab) {
                             if (!isSelected) {
                                 onNavigateToRoute(screen.route)
                             }
                         }
-                        .padding(vertical = 6.dp)
-                        .semantics { contentDescription = "${screen.title} tab${if (isSelected) ", selected" else ""}" },
-                    contentAlignment = Alignment.Center
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .semantics {
+                            contentDescription = "${screen.title} tab${if (isSelected) ", selected" else ""}"
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Icon(
-                            imageVector = screen.icon,
-                            contentDescription = null,
-                            tint = contentColor,
-                            modifier = Modifier.size(22.dp)
+                    Text(
+                        text = screen.title,
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = 13.5.sp,
+                        color = contentColor
+                    )
+
+                    // Gold underline indicator for the active tab
+                    if (isSelected) {
+                        Box(
+                            modifier = Modifier
+                                .width(28.dp)
+                                .height(2.5.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(DarkPrimary)
                         )
-                        Text(
-                            text = screen.title,
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            fontSize = 12.sp,
-                            color = contentColor
-                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(2.5.dp))
                     }
                 }
             }

@@ -1,117 +1,187 @@
 package com.sadhana.card.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sadhana.card.ui.theme.BannerShape
+import com.sadhana.card.ui.theme.CardShape
+import com.sadhana.card.ui.theme.DarkBorder
+import com.sadhana.card.ui.theme.DarkPrimary
+import com.sadhana.card.ui.theme.DarkRingTrack
+import com.sadhana.card.ui.theme.DarkSurface
+import com.sadhana.card.ui.theme.DarkTextMuted
+import com.sadhana.card.ui.theme.DarkTextPrimary
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.PillShape
 
 /**
- * Daily Score header card displaying earned points, total possible (20),
- * and an animated progress bar.
+ * Hero Score Card matching the V5 Dark Rings design:
+ * - Centered total score: "16 / 20 pts today"
+ * - 4 Circular Progress Rings for Bed, Wake, Nap, and Japa (0-5 pts each)
  */
 @Composable
 fun ScoreCard(
     score: Int?,
     maxScore: Int = 20,
+    bedScore: Int? = null,
+    wakeScore: Int? = null,
+    napScore: Int? = null,
+    japaScore: Int? = null,
     modifier: Modifier = Modifier
 ) {
-    val currentScore = score ?: 0
-    val progress = (currentScore.toFloat() / maxScore.toFloat()).coerceIn(0f, 1f)
-    val animatedProgress by animateFloatAsState(targetValue = progress, label = "ScoreProgress")
+    val total = score ?: 0
 
-    val accessibilityDesc = if (score != null) {
-        "Daily total score: $score out of $maxScore points."
-    } else {
-        "Daily total score not yet calculated."
-    }
+    val accessibilityDesc = "Daily total score: $total out of $maxScore points. " +
+        "Bed: ${bedScore ?: 0}, Wake: ${wakeScore ?: 0}, Nap: ${napScore ?: 0}, Japa: ${japaScore ?: 0}."
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(BannerShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
-            .padding(16.dp)
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
+            .padding(vertical = 22.dp, horizontal = 16.dp)
             .semantics { contentDescription = accessibilityDesc },
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        // Centered Total Score Header: "16 / 20 pts today"
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Daily Score",
+                text = "$total",
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 44.sp,
+                lineHeight = 44.sp,
+                color = DarkTextPrimary
+            )
+            Text(
+                text = " / $maxScore pts today",
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Medium,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 16.sp,
+                color = DarkTextMuted,
+                modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
             )
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "${score ?: 0}",
-                    fontFamily = NewsreaderFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 34.sp,
-                    lineHeight = 34.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = " / $maxScore",
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-            }
         }
 
-        // Progress bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(PillShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+        // 4 Circular Progress Rings side-by-side
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(animatedProgress)
-                    .height(8.dp)
-                    .clip(PillShape)
-                    .background(MaterialTheme.colorScheme.primary)
+            ScoreCircularRing(label = "Bed", score = bedScore ?: 0)
+            ScoreCircularRing(label = "Wake", score = wakeScore ?: 0)
+            ScoreCircularRing(label = "Nap", score = napScore ?: 0)
+            ScoreCircularRing(label = "Japa", score = japaScore ?: 0)
+        }
+    }
+}
+
+/**
+ * Single Circular Progress Ring component:
+ * - 54.dp size
+ * - Dark track (#26262C)
+ * - Gold arc (#F5B041) sweeping (score / 5f) * 360f
+ * - Score number centered inside in bold white
+ * - Label underneath in muted gray
+ */
+@Composable
+fun ScoreCircularRing(
+    label: String,
+    score: Int,
+    maxPoints: Int = 5,
+    ringColor: Color = DarkPrimary,
+    trackColor: Color = DarkRingTrack,
+    modifier: Modifier = Modifier
+) {
+    val progress = (score.coerceIn(0, maxPoints).toFloat() / maxPoints.toFloat())
+    val animatedSweep by animateFloatAsState(
+        targetValue = progress * 360f,
+        animationSpec = tween(durationMillis = 500),
+        label = "${label}Sweep"
+    )
+
+    val strokeWidth = 5.5.dp
+    val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Box(
+            modifier = Modifier.size(54.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Canvas(modifier = Modifier.size(54.dp)) {
+                // Background Track
+                drawArc(
+                    color = trackColor,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                )
+
+                // Gold Progress Arc
+                if (animatedSweep > 0f) {
+                    drawArc(
+                        color = ringColor,
+                        startAngle = -90f,
+                        sweepAngle = animatedSweep,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                    )
+                }
+            }
+
+            // Numeric score inside in bold white
+            Text(
+                text = "$score",
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = DarkTextPrimary
             )
         }
 
+        // Label below ring in muted gray
         Text(
-            text = "Sleep (5), Wake (5), Day Nap (5), and Japa (5) scored",
+            text = label,
             fontFamily = DmSansFontFamily,
+            fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = DarkTextMuted
         )
     }
 }
