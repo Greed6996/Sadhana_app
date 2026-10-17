@@ -845,119 +845,65 @@ fun FeedbackAndFeatureRequestsSection(
 ) {
     val context = LocalContext.current
 
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(CardShape)
             .background(DarkSurface)
             .border(BorderStroke(1.dp, DarkBorder), CardShape)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .clickable(role = Role.Button) {
+                val message = "Hello Developer! 👋\n\nI would like to share feedback / request a feature / report an issue in the Sadhana Card app."
+                launchWhatsApp(context, message)
+            }
+            .semantics {
+                contentDescription = "Request a Feature or Report a Bug via WhatsApp"
+            }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Section Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF14281A))
-                    .border(BorderStroke(1.dp, Color(0xFF1E462B)), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = null,
-                    tint = Color(0xFF25D366),
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "Feedback & Feature Requests",
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = DarkTextPrimary
-                )
-                Text(
-                    text = "Help us improve the app. Your suggestions and feedback matter.",
-                    fontFamily = DmSansFontFamily,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    color = DarkTextMuted
-                )
-            }
-        }
-
-        // Single Unified Entry Row - Direct WhatsApp launch
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(DarkSurfaceVariant)
-                .border(BorderStroke(1.dp, DarkBorder), RoundedCornerShape(14.dp))
-                .clickable(role = Role.Button) {
-                    val message = "Hello Developer! 👋\n\nI would like to share feedback / request a feature / report an issue in the Sadhana Card app."
-                    launchWhatsApp(context, message)
-                }
-                .semantics {
-                    contentDescription = "Request a Feature or Report a Bug via WhatsApp"
-                }
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .size(38.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFF172554))
+                .border(BorderStroke(1.dp, Color(0xFF1E40AF)), RoundedCornerShape(10.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF172554))
-                    .border(BorderStroke(1.dp, Color(0xFF1E40AF)), RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = null,
-                    tint = Color(0xFF93C5FD),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(1.dp)
-            ) {
-                Text(
-                    text = "Request a Feature or Report a Bug",
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.5.sp,
-                    color = DarkTextPrimary
-                )
-                Text(
-                    text = "Share an idea, suggest an improvement, or report a problem you've found.",
-                    fontFamily = DmSansFontFamily,
-                    fontSize = 11.5.sp,
-                    lineHeight = 15.sp,
-                    color = DarkTextMuted
-                )
-            }
-
             Icon(
-                imageVector = Icons.Default.ChevronRight,
+                imageVector = Icons.AutoMirrored.Filled.Chat,
                 contentDescription = null,
-                tint = DarkTextMuted.copy(alpha = 0.5f),
-                modifier = Modifier.size(18.dp)
+                tint = Color(0xFF93C5FD),
+                modifier = Modifier.size(20.dp)
             )
         }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(1.dp)
+        ) {
+            Text(
+                text = "Request a Feature or Report a Bug",
+                fontFamily = DmSansFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.5.sp,
+                color = DarkTextPrimary
+            )
+            Text(
+                text = "Share an idea, suggest an improvement, or report a problem you've found.",
+                fontFamily = DmSansFontFamily,
+                fontSize = 11.5.sp,
+                lineHeight = 15.sp,
+                color = DarkTextMuted
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = DarkTextMuted.copy(alpha = 0.5f),
+            modifier = Modifier.size(18.dp)
+        )
     }
 }
 

@@ -154,7 +154,7 @@ fun DailyEntryContent(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Top Header Row: "Week of 11 Oct", "Sunday" + Week Chevrons & Settings Button
+        // 1. Top Header Row: Sadhaka Name + Day Title + Week Chevrons & Settings Button
         item(key = "header") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -162,14 +162,15 @@ fun DailyEntryContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(
-                        text = weekTitle,
-                        fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.5.sp,
-                        color = DarkTextMuted
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    if (uiState.sadhakaName.isNotBlank()) {
+                        Text(
+                            text = uiState.sadhakaName,
+                            fontFamily = DmSansFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 13.5.sp,
+                            color = DarkTextMuted
+                        )
+                    }
                     Text(
                         text = dayFullName,
                         fontFamily = DmSansFontFamily,
@@ -288,7 +289,6 @@ fun DailyEntryContent(
                     title = "Bedtime",
                     subtitle = "5 pts if by 9:30 PM",
                     scoreBadgeText = "+${uiState.score.bedScore ?: 0}",
-                    buttonText = uiState.entry.bedtimeCategory?.let { formatCategoryButtonText(it.label) } ?: "Select",
                     isExpanded = expandedSection == DailyEntryAccordionSection.BEDTIME,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.BEDTIME) {
@@ -325,7 +325,6 @@ fun DailyEntryContent(
                     title = "Wake-up",
                     subtitle = "5 pts if before 3:00 AM",
                     scoreBadgeText = "+${uiState.score.wakeScore ?: 0}",
-                    buttonText = uiState.entry.wakeUpCategory?.let { formatCategoryButtonText(it.label) } ?: "Select",
                     isExpanded = expandedSection == DailyEntryAccordionSection.WAKE_UP,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.WAKE_UP) {
@@ -362,7 +361,6 @@ fun DailyEntryContent(
                     title = "16 rounds done by",
                     subtitle = "5 pts if by 7:15 AM",
                     scoreBadgeText = "+${uiState.score.japaScore ?: 0}",
-                    buttonText = uiState.entry.japaCategory?.let { formatCategoryButtonText(it.label) } ?: "Select",
                     isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.JAPA) {
@@ -671,15 +669,13 @@ private fun V5SectionHeader(title: String) {
 /**
  * Accordion Row for Bedtime, Wake-up, 16 rounds done by:
  * Left: Title & Subtitle
- * Center-right: Score Badge (+4, +5, etc.)
- * Right: Gold-bordered Pill Button with selected value or "Select"
+ * Right: Score Badge (+0, +3, +5, etc.)
  */
 @Composable
 private fun V5AccordionRow(
     title: String,
     subtitle: String,
     scoreBadgeText: String,
-    buttonText: String,
     isExpanded: Boolean,
     onToggleExpand: () -> Unit,
     content: @Composable () -> Unit
@@ -711,44 +707,21 @@ private fun V5AccordionRow(
                 )
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            // Score badge e.g. +4, +5, +0
+            Box(
+                modifier = Modifier
+                    .clip(PillShape)
+                    .background(DarkScorePillBg)
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
             ) {
-                // Score badge e.g. +4
-                Box(
-                    modifier = Modifier
-                        .clip(PillShape)
-                        .background(DarkScorePillBg)
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = scoreBadgeText,
-                        fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = DarkScorePillText
-                    )
-                }
-
-                // Gold-bordered pill button
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(DarkSurfaceVariant)
-                        .border(BorderStroke(1.dp, DarkGoldBorder), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = buttonText,
-                        fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = DarkPrimary
-                    )
-                }
+                Text(
+                    text = scoreBadgeText,
+                    fontFamily = DmSansFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = DarkScorePillText
+                )
             }
         }
 
@@ -1015,27 +988,3 @@ private fun V5InlineStepper(
     }
 }
 
-/**
- * Format category label into concise button text
- * e.g. "Before 10:00 PM" -> "9:45 PM" or "10:00 PM"
- */
-private fun formatCategoryButtonText(label: String): String {
-    return when {
-        label.contains("9:30 PM", ignoreCase = true) -> "9:30 PM"
-        label.contains("10:00 PM", ignoreCase = true) -> "9:45 PM"
-        label.contains("10:30 PM", ignoreCase = true) -> "10:15 PM"
-        label.contains("10:45 PM", ignoreCase = true) -> "10:35 PM"
-        label.contains("11:00 PM", ignoreCase = true) -> "11:00 PM"
-        label.contains("3:00 AM", ignoreCase = true) -> "2:45 AM"
-        label.contains("3:30 AM", ignoreCase = true) -> "3:20 AM"
-        label.contains("4:00 AM", ignoreCase = true) -> "3:50 AM"
-        label.contains("4:15 AM", ignoreCase = true) -> "4:10 AM"
-        label.contains("4:30 AM", ignoreCase = true) -> "4:25 AM"
-        label.contains("7:15 AM", ignoreCase = true) -> "7:15 AM"
-        label.contains("9:00 AM", ignoreCase = true) -> "8:10 AM"
-        label.contains("11:59 AM", ignoreCase = true) -> "11:00 AM"
-        label.contains("3:00 PM", ignoreCase = true) -> "2:30 PM"
-        label.contains("6:00 PM", ignoreCase = true) -> "5:30 PM"
-        else -> label
-    }
-}

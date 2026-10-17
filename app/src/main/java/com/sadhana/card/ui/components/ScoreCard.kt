@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -43,6 +41,10 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
  * Hero Score Card matching the V5 Dark Rings design:
  * - Centered total score: "16 / 20 pts today"
  * - 4 Circular Progress Rings for Bed, Wake, Nap, and Japa (0-5 pts each)
+ * - Dynamic ring colors based on points:
+ *   - 0 pts: Glowing vibrant Crimson/Red (#EF4444) with subtle translucent halo
+ *   - 1–4 pts: Proportional Amber Gold arc (#F5B041)
+ *   - 5 pts: Full vibrant Emerald Green ring (#10B981)
  */
 @Composable
 fun ScoreCard(
@@ -110,8 +112,10 @@ fun ScoreCard(
 /**
  * Single Circular Progress Ring component:
  * - 54.dp size
- * - Dark track (#26262C)
- * - Gold arc (#F5B041) sweeping (score / 5f) * 360f
+ * - Dynamic color:
+ *   - 0 pts: Vibrant Crimson/Red (#EF4444) full ring with subtle translucent halo
+ *   - 1-4 pts: Dark track (#26262C) with Amber Gold arc (#F5B041) sweeping (score / 5f) * 360f
+ *   - 5 pts: Vibrant Emerald Green (#10B981) full ring
  * - Score number centered inside in bold white
  * - Label underneath in muted gray
  */
@@ -120,11 +124,12 @@ fun ScoreCircularRing(
     label: String,
     score: Int,
     maxPoints: Int = 5,
-    ringColor: Color = DarkPrimary,
+    ringColor: Color? = null,
     trackColor: Color = DarkRingTrack,
     modifier: Modifier = Modifier
 ) {
-    val progress = (score.coerceIn(0, maxPoints).toFloat() / maxPoints.toFloat())
+    val clampedScore = score.coerceIn(0, maxPoints)
+    val progress = clampedScore.toFloat() / maxPoints.toFloat()
     val animatedSweep by animateFloatAsState(
         targetValue = progress * 360f,
         animationSpec = tween(durationMillis = 500),
@@ -133,6 +138,13 @@ fun ScoreCircularRing(
 
     val strokeWidth = 5.5.dp
     val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
+    val haloWidthPx = with(LocalDensity.current) { (strokeWidth + 4.dp).toPx() }
+
+    val activeColor = ringColor ?: when {
+        clampedScore == 0 -> Color(0xFFEF4444) // Vibrant Crimson Red
+        clampedScore == 5 -> Color(0xFF10B981) // Vibrant Emerald Green
+        else -> DarkPrimary                   // Proportional Amber Gold (#F5B041)
+    }
 
     Column(
         modifier = modifier,
@@ -144,24 +156,43 @@ fun ScoreCircularRing(
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.size(54.dp)) {
-                // Background Track
-                drawArc(
-                    color = trackColor,
-                    startAngle = -90f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
-                )
-
-                // Gold Progress Arc
-                if (animatedSweep > 0f) {
+                if (clampedScore == 0) {
+                    // Subtle translucent glowing halo
                     drawArc(
-                        color = ringColor,
+                        color = Color(0xFFEF4444).copy(alpha = 0.18f),
                         startAngle = -90f,
-                        sweepAngle = animatedSweep,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = haloWidthPx, cap = StrokeCap.Round)
+                    )
+                    // Full glowing Crimson Red ring
+                    drawArc(
+                        color = Color(0xFFEF4444),
+                        startAngle = -90f,
+                        sweepAngle = 360f,
                         useCenter = false,
                         style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                     )
+                } else {
+                    // Background Track
+                    drawArc(
+                        color = trackColor,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                    )
+
+                    // Active Progress Arc (Amber Gold for 1-4, Emerald Green for 5)
+                    if (animatedSweep > 0f) {
+                        drawArc(
+                            color = activeColor,
+                            startAngle = -90f,
+                            sweepAngle = animatedSweep,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                        )
+                    }
                 }
             }
 
