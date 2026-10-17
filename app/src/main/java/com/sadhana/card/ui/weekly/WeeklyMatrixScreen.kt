@@ -8,7 +8,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,36 +27,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,7 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -73,23 +66,38 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadhana.card.domain.util.DateUtils
-import com.sadhana.card.ui.theme.BannerShape
-import com.sadhana.card.ui.theme.BorderCream
-import com.sadhana.card.ui.theme.CreamBackground
+import com.sadhana.card.ui.theme.CardShape
 import com.sadhana.card.ui.theme.DarkBg
+import com.sadhana.card.ui.theme.DarkBorder
+import com.sadhana.card.ui.theme.DarkGoldBorder
+import com.sadhana.card.ui.theme.DarkPrimary
+import com.sadhana.card.ui.theme.DarkRingTrack
+import com.sadhana.card.ui.theme.DarkSurface
+import com.sadhana.card.ui.theme.DarkSurfaceVariant
+import com.sadhana.card.ui.theme.DarkTextMuted
+import com.sadhana.card.ui.theme.DarkTextPrimary
 import com.sadhana.card.ui.theme.DmSansFontFamily
-import com.sadhana.card.ui.theme.NewsreaderFontFamily
-import com.sadhana.card.ui.theme.PillShape
-import com.sadhana.card.ui.theme.RustPrimary
-import com.sadhana.card.ui.theme.SaffronAccent
-import com.sadhana.card.ui.theme.SurfaceWhite
-import com.sadhana.card.ui.theme.TextDark
-import com.sadhana.card.ui.theme.TextMuted
 import java.io.File
 import java.time.LocalDate
 
+// Heatmap Cell Colors matching V5 Specifications
+private val CellScore5Bg = Color(0xFFF5B041)
+private val CellScore5Text = Color(0xFF0D0D0F)
+private val CellScore4Bg = Color(0xFFC88A2B)
+private val CellScore4Text = Color(0xFF0D0D0F)
+private val CellScore3Bg = Color(0xFF8C6222)
+private val CellScore3Text = Color(0xFFF4F4F6)
+private val CellScore2Bg = Color(0xFF4A3518)
+private val CellScore2Text = Color(0xFFF4F4F6)
+private val CellScore0to1Bg = Color(0xFF222228)
+private val CellScore0to1Text = Color(0xFF8E8E99)
+private val CellMinutesBg = Color(0xFF1E1E24)
+private val CellTotalBg = Color(0xFFF4F4F6)
+private val CellTotalText = Color(0xFF0D0D0F)
+
 /**
- * Screen 2: Weekly Matrix screen rebuilt entirely in native Jetpack Compose.
+ * Weekly Matrix screen matching the V5 Dark Rings aesthetic.
+ * Preserves 100% of Excel exporting, sharing, WhatsApp feedback, and day navigation.
  */
 @Composable
 fun WeeklyMatrixScreen(
@@ -186,23 +194,24 @@ fun WeeklyMatrixContent(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+            .background(DarkBg),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Header with week switcher
-        item {
+        // 1. Top Week Navigation Header
+        item(key = "header_weekly") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Previous Week (<) Circular Dark Button
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(DarkSurface)
+                        .border(BorderStroke(1.dp, DarkBorder), CircleShape)
                         .clickable(role = Role.Button, onClick = onPreviousWeek)
                         .semantics { contentDescription = "Previous Week" },
                     contentAlignment = Alignment.Center
@@ -210,39 +219,40 @@ fun WeeklyMatrixContent(
                     Icon(
                         imageVector = Icons.Default.ChevronLeft,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = DarkTextMuted,
                         modifier = Modifier.size(22.dp)
                     )
                 }
 
+                // Center: "Weekly sadhana" + date range title
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(
-                        text = "WEEKLY SADHANA",
+                        text = "Weekly sadhana",
                         fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.5.sp,
-                        letterSpacing = 1.sp,
-                        color = MaterialTheme.colorScheme.secondary
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 13.5.sp,
+                        color = DarkTextMuted
                     )
                     Text(
                         text = weekTitle,
-                        fontFamily = NewsreaderFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 22.sp,
-                        lineHeight = 26.sp,
-                        color = MaterialTheme.colorScheme.onBackground
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 26.sp,
+                        lineHeight = 30.sp,
+                        color = DarkTextPrimary
                     )
                 }
 
+                // Next Week (>) Circular Dark Button
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(DarkSurface)
+                        .border(BorderStroke(1.dp, DarkBorder), CircleShape)
                         .clickable(role = Role.Button, onClick = onNextWeek)
                         .semantics { contentDescription = "Next Week" },
                     contentAlignment = Alignment.Center
@@ -250,28 +260,28 @@ fun WeeklyMatrixContent(
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = DarkTextMuted,
                         modifier = Modifier.size(22.dp)
                     )
                 }
             }
         }
 
-        // 2. Weekly aggregate banner
-        item {
-            WeeklyAggregateCard(uiState = uiState)
+        // 2. Weekly Summary Hero Card (Circular Progress Ring + Study Totals)
+        item(key = "hero_weekly_summary") {
+            WeeklySummaryHeroCard(uiState = uiState)
         }
 
-        // 3. Matrix spreadsheet grid
-        item {
-            WeeklySpreadsheetGrid(
+        // 3. Unified Weekly Heatmap Matrix Card
+        item(key = "card_spreadsheet_grid") {
+            WeeklyHeatmapMatrixCard(
                 columns = uiState.columns,
                 onDayClick = onDayClick
             )
         }
 
         // 4. Excel Export Card
-        item {
+        item(key = "card_excel_export") {
             WeeklyExcelExportCard(
                 uiState = uiState,
                 onShareReport = onShareReport,
@@ -279,147 +289,155 @@ fun WeeklyMatrixContent(
             )
         }
 
-        // 5. Score key Legend
-        item {
-            WeeklyScoreKeyLegend()
-        }
-
-        // 6. Feedback & Feature Requests Section
-        item {
+        // 5. Feedback & Feature Requests Section
+        item(key = "card_feedback") {
             FeedbackAndFeatureRequestsSection()
         }
 
-        // Bottom navigation spacing
-        item {
-            Spacer(modifier = Modifier.height(72.dp))
+        // Bottom navigation clearance
+        item(key = "bottom_spacer") {
+            Spacer(modifier = Modifier.height(60.dp))
         }
     }
 }
 
+/**
+ * V5 Weekly Summary Hero Card:
+ * Left side: Large circular ring showing total score e.g. "103 / of 140"
+ * Right side: Study breakdown rows (Pathan, Sravan, Read + hear) with bold gold numbers
+ */
 @Composable
-fun WeeklyAggregateCard(
+fun WeeklySummaryHeroCard(
     uiState: WeeklyMatrixUiState,
     modifier: Modifier = Modifier
 ) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = uiState.scoreProgress,
-        label = "WeeklyProgress"
+    val maxScore = 140f
+    val progress = (uiState.weekTotalScore.toFloat() / maxScore).coerceIn(0f, 1f)
+    val animatedSweep by animateFloatAsState(
+        targetValue = progress * 360f,
+        animationSpec = tween(durationMillis = 600),
+        label = "WeeklyRingSweep"
     )
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
 
-    val cardBg = if (isDark) MaterialTheme.colorScheme.surface else RustPrimary
-    val baseModifier = modifier
-        .fillMaxWidth()
-        .clip(BannerShape)
-        .background(cardBg)
+    val strokeWidth = 7.dp
+    val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
 
-    val finalModifier = if (isDark) {
-        baseModifier.border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
-    } else {
-        baseModifier
-    }
-
-    Column(
-        modifier = finalModifier.padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
+            .padding(18.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Weekly score",
-                fontFamily = DmSansFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 13.sp,
-                color = Color(0xFFFBF1DF).copy(alpha = 0.9f)
-            )
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "${uiState.weekTotalScore}",
-                    fontFamily = NewsreaderFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 38.sp,
-                    lineHeight = 38.sp,
-                    color = Color(0xFFFBF1DF)
-                )
-                Text(
-                    text = " / ${uiState.maxWeeklyScore}",
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = Color(0xFFFBF1DF).copy(alpha = 0.85f),
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-            }
-        }
-
-        // Progress bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(PillShape)
-                .background(Color(0xFFFBF1DF).copy(alpha = 0.22f))
-        ) {
+            // Left Side: Circular Progress Ring
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(animatedProgress)
-                    .height(8.dp)
-                    .clip(PillShape)
-                    .background(Color(0xFFF4B26B))
-            )
-        }
+                    .size(104.dp)
+                    .padding(4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(modifier = Modifier.size(96.dp)) {
+                    // Background Track
+                    drawArc(
+                        color = DarkRingTrack,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                    )
 
-        HorizontalDivider(
-            color = Color(0xFFFBF1DF).copy(alpha = 0.25f),
-            modifier = Modifier.padding(top = 2.dp)
-        )
+                    // Gold Progress Arc
+                    if (animatedSweep > 0f) {
+                        drawArc(
+                            color = DarkPrimary,
+                            startAngle = -90f,
+                            sweepAngle = animatedSweep,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                        )
+                    }
+                }
 
-        // 3 columns: Pathan, Sravan, Read + hear
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            AggregateColumn(label = "Pathan", value = uiState.pathanHoursMinutes, modifier = Modifier.weight(1f))
-            AggregateColumn(label = "Sravan", value = uiState.sravanHoursMinutes, modifier = Modifier.weight(1f))
-            AggregateColumn(label = "Read + hear", value = uiState.bothHoursMinutes, modifier = Modifier.weight(1f))
+                // Centered Score & "of 140"
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "${uiState.weekTotalScore}",
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp,
+                        lineHeight = 32.sp,
+                        color = DarkTextPrimary
+                    )
+                    Text(
+                        text = "of 140",
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 12.sp,
+                        color = DarkTextMuted
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(20.dp))
+
+            // Right Side: Study Breakdown (3 rows with subtle dividers)
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                WeeklyStudyRow(label = "Pathan", value = uiState.pathanHoursMinutes)
+                HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
+                WeeklyStudyRow(label = "Sravan", value = uiState.sravanHoursMinutes)
+                HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
+                WeeklyStudyRow(label = "Read + hear", value = uiState.bothHoursMinutes)
+            }
         }
     }
 }
 
 @Composable
-fun AggregateColumn(
+private fun WeeklyStudyRow(
     label: String,
-    value: String,
-    modifier: Modifier = Modifier
+    value: String
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             fontFamily = DmSansFontFamily,
-            fontSize = 11.sp,
-            color = Color(0xFFFBF1DF).copy(alpha = 0.85f)
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            color = DarkTextMuted
         )
         Text(
             text = value,
-            fontFamily = NewsreaderFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 20.sp,
-            color = Color(0xFFFBF1DF)
+            fontFamily = DmSansFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 17.sp,
+            color = DarkPrimary
         )
     }
 }
 
 /**
- * 8-row x 7-column spreadsheet matrix card matching Screen 2.
+ * 8-row x 7-column spreadsheet matrix card matching the V5 design.
  */
 @Composable
-fun WeeklySpreadsheetGrid(
+fun WeeklyHeatmapMatrixCard(
     columns: List<MatrixDayColumn>,
     onDayClick: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
@@ -427,25 +445,26 @@ fun WeeklySpreadsheetGrid(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(BannerShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), BannerShape)
-            .padding(horizontal = 10.dp, vertical = 12.dp)
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
+            .padding(horizontal = 12.dp, vertical = 14.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            // Header row with Day Names
+        Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            // Header row with Day Names (Sun through Sat)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Empty corner for label
+                // Empty corner for row labels
                 Box(modifier = Modifier.weight(1.3f))
 
                 columns.forEach { col ->
                     Box(
                         modifier = Modifier
                             .weight(1f)
+                            .clip(RoundedCornerShape(6.dp))
                             .clickable(role = Role.Button) { onDayClick(col.date) }
                             .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
@@ -453,9 +472,9 @@ fun WeeklySpreadsheetGrid(
                         Text(
                             text = col.dayName,
                             fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            color = DarkTextMuted,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -463,7 +482,7 @@ fun WeeklySpreadsheetGrid(
             }
 
             // 1. Bedtime (pts)
-            MatrixScoreRow(
+            V5MatrixScoreRow(
                 label = "Bedtime",
                 unit = "pts",
                 columns = columns,
@@ -472,7 +491,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 2. Wake-up (pts)
-            MatrixScoreRow(
+            V5MatrixScoreRow(
                 label = "Wake-up",
                 unit = "pts",
                 columns = columns,
@@ -481,7 +500,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 3. Day sleep (pts)
-            MatrixScoreRow(
+            V5MatrixScoreRow(
                 label = "Day sleep",
                 unit = "pts",
                 columns = columns,
@@ -490,7 +509,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 4. Japa (pts)
-            MatrixScoreRow(
+            V5MatrixScoreRow(
                 label = "Japa",
                 unit = "pts",
                 columns = columns,
@@ -499,7 +518,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 5. Pathan (min)
-            MatrixMinuteRow(
+            V5MatrixMinuteRow(
                 label = "Pathan",
                 unit = "min",
                 columns = columns,
@@ -508,7 +527,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 6. Sravan (min)
-            MatrixMinuteRow(
+            V5MatrixMinuteRow(
                 label = "Sravan",
                 unit = "min",
                 columns = columns,
@@ -517,7 +536,7 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 7. Seva (min)
-            MatrixMinuteRow(
+            V5MatrixMinuteRow(
                 label = "Seva",
                 unit = "min",
                 columns = columns,
@@ -526,18 +545,23 @@ fun WeeklySpreadsheetGrid(
             )
 
             // 8. Total (of 20)
-            MatrixTotalRow(
+            V5MatrixTotalRow(
                 label = "Total",
                 unit = "of 20",
                 columns = columns,
                 onDayClick = onDayClick
             )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Score Key Legend Row at bottom of matrix card
+            WeeklyScoreKeyLegend()
         }
     }
 }
 
 @Composable
-fun MatrixScoreRow(
+private fun V5MatrixScoreRow(
     label: String,
     unit: String,
     columns: List<MatrixDayColumn>,
@@ -549,11 +573,11 @@ fun MatrixScoreRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
+        V5MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
 
         columns.forEach { col ->
             val score = getScore(col)
-            ScoreMatrixCell(
+            V5ScoreMatrixCell(
                 score = score,
                 onClick = { onDayClick(col.date) },
                 modifier = Modifier.weight(1f)
@@ -563,7 +587,7 @@ fun MatrixScoreRow(
 }
 
 @Composable
-fun MatrixMinuteRow(
+private fun V5MatrixMinuteRow(
     label: String,
     unit: String,
     columns: List<MatrixDayColumn>,
@@ -575,11 +599,11 @@ fun MatrixMinuteRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
+        V5MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
 
         columns.forEach { col ->
             val min = getMinutes(col)
-            MinuteMatrixCell(
+            V5MinuteMatrixCell(
                 minutes = min,
                 onClick = { onDayClick(col.date) },
                 modifier = Modifier.weight(1f)
@@ -589,7 +613,7 @@ fun MatrixMinuteRow(
 }
 
 @Composable
-fun MatrixTotalRow(
+private fun V5MatrixTotalRow(
     label: String,
     unit: String,
     columns: List<MatrixDayColumn>,
@@ -600,11 +624,11 @@ fun MatrixTotalRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
+        V5MatrixRowLabel(label = label, unit = unit, modifier = Modifier.weight(1.3f))
 
         columns.forEach { col ->
             val total = col.totalScore
-            TotalMatrixCell(
+            V5TotalMatrixCell(
                 total = total,
                 onClick = { onDayClick(col.date) },
                 modifier = Modifier.weight(1f)
@@ -614,7 +638,7 @@ fun MatrixTotalRow(
 }
 
 @Composable
-fun MatrixRowLabel(
+private fun V5MatrixRowLabel(
     label: String,
     unit: String,
     modifier: Modifier = Modifier
@@ -627,73 +651,62 @@ fun MatrixRowLabel(
             text = label,
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
-            fontSize = 11.5.sp,
-            lineHeight = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface
+            fontSize = 12.5.sp,
+            lineHeight = 15.sp,
+            color = DarkTextPrimary
         )
         Text(
             text = unit,
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 10.sp,
-            lineHeight = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontSize = 10.5.sp,
+            lineHeight = 13.sp,
+            color = DarkTextMuted
         )
     }
 }
 
+/**
+ * Scored matrix cell (0–5 pts) using V5 amber/gold tier colors.
+ */
 @Composable
-fun ScoreMatrixCell(
+private fun V5ScoreMatrixCell(
     score: Int?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-
-    val (bg, textColor, border) = if (isDark) {
-        when (score) {
-            5 -> Triple(Color(0xFFF4B26B), Color(0xFF1F140E), null)
-            4 -> Triple(Color(0xFFC27338), Color.White, null)
-            3 -> Triple(Color(0xFF874820), Color(0xFFFBF1DF), null)
-            2 -> Triple(Color(0xFF5A331A), Color(0xFFFBF1DF), null)
-            0, 1 -> Triple(Color(0xFF362015), Color(0xFFCDBBA8), BorderStroke(1.dp, Color(0xFF4A3428)))
-            else -> Triple(Color(0xFF2A1C14), Color(0xFF7D6755), BorderStroke(1.dp, Color(0xFF3F2B20)))
-        }
-    } else {
-        when (score) {
-            5 -> Triple(RustPrimary, Color.White, null)
-            4 -> Triple(Color(0xFFB5541A), Color.White, null)
-            3 -> Triple(Color(0xFFF0B27A), Color(0xFF3A1C08), null)
-            2 -> Triple(Color(0xFFF8DCC0), Color(0xFF4A2A12), null)
-            0, 1 -> Triple(Color(0xFFFBEEDD), Color(0xFF4A2A12), BorderStroke(1.dp, BorderCream))
-            else -> Triple(Color(0xFFFBEEDD), Color(0xFF8C5228), BorderStroke(1.dp, BorderCream))
-        }
+    val (bg, textColor) = when (score) {
+        5 -> Pair(CellScore5Bg, CellScore5Text)
+        4 -> Pair(CellScore4Bg, CellScore4Text)
+        3 -> Pair(CellScore3Bg, CellScore3Text)
+        2 -> Pair(CellScore2Bg, CellScore2Text)
+        0, 1 -> Pair(CellScore0to1Bg, CellScore0to1Text)
+        else -> Pair(CellScore0to1Bg, CellScore0to1Text)
     }
 
-    val baseMod = modifier
-        .height(40.dp)
-        .clip(RoundedCornerShape(8.dp))
-        .background(bg)
-        .clickable(role = Role.Button, onClick = onClick)
-
-    val finalMod = if (border != null) baseMod.border(border, RoundedCornerShape(8.dp)) else baseMod
-
     Box(
-        modifier = finalMod,
+        modifier = modifier
+            .height(40.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(bg)
+            .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (score != null) "$score" else "—",
+            text = if (score != null) "$score" else "-",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
+            fontSize = 14.5.sp,
             color = textColor
         )
     }
 }
 
+/**
+ * Minute matrix cell (Pathan, Sravan, Seva) with dark fill and crisp white text.
+ */
 @Composable
-fun MinuteMatrixCell(
+private fun V5MinuteMatrixCell(
     minutes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -701,8 +714,8 @@ fun MinuteMatrixCell(
     Box(
         modifier = modifier
             .height(40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .clip(RoundedCornerShape(10.dp))
+            .background(CellMinutesBg)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -710,14 +723,17 @@ fun MinuteMatrixCell(
             text = "$minutes",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            fontSize = 13.5.sp,
+            color = DarkTextPrimary
         )
     }
 }
 
+/**
+ * Daily Total cell with crisp white background and bold dark text.
+ */
 @Composable
-fun TotalMatrixCell(
+private fun V5TotalMatrixCell(
     total: Int?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -725,28 +741,29 @@ fun TotalMatrixCell(
     Box(
         modifier = modifier
             .height(40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary), RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(CellTotalBg)
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (total != null) "$total" else "—",
+            text = if (total != null) "$total" else "-",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.primary
+            fontSize = 14.5.sp,
+            color = CellTotalText
         )
     }
 }
 
+/**
+ * Score Key Legend matching the 5 tiers:
+ * 0–1, 2, 3, 4, 5
+ */
 @Composable
 fun WeeklyScoreKeyLegend(
     modifier: Modifier = Modifier
 ) {
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -755,43 +772,29 @@ fun WeeklyScoreKeyLegend(
         Text(
             text = "Score key",
             fontFamily = DmSansFontFamily,
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontSize = 11.5.sp,
+            color = DarkTextMuted
         )
 
-        if (isDark) {
-            LegendChip(text = "0–1", bg = Color(0xFF362015), textColor = Color(0xFFCDBBA8), hasBorder = true)
-            LegendChip(text = "2", bg = Color(0xFF5A331A), textColor = Color(0xFFFBF1DF))
-            LegendChip(text = "3", bg = Color(0xFF874820), textColor = Color(0xFFFBF1DF))
-            LegendChip(text = "4", bg = Color(0xFFC27338), textColor = Color.White)
-            LegendChip(text = "5", bg = Color(0xFFF4B26B), textColor = Color(0xFF1F140E))
-        } else {
-            LegendChip(text = "0–1", bg = Color(0xFFFBEEDD), textColor = Color(0xFF4A2A12), hasBorder = true)
-            LegendChip(text = "2", bg = Color(0xFFF8DCC0), textColor = Color(0xFF4A2A12))
-            LegendChip(text = "3", bg = Color(0xFFF0B27A), textColor = Color(0xFF3A1C08))
-            LegendChip(text = "4", bg = Color(0xFFB5541A), textColor = Color.White)
-            LegendChip(text = "5", bg = RustPrimary, textColor = Color.White)
-        }
+        V5LegendChip(text = "0–1", bg = CellScore0to1Bg, textColor = CellScore0to1Text)
+        V5LegendChip(text = "2", bg = CellScore2Bg, textColor = CellScore2Text)
+        V5LegendChip(text = "3", bg = CellScore3Bg, textColor = CellScore3Text)
+        V5LegendChip(text = "4", bg = CellScore4Bg, textColor = CellScore4Text)
+        V5LegendChip(text = "5", bg = CellScore5Bg, textColor = CellScore5Text)
     }
 }
 
 @Composable
-fun LegendChip(
+private fun V5LegendChip(
     text: String,
     bg: Color,
-    textColor: Color,
-    hasBorder: Boolean = false
+    textColor: Color
 ) {
-    val borderColor = MaterialTheme.colorScheme.outline
-    val base = Modifier
-        .size(width = 26.dp, height = 22.dp)
-        .clip(RoundedCornerShape(6.dp))
-        .background(bg)
-
-    val mod = if (hasBorder) base.border(BorderStroke(1.dp, borderColor), RoundedCornerShape(6.dp)) else base
-
     Box(
-        modifier = mod,
+        modifier = Modifier
+            .size(width = 28.dp, height = 22.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(bg),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -808,28 +811,7 @@ fun LegendChip(
 private const val DEVELOPER_WHATSAPP_NUMBER = "916002630803"
 
 /**
- * Types of feedback and feature requests sent via WhatsApp click-to-chat.
- */
-enum class FeedbackType(
-    val title: String,
-    val description: String,
-    val prefilledMessage: String
-) {
-    REQUEST_FEATURE(
-        title = "Request a Feature",
-        description = "Have an idea for a new feature? Let us know.",
-        prefilledMessage = "Hello Developer! 👋\n\nI have a suggestion for a new feature."
-    ),
-    REPORT_BUG(
-        title = "Report a Bug",
-        description = "Found a problem? Help us identify and fix it.",
-        prefilledMessage = "Hello Developer! 👋\n\nI found a bug in the app."
-    )
-}
-
-/**
  * Safe helper to construct a WhatsApp click-to-chat URL and launch it via Intent.ACTION_VIEW.
- * Gracefully falls back to browser or shows an error Toast if neither is available.
  */
 fun launchWhatsApp(context: Context, message: String) {
     try {
@@ -855,26 +837,20 @@ fun launchWhatsApp(context: Context, message: String) {
 }
 
 /**
- * Feedback type enum for the unified feedback form.
- */
-/**
- * Polished "Feedback & Feature Requests" section on the Weekly page.
- * Displays a single unified entry that immediately opens WhatsApp click-to-chat
- * with a prefilled message.
+ * Feedback & Feature Requests section styled with V5 Dark Rings aesthetic.
  */
 @Composable
 fun FeedbackAndFeatureRequestsSection(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(20.dp))
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -888,11 +864,8 @@ fun FeedbackAndFeatureRequestsSection(
                 modifier = Modifier
                     .size(42.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isDark) Color(0xFF14281A) else Color(0xFFE8F8EE))
-                    .border(
-                        BorderStroke(1.dp, if (isDark) Color(0xFF1E462B) else Color(0xFFC1EACD)),
-                        RoundedCornerShape(12.dp)
-                    ),
+                    .background(Color(0xFF14281A))
+                    .border(BorderStroke(1.dp, Color(0xFF1E462B)), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -909,119 +882,87 @@ fun FeedbackAndFeatureRequestsSection(
             ) {
                 Text(
                     text = "Feedback & Feature Requests",
-                    fontFamily = NewsreaderFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 19.sp,
-                    lineHeight = 23.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontFamily = DmSansFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = DarkTextPrimary
                 )
                 Text(
                     text = "Help us improve the app. Your suggestions and feedback matter.",
                     fontFamily = DmSansFontFamily,
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = DarkTextMuted
                 )
             }
         }
 
         // Single Unified Entry Row - Direct WhatsApp launch
-        UnifiedFeedbackActionRow(
-            title = "Request a Feature or Report a Bug",
-            description = "Share an idea, suggest an improvement, or report a problem you've found.",
-            icon = Icons.AutoMirrored.Filled.Chat,
-            iconTint = if (isDark) Color(0xFF93C5FD) else Color(0xFF2563EB),
-            iconBg = if (isDark) Color(0xFF172554) else Color(0xFFEFF6FF),
-            iconBorder = if (isDark) Color(0xFF1E40AF) else Color(0xFFBFDBFE),
-            onClick = {
-                val message = "Hello Developer! 👋\n\nI would like to share feedback / request a feature / report an issue in the Sadhana Card app."
-                launchWhatsApp(context, message)
-            }
-        )
-    }
-}
-
-@Composable
-fun UnifiedFeedbackActionRow(
-    title: String,
-    description: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconTint: Color,
-    iconBg: Color,
-    iconBorder: Color,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-    val rowBg = if (isDark) Color(0xFF1F140E) else Color(0xFFFDFBF7)
-    val rowBorder = if (isDark) Color(0xFF3F2B20) else Color(0xFFEFE4D1)
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(rowBg)
-            .border(BorderStroke(1.dp, rowBorder), RoundedCornerShape(14.dp))
-            .clickable(
-                role = Role.Button,
-                onClick = onClick
-            )
-            .semantics {
-                contentDescription = "$title: $description"
-            }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(11.dp))
-                .background(iconBg)
-                .border(BorderStroke(1.dp, iconBorder), RoundedCornerShape(11.dp)),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(DarkSurfaceVariant)
+                .border(BorderStroke(1.dp, DarkBorder), RoundedCornerShape(14.dp))
+                .clickable(role = Role.Button) {
+                    val message = "Hello Developer! 👋\n\nI would like to share feedback / request a feature / report an issue in the Sadhana Card app."
+                    launchWhatsApp(context, message)
+                }
+                .semantics {
+                    contentDescription = "Request a Feature or Report a Bug via WhatsApp"
+                }
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF172554))
+                    .border(BorderStroke(1.dp, Color(0xFF1E40AF)), RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    tint = Color(0xFF93C5FD),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                Text(
+                    text = "Request a Feature or Report a Bug",
+                    fontFamily = DmSansFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.5.sp,
+                    color = DarkTextPrimary
+                )
+                Text(
+                    text = "Share an idea, suggest an improvement, or report a problem you've found.",
+                    fontFamily = DmSansFontFamily,
+                    fontSize = 11.5.sp,
+                    lineHeight = 15.sp,
+                    color = DarkTextMuted
+                )
+            }
+
             Icon(
-                imageVector = icon,
+                imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(20.dp)
+                tint = DarkTextMuted.copy(alpha = 0.5f),
+                modifier = Modifier.size(18.dp)
             )
         }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(1.dp)
-        ) {
-            Text(
-                text = title,
-                fontFamily = DmSansFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.5.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = description,
-                fontFamily = DmSansFontFamily,
-                fontSize = 11.5.sp,
-                lineHeight = 15.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            modifier = Modifier.size(18.dp)
-        )
     }
 }
 
 /**
- * Dedicated, beautifully styled Excel Export action card allowing users to share or save
- * the authentic weekly XLSX report.
+ * Excel Export action card allowing users to share or save the weekly XLSX report.
  */
 @Composable
 fun WeeklyExcelExportCard(
@@ -1030,16 +971,12 @@ fun WeeklyExcelExportCard(
     onSaveReport: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = MaterialTheme.colorScheme.background == DarkBg
-    val cardBg = if (isDark) MaterialTheme.colorScheme.surface else Color(0xFFFDFBF7)
-    val borderColor = if (isDark) MaterialTheme.colorScheme.outline else Color(0xFFEFE4D1)
-
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(BannerShape)
-            .background(cardBg)
-            .border(BorderStroke(1.dp, borderColor), BannerShape)
+            .clip(CardShape)
+            .background(DarkSurface)
+            .border(BorderStroke(1.dp, DarkBorder), CardShape)
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -1052,17 +989,14 @@ fun WeeklyExcelExportCard(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (isDark) Color(0xFF143823) else Color(0xFFE6F4EA))
-                        .border(
-                            BorderStroke(1.dp, if (isDark) Color(0xFF1E5B37) else Color(0xFFCEEAD6)),
-                            RoundedCornerShape(12.dp)
-                        ),
+                        .background(Color(0xFF143823))
+                        .border(BorderStroke(1.dp, Color(0xFF1E5B37)), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.TableChart,
                         contentDescription = "Excel Export",
-                        tint = if (isDark) Color(0xFF81C995) else Color(0xFF137333),
+                        tint = Color(0xFF81C995),
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -1070,16 +1004,16 @@ fun WeeklyExcelExportCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Export Weekly Excel (.xlsx)",
-                        fontFamily = NewsreaderFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = DarkTextPrimary
                     )
                     Text(
                         text = "Generates formatted spreadsheet based on the ISKCON Sadhana template.",
                         fontFamily = DmSansFontFamily,
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = DarkTextMuted,
                         lineHeight = 16.sp
                     )
                 }
@@ -1094,7 +1028,8 @@ fun WeeklyExcelExportCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (isDark) Color(0xFF1F140E) else Color(0xFFF7F2E9))
+                    .background(DarkSurfaceVariant)
+                    .border(BorderStroke(1.dp, DarkBorder), RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -1103,7 +1038,7 @@ fun WeeklyExcelExportCard(
                     text = "👤 $sadhakaDisplay • 🙏 $counselorDisplay",
                     fontFamily = DmSansFontFamily,
                     fontSize = 11.5.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = DarkTextMuted,
                     maxLines = 1
                 )
                 Text(
@@ -1111,7 +1046,7 @@ fun WeeklyExcelExportCard(
                     fontFamily = DmSansFontFamily,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = DarkPrimary,
                     maxLines = 1
                 )
             }
@@ -1126,7 +1061,7 @@ fun WeeklyExcelExportCard(
                     enabled = !uiState.isExporting,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isDark) Color(0xFF2E6340) else Color(0xFF137333),
+                        containerColor = Color(0xFF2E6340),
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(12.dp)
@@ -1165,15 +1100,17 @@ fun WeeklyExcelExportCard(
                     enabled = !uiState.isExporting,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color(0xFFEFE8DB),
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = DarkSurfaceVariant,
+                        contentColor = DarkTextPrimary
                     ),
+                    border = BorderStroke(1.dp, DarkBorder),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.FileDownload,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
+                        tint = DarkPrimary
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
@@ -1187,4 +1124,3 @@ fun WeeklyExcelExportCard(
         }
     }
 }
-
