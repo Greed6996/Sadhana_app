@@ -14,10 +14,10 @@ android {
 
     val envVersionCode = System.getenv("VERSION_CODE")?.toIntOrNull()
         ?: (project.findProperty("versionCode") as? String)?.toIntOrNull()
-        ?: 1
+        ?: 24
     val envVersionName = System.getenv("VERSION_NAME")
         ?: (project.findProperty("versionName") as? String)
-        ?: "1.0.0"
+        ?: "1.0.24"
 
     defaultConfig {
         applicationId = "com.sadhana.card"

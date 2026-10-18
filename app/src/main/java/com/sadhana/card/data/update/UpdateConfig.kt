@@ -9,11 +9,15 @@ data class UpdateConfig(
     val approvedVersionCode: Int,
     val downloadUrl: String,
     val releaseNotes: String,
-    val updateMessage: String
+    val updateMessage: String,
+    val githubReleaseUrl: String = ""
 ) {
     companion object {
         const val UPDATE_CONFIG_URL =
             "https://raw.githubusercontent.com/Greed6996/Sadhana_app/main/update.json"
+
+        const val GITHUB_REPO_RELEASES_URL =
+            "https://github.com/Greed6996/Sadhana_app/releases"
 
         const val EXPECTED_PACKAGE_NAME = "com.sadhana.card"
         const val EXPECTED_SIGNATURE_SHA256 =
@@ -50,7 +54,8 @@ data class UpdateConfig(
                     approvedVersionCode = extractInt("approvedVersionCode"),
                     downloadUrl = extractString("downloadUrl"),
                     releaseNotes = extractString("releaseNotes"),
-                    updateMessage = extractString("updateMessage")
+                    updateMessage = extractString("updateMessage"),
+                    githubReleaseUrl = extractString("githubReleaseUrl").ifBlank { extractString("html_url") }
                 )
                 if (config.approvedVersion.isBlank() && config.approvedVersionCode == -1) {
                     null
@@ -62,6 +67,16 @@ data class UpdateConfig(
             }
         }
     }
+
+    /**
+     * URL for viewing the release on GitHub.
+     */
+    val effectiveGithubReleaseUrl: String
+        get() = when {
+            githubReleaseUrl.isNotBlank() -> githubReleaseUrl
+            approvedVersion.isNotBlank() -> "$GITHUB_REPO_RELEASES_URL/tag/v$approvedVersion"
+            else -> "$GITHUB_REPO_RELEASES_URL/latest"
+        }
 
     /**
      * Checks if this configuration is structurally valid.

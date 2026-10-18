@@ -1,0 +1,163 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="360dp"
+    android:height="250dp"
+    android:viewportWidth="360"
+    android:viewportHeight="250">
+
+    <!-- Cosmic Deep Space Gradient Background -->
+    <path android:pathData="M0,0 L360,0 L360,250 L0,250 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="180"
+                android:startY="0"
+                android:endX="180"
+                android:endY="250"
+                android:type="linear">
+                <item android:color="#FF150B2E" android:offset="0.0" />
+                <item android:color="#FF241249" android:offset="0.4" />
+                <item android:color="#FF401D6E" android:offset="0.75" />
+                <item android:color="#FF633499" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Cosmic Nebula Light Waves -->
+    <path
+        android:fillAlpha="0.25"
+        android:pathData="M-20,120 C60,70 140,160 220,100 C280,60 330,90 380,60 L380,250 L-20,250 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="80"
+                android:endX="360"
+                android:endY="200"
+                android:type="linear">
+                <item android:color="#FF9D74FF" android:offset="0.0" />
+                <item android:color="#FF6E40C9" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <path
+        android:fillAlpha="0.2"
+        android:pathData="M-10,180 C80,130 180,200 270,140 C320,110 350,130 380,120 L380,250 L-10,250 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="120"
+                android:endX="360"
+                android:endY="220"
+                android:type="linear">
+                <item android:color="#FF4AC2B5" android:offset="0.0" />
+                <item android:color="#FFA78BFA" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Crescent Moon -->
+    <!-- Outer circle -->
+    <group>
+        <path
+            android:fillColor="#FFF4EDFF"
+            android:pathData="M 180,28 A 16,16 0 1 0 196,44 A 13,13 0 1 1 180,28 Z" />
+    </group>
+
+    <!-- Sparkling Stars (Dots and 4-point Stars) -->
+    <!-- Star 1 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M78,42 Q78,48 72,48 Q78,48 78,54 Q78,48 84,48 Q78,48 78,42 Z" />
+    <!-- Star 2 -->
+    <path
+        android:fillColor="#FFE9DFFF"
+        android:pathData="M276,46 Q276,51 271,51 Q276,51 276,56 Q276,51 281,51 Q276,51 276,46 Z" />
+    <!-- Star 3 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M50,92 Q50,96 46,96 Q50,96 50,100 Q50,96 54,96 Q50,96 50,92 Z" />
+    <!-- Star 4 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M312,96 Q312,100 308,100 Q312,100 312,104 Q312,100 316,100 Q312,100 312,96 Z" />
+    <!-- Star 5 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M130,56 Q130,58 128,58 Q130,58 130,60 Q130,58 132,58 Q130,58 130,56 Z" />
+    <!-- Star 6 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M236,70 Q236,72 234,72 Q236,72 236,74 Q236,72 238,72 Q236,72 236,70 Z" />
+
+    <!-- Tiny Star Dots -->
+    <path android:fillColor="#FFE5D9FF" android:pathData="M38,54 A1.5,1.5 0 1 1 38,57 A1.5,1.5 0 1 1 38,54 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M105,32 A1.2,1.2 0 1 1 105,34.4 A1.2,1.2 0 1 1 105,32 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M152,78 A1.5,1.5 0 1 1 152,81 A1.5,1.5 0 1 1 152,78 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M222,34 A1.2,1.2 0 1 1 222,36.4 A1.2,1.2 0 1 1 222,34 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M258,92 A1.5,1.5 0 1 1 258,95 A1.5,1.5 0 1 1 258,92 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M328,62 A1.2,1.2 0 1 1 328,64.4 A1.2,1.2 0 1 1 328,62 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M66,132 A1.5,1.5 0 1 1 66,135 A1.5,1.5 0 1 1 66,132 Z" />
+    <path android:fillColor="#FFE5D9FF" android:pathData="M304,138 A1.5,1.5 0 1 1 304,141 A1.5,1.5 0 1 1 304,138 Z" />
+
+    <!-- Meditating Figure Aura (Luminous Glow) -->
+    <path
+        android:fillAlpha="0.3"
+        android:pathData="M180,92 A45,45 0 1 0 180,182 A45,45 0 1 0 180,92 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="180"
+                android:centerY="137"
+                android:gradientRadius="45"
+                android:type="radial">
+                <item android:color="#FFDDD0FF" android:offset="0.0" />
+                <item android:color="#00DDD0FF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Meditating Luminous Figure (Lotus Pose) -->
+    <!-- Head -->
+    <path
+        android:fillColor="#FFF4EDFF"
+        android:pathData="M 180,98 A 12,14 0 1 0 180,126 A 12,14 0 1 0 180,98 Z" />
+
+    <!-- Torso and Arms with Mudra in Lotus Pose -->
+    <path
+        android:fillColor="#FFF0E6FF"
+        android:pathData="M176,126 C173,126 170,129 167,134 C162,142 153,158 142,168 C137,172 133,174 130,175 C127,176 128,180 131,180 C136,180 142,176 148,172 C154,168 159,160 162,154 L162,172 C152,173 140,177 132,183 C128,186 130,192 136,192 C146,192 165,188 180,188 C195,188 214,192 224,192 C230,192 232,186 228,183 C220,177 208,173 198,172 L198,154 C201,160 206,168 212,172 C218,176 224,180 229,180 C232,180 233,176 230,175 C227,174 223,172 218,168 C207,158 198,142 193,134 C190,129 187,126 184,126 Z" />
+
+    <!-- Ethereal Cloud Layers at the Base -->
+    <!-- Background Cloud Layer -->
+    <path
+        android:fillAlpha="0.6"
+        android:pathData="M-20,250 L-20,210 C-10,195 20,190 45,200 C70,185 110,185 130,205 C155,195 190,195 210,210 C240,195 280,198 305,215 C330,205 365,210 380,225 L380,250 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="180"
+                android:startY="185"
+                android:endX="180"
+                android:endY="250"
+                android:type="linear">
+                <item android:color="#FFB39DDB" android:offset="0.0" />
+                <item android:color="#FFE8E0F8" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Foreground Cloud Layer (Soft White/Lavender Puffy Clouds) -->
+    <path
+        android:pathData="M-20,250 L-20,225 C-5,210 25,208 45,220 C65,202 105,200 130,218 C155,205 195,205 218,222 C245,208 285,210 310,228 C332,216 365,220 380,235 L380,250 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="180"
+                android:startY="200"
+                android:endX="180"
+                android:endY="250"
+                android:type="linear">
+                <item android:color="#FFEDE5FC" android:offset="0.0" />
+                <item android:color="#FFFFFFFF" android:offset="0.75" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+</vector>
