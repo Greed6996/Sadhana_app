@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -288,7 +289,7 @@ fun DailyEntryContent(
                 V5AccordionRow(
                     title = "Bedtime",
                     subtitle = "5 pts if by 9:30 PM",
-                    scoreBadgeText = "+${uiState.score.bedScore ?: 0}",
+                    score = uiState.score.bedScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.BEDTIME,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.BEDTIME) {
@@ -324,7 +325,7 @@ fun DailyEntryContent(
                 V5AccordionRow(
                     title = "Wake-up",
                     subtitle = "5 pts if before 3:00 AM",
-                    scoreBadgeText = "+${uiState.score.wakeScore ?: 0}",
+                    score = uiState.score.wakeScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.WAKE_UP,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.WAKE_UP) {
@@ -360,7 +361,7 @@ fun DailyEntryContent(
                 V5AccordionRow(
                     title = "16 rounds done by",
                     subtitle = "5 pts if by 7:15 AM",
-                    scoreBadgeText = "+${uiState.score.japaScore ?: 0}",
+                    score = uiState.score.japaScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.JAPA) {
@@ -394,19 +395,10 @@ fun DailyEntryContent(
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
                 // Row 4: Day sleep
-                val napDisplay = uiState.entry.napMinutes ?: when (uiState.entry.daySleepCategory) {
-                    DaySleepCategory.UP_TO_30_MIN -> 30
-                    DaySleepCategory.FROM_31_TO_45_MIN -> 40
-                    DaySleepCategory.FROM_46_TO_60_MIN -> 55
-                    DaySleepCategory.MORE_THAN_60_MIN -> 75
-                    null -> 0
-                }
-                V5DaySleepRow(
+                V5AccordionRow(
                     title = "Day sleep",
                     subtitle = "5 pts up to 30 min",
-                    scoreBadgeText = "+${uiState.score.napScore ?: 0} pts",
-                    minutes = napDisplay,
-                    onMinutesChanged = onUpdateNapMinutes,
+                    score = uiState.score.napScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.DAY_SLEEP,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.DAY_SLEEP) {
@@ -667,15 +659,62 @@ private fun V5SectionHeader(title: String) {
 }
 
 /**
- * Accordion Row for Bedtime, Wake-up, 16 rounds done by:
+ * Dynamic Score Pill Badge matching V5 Specifications:
+ * - Score = 0: Dark Crimson tint (#2D1416), vibrant red text (#EF4444), subtle red border
+ * - Score = 1..4: Dark Amber tint (#2B2113), Saffron Gold text (#F5B041), subtle amber border
+ * - Score = 5: Dark Emerald tint (#112A20), vibrant Emerald Green text (#10B981), subtle emerald border
+ */
+@Composable
+private fun V5ScorePillBadge(
+    score: Int,
+    modifier: Modifier = Modifier
+) {
+    val (bgColor, textColor, borderColor) = when {
+        score == 0 -> Triple(
+            Color(0xFF2D1416),
+            Color(0xFFEF4444),
+            Color(0xFFEF4444).copy(alpha = 0.35f)
+        )
+        score in 1..4 -> Triple(
+            Color(0xFF2B2113),
+            Color(0xFFF5B041),
+            Color(0xFFD4932E).copy(alpha = 0.35f)
+        )
+        else -> Triple(
+            Color(0xFF112A20),
+            Color(0xFF10B981),
+            Color(0xFF10B981).copy(alpha = 0.35f)
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .clip(PillShape)
+            .background(bgColor)
+            .border(BorderStroke(1.dp, borderColor), PillShape)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "+$score",
+            fontFamily = DmSansFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 13.sp,
+            color = textColor
+        )
+    }
+}
+
+/**
+ * Accordion Row for Bedtime, Wake-up, 16 rounds done by, and Day sleep:
  * Left: Title & Subtitle
- * Right: Score Badge (+0, +3, +5, etc.)
+ * Right: Dynamic Score Badge (+0, +3, +5, etc.)
  */
 @Composable
 private fun V5AccordionRow(
     title: String,
     subtitle: String,
-    scoreBadgeText: String,
+    score: Int,
     isExpanded: Boolean,
     onToggleExpand: () -> Unit,
     content: @Composable () -> Unit
@@ -707,114 +746,8 @@ private fun V5AccordionRow(
                 )
             }
 
-            // Score badge e.g. +4, +5, +0
-            Box(
-                modifier = Modifier
-                    .clip(PillShape)
-                    .background(DarkScorePillBg)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = scoreBadgeText,
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    color = DarkScorePillText
-                )
-            }
-        }
-
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            content()
-        }
-    }
-}
-
-/**
- * Day sleep row with tap-to-expand category list AND stepper [ — 40 + ] on the right
- */
-@Composable
-private fun V5DaySleepRow(
-    title: String,
-    subtitle: String,
-    scoreBadgeText: String,
-    minutes: Int,
-    onMinutesChanged: (Int?) -> Unit,
-    isExpanded: Boolean,
-    onToggleExpand: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable(role = Role.Button, onClick = onToggleExpand)
-            ) {
-                Text(
-                    text = title,
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = DarkTextPrimary
-                )
-                Text(
-                    text = subtitle,
-                    fontFamily = DmSansFontFamily,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 12.sp,
-                    color = DarkTextMuted
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // Score badge e.g. +4 pts
-                Box(
-                    modifier = Modifier
-                        .clip(PillShape)
-                        .background(DarkScorePillBg)
-                        .clickable(role = Role.Button, onClick = onToggleExpand)
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = scoreBadgeText,
-                        fontFamily = DmSansFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = DarkScorePillText
-                    )
-                }
-
-                // [ - 40 + ] Stepper
-                V5InlineStepper(
-                    value = minutes,
-                    onDecrement = {
-                        val next = (minutes - 5).coerceAtLeast(0)
-                        onMinutesChanged(if (next == 0) null else next)
-                    },
-                    onIncrement = {
-                        val next = (minutes + 5).coerceAtMost(360)
-                        onMinutesChanged(next)
-                    },
-                    onNumberClick = onToggleExpand
-                )
-            }
+            // Dynamic score badge pill e.g. +0, +3, +5
+            V5ScorePillBadge(score = score)
         }
 
         AnimatedVisibility(

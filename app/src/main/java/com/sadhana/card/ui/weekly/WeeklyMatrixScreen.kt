@@ -7,7 +7,9 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -80,17 +82,15 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
 import java.io.File
 import java.time.LocalDate
 
-// Heatmap Cell Colors matching V5 Specifications
-private val CellScore5Bg = Color(0xFFF5B041)
-private val CellScore5Text = Color(0xFF0D0D0F)
-private val CellScore4Bg = Color(0xFFC88A2B)
-private val CellScore4Text = Color(0xFF0D0D0F)
-private val CellScore3Bg = Color(0xFF8C6222)
-private val CellScore3Text = Color(0xFFF4F4F6)
-private val CellScore2Bg = Color(0xFF4A3518)
-private val CellScore2Text = Color(0xFFF4F4F6)
-private val CellScore0to1Bg = Color(0xFF222228)
-private val CellScore0to1Text = Color(0xFF8E8E99)
+// Heatmap Cell Colors matching V5 Specifications: 0 = Red, 1–4 = Yellow, 5 = Green, unlogged = Muted Slate
+private val CellScore5Bg = Color(0xFF10B981)
+private val CellScore5Text = Color(0xFFF4F4F6)
+private val CellScore1to4Bg = Color(0xFFF5B041)
+private val CellScore1to4Text = Color(0xFF0D0D0F)
+private val CellScore0Bg = Color(0xFFEF4444)
+private val CellScore0Text = Color(0xFFF4F4F6)
+private val CellUnloggedBg = Color(0xFF222228)
+private val CellUnloggedText = Color(0xFF8E8E99)
 private val CellMinutesBg = Color(0xFF1E1E24)
 private val CellTotalBg = Color(0xFFF4F4F6)
 private val CellTotalText = Color(0xFF0D0D0F)
@@ -315,8 +315,13 @@ fun WeeklySummaryHeroCard(
     val progress = (uiState.weekTotalScore.toFloat() / maxScore).coerceIn(0f, 1f)
     val animatedSweep by animateFloatAsState(
         targetValue = progress * 360f,
-        animationSpec = tween(durationMillis = 600),
+        animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
         label = "WeeklyRingSweep"
+    )
+    val animatedScore by animateIntAsState(
+        targetValue = uiState.weekTotalScore,
+        animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+        label = "WeeklyScoreCounter"
     )
 
     val strokeWidth = 7.dp
@@ -370,7 +375,7 @@ fun WeeklySummaryHeroCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "${uiState.weekTotalScore}",
+                        text = "$animatedScore",
                         fontFamily = DmSansFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 30.sp,
@@ -651,8 +656,10 @@ private fun V5MatrixRowLabel(
             text = label,
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
-            fontSize = 12.5.sp,
-            lineHeight = 15.sp,
+            fontSize = 12.sp,
+            lineHeight = 14.sp,
+            maxLines = 1,
+            softWrap = false,
             color = DarkTextPrimary
         )
         Text(
@@ -661,13 +668,15 @@ private fun V5MatrixRowLabel(
             fontWeight = FontWeight.Normal,
             fontSize = 10.5.sp,
             lineHeight = 13.sp,
+            maxLines = 1,
+            softWrap = false,
             color = DarkTextMuted
         )
     }
 }
 
 /**
- * Scored matrix cell (0–5 pts) using V5 amber/gold tier colors.
+ * Scored matrix cell (0–5 pts) using Red (0), Yellow (1–4), Green (5), and Muted Slate (null).
  */
 @Composable
 private fun V5ScoreMatrixCell(
@@ -676,12 +685,10 @@ private fun V5ScoreMatrixCell(
     modifier: Modifier = Modifier
 ) {
     val (bg, textColor) = when (score) {
-        5 -> Pair(CellScore5Bg, CellScore5Text)
-        4 -> Pair(CellScore4Bg, CellScore4Text)
-        3 -> Pair(CellScore3Bg, CellScore3Text)
-        2 -> Pair(CellScore2Bg, CellScore2Text)
-        0, 1 -> Pair(CellScore0to1Bg, CellScore0to1Text)
-        else -> Pair(CellScore0to1Bg, CellScore0to1Text)
+        null -> Pair(CellUnloggedBg, CellUnloggedText)
+        0 -> Pair(CellScore0Bg, CellScore0Text)
+        in 1..4 -> Pair(CellScore1to4Bg, CellScore1to4Text)
+        else -> Pair(CellScore5Bg, CellScore5Text)
     }
 
     Box(
@@ -757,8 +764,8 @@ private fun V5TotalMatrixCell(
 }
 
 /**
- * Score Key Legend matching the 5 tiers:
- * 0–1, 2, 3, 4, 5
+ * Score Key Legend matching the 3 primary tiers:
+ * 0 (Red), 1–4 (Yellow), 5 (Green)
  */
 @Composable
 fun WeeklyScoreKeyLegend(
@@ -766,7 +773,7 @@ fun WeeklyScoreKeyLegend(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -776,10 +783,8 @@ fun WeeklyScoreKeyLegend(
             color = DarkTextMuted
         )
 
-        V5LegendChip(text = "0–1", bg = CellScore0to1Bg, textColor = CellScore0to1Text)
-        V5LegendChip(text = "2", bg = CellScore2Bg, textColor = CellScore2Text)
-        V5LegendChip(text = "3", bg = CellScore3Bg, textColor = CellScore3Text)
-        V5LegendChip(text = "4", bg = CellScore4Bg, textColor = CellScore4Text)
+        V5LegendChip(text = "0", bg = CellScore0Bg, textColor = CellScore0Text)
+        V5LegendChip(text = "1–4", bg = CellScore1to4Bg, textColor = CellScore1to4Text, width = 36.dp)
         V5LegendChip(text = "5", bg = CellScore5Bg, textColor = CellScore5Text)
     }
 }
@@ -788,11 +793,12 @@ fun WeeklyScoreKeyLegend(
 private fun V5LegendChip(
     text: String,
     bg: Color,
-    textColor: Color
+    textColor: Color,
+    width: androidx.compose.ui.unit.Dp = 28.dp
 ) {
     Box(
         modifier = Modifier
-            .size(width = 28.dp, height = 22.dp)
+            .size(width = width, height = 22.dp)
             .clip(RoundedCornerShape(6.dp))
             .background(bg),
         contentAlignment = Alignment.Center

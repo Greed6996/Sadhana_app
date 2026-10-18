@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
                     val insetsController = WindowCompat.getInsetsController(window, view)
                     insetsController.isAppearanceLightStatusBars = !isDark
                     insetsController.isAppearanceLightNavigationBars = !isDark
+                    @Suppress("DEPRECATION")
+                    window.navigationBarColor = android.graphics.Color.TRANSPARENT
                 }
             }
 

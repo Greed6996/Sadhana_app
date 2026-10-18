@@ -1,11 +1,6 @@
 package com.sadhana.card.ui.navigation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,6 +35,8 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
  * Bottom navigation bar matching the V5 Dark Rings design:
  * Clean minimalist bar with "Daily" and "Weekly" tabs.
  * Active tab features Warm Saffron Gold text with a gold underline indicator bar.
+ * Top edge features a subtle 1.dp divider, and navigationBarsPadding ensures
+ * complete clearance over 3-button navigation systems.
  */
 @Composable
 fun SadhanaBottomBar(
@@ -47,15 +46,18 @@ fun SadhanaBottomBar(
 ) {
     val items = listOf(Screen.Daily, Screen.Weekly)
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .background(DarkBg)
-            .border(BorderStroke(1.dp, DarkBorder))
-            .padding(horizontal = 24.dp, vertical = 12.dp)
+            .navigationBarsPadding()
     ) {
+        HorizontalDivider(color = DarkBorder, thickness = 1.dp)
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -102,3 +104,4 @@ fun SadhanaBottomBar(
         }
     }
 }
+
