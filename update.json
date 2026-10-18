@@ -1,8 +1,8 @@
 {
   "updateEnabled": true,
-  "approvedVersion": "1.0.24",
-  "approvedVersionCode": 24,
-  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.24/Sadhana-Card.apk",
+  "approvedVersion": "1.0.26",
+  "approvedVersionCode": 26,
+  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.26/Sadhana-Card.apk",
   "releaseNotes": "- Introduced the new \"New Blessings & Improvements\" update card UI\n- Added 3-point quick changelog summary with direct GitHub release link\n- Improved in-app update download progress and installation reliability",
   "updateMessage": "A new version of My Sadhana Card is available."
 }

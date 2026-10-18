@@ -2,7 +2,6 @@ name: Build and Release Sadhana Card APK
 
 on:
   push:
-    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
@@ -55,15 +54,15 @@ jobs:
             if [[ "$PATCH_NUM" =~ ^[0-9]+$ ]]; then
               VER_CODE="$PATCH_NUM"
             else
-              VER_CODE="24"
+              VER_CODE="26"
             fi
             echo "version_name=$VER_NAME" >> "$GITHUB_OUTPUT"
             echo "version_code=$VER_CODE" >> "$GITHUB_OUTPUT"
             echo "tag_name=$RAW_TAG" >> "$GITHUB_OUTPUT"
           else
-            echo "version_name=1.0.24" >> "$GITHUB_OUTPUT"
-            echo "version_code=24" >> "$GITHUB_OUTPUT"
-            echo "tag_name=v1.0.24" >> "$GITHUB_OUTPUT"
+            echo "version_name=1.0.26" >> "$GITHUB_OUTPUT"
+            echo "version_code=26" >> "$GITHUB_OUTPUT"
+            echo "tag_name=v1.0.26" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
