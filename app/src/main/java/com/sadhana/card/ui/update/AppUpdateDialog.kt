@@ -165,16 +165,17 @@ fun AppUpdateDialog(
                     .fillMaxWidth()
                     .background(Color.White)
             ) {
-                // 1. Top Graphic Header (250.dp)
+                // 1. Top Graphic Header (265.dp)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp)
+                        .height(265.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.img_update_blessings),
                         contentDescription = "New Blessings & Improvements Header",
                         contentScale = ContentScale.Crop,
+                        alignment = Alignment.TopCenter,
                         modifier = Modifier.fillMaxSize()
                     )
 
