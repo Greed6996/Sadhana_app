@@ -139,7 +139,7 @@ fun MainApp(
                         rootNavController.popBackStack()
                     },
                     onCheckForUpdates = {
-                        mainViewModel.checkForUpdates(isManual = true)
+                        mainViewModel.checkForUpdates(isManualCheck = true)
                     },
                     isCheckingForUpdates = updateState is UpdateState.Checking,
                     sadhakaName = sadhakaName,

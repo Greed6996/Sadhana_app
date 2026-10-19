@@ -73,7 +73,7 @@ class MainViewModel @Inject constructor(
     init {
         // Automatic non-intrusive update check on app launch
         viewModelScope.launch {
-            updateManager?.checkForUpdates(isManual = false)
+            updateManager?.checkForUpdates(isManualCheck = false)
         }
     }
 
@@ -92,9 +92,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkForUpdates(isManual: Boolean = true) {
+    fun checkForUpdates(isManualCheck: Boolean = true) {
         viewModelScope.launch {
-            updateManager?.checkForUpdates(isManual = isManual)
+            updateManager?.checkForUpdates(isManualCheck = isManualCheck)
         }
     }
 

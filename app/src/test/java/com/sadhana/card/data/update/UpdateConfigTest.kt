@@ -137,4 +137,30 @@ class UpdateConfigTest {
         val shouldOffer4 = disabledUpdate.updateEnabled && disabledUpdate.approvedVersionCode > currentVersionCode
         assertFalse(shouldOffer4)
     }
+
+    @Test
+    fun testApkSizeParsingAndFormatting() {
+        val json = """
+            {
+              "updateEnabled": true,
+              "approvedVersion": "1.0.28",
+              "approvedVersionCode": 28,
+              "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.28/Sadhana-Card.apk",
+              "releaseNotes": "Notes",
+              "updateMessage": "Message",
+              "apkSizeMb": "14.2 MB"
+            }
+        """.trimIndent()
+        val config = UpdateConfig.fromJson(json)
+        assertNotNull(config)
+        assertEquals("14.2 MB", config?.apkSizeMb)
+        assertEquals("14.2 MB", config?.apkSizeText)
+
+        // Test numeric normalization
+        assertEquals("15.0 MB", UpdateConfig.formatApkSizeMb("15"))
+        assertEquals("14.2 MB", UpdateConfig.formatApkSizeMb("14.2"))
+        assertEquals("14.2 MB", UpdateConfig.formatApkSizeMb("14.2 mb"))
+        assertNull(UpdateConfig.formatApkSizeMb(null))
+        assertNull(UpdateConfig.formatApkSizeMb(""))
+    }
 }

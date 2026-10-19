@@ -22,13 +22,14 @@ import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed interface UpdateState {
     object Idle : UpdateState
     object Checking : UpdateState
-    data class Available(val config: UpdateConfig) : UpdateState
+    data class Available(val config: UpdateConfig, val apkSizeText: String? = config.apkSizeText) : UpdateState
     data class Downloading(val progressPercent: Int, val config: UpdateConfig) : UpdateState
     data class ReadyToInstall(val apkFile: File, val config: UpdateConfig) : UpdateState
     data class UpToDate(val currentVersion: String) : UpdateState
@@ -40,61 +41,95 @@ class UpdateManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
+    companion object {
+        const val COOLDOWN_MS = 24 * 60 * 60 * 1000L
+    }
+
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Idle)
     val updateState: StateFlow<UpdateState> = _updateState.asStateFlow()
 
     /**
      * Checks for approved updates from the remote update-control configuration.
-     * @param isManual Explicit check by user (e.g. from Settings screen). If true, ignores previously dismissed version.
+     * @param isManualCheck Explicit check by user (e.g. from Settings screen). If true, ignores the 24-hour snooze cooldown.
      */
-    suspend fun checkForUpdates(isManual: Boolean = false): UpdateState = withContext(Dispatchers.IO) {
+    suspend fun checkForUpdates(isManualCheck: Boolean = false): UpdateState = withContext(Dispatchers.IO) {
         _updateState.value = UpdateState.Checking
         try {
             val config = fetchRemoteConfig()
             if (config == null || !config.isValid) {
-                val state = if (isManual) UpdateState.Error("Unable to retrieve valid update information.") else UpdateState.Idle
+                val state = if (isManualCheck) UpdateState.Error("Unable to retrieve valid update information.") else UpdateState.Idle
                 _updateState.value = state
                 return@withContext state
             }
 
             if (!config.updateEnabled) {
-                val state = if (isManual) UpdateState.UpToDate(BuildConfig.VERSION_NAME) else UpdateState.Idle
+                val state = if (isManualCheck) UpdateState.UpToDate(BuildConfig.VERSION_NAME) else UpdateState.Idle
                 _updateState.value = state
                 return@withContext state
             }
 
             val currentVersionCode = BuildConfig.VERSION_CODE
             if (config.approvedVersionCode <= currentVersionCode) {
-                val state = if (isManual) UpdateState.UpToDate(BuildConfig.VERSION_NAME) else UpdateState.Idle
+                val state = if (isManualCheck) UpdateState.UpToDate(BuildConfig.VERSION_NAME) else UpdateState.Idle
                 _updateState.value = state
                 return@withContext state
             }
 
-            // If not manual, respect previously dismissed version
-            if (!isManual) {
+            // 24-Hour "Maybe Later" Snooze Cooldown with Smart Edge Cases
+            if (!isManualCheck) {
                 val prefs = userPreferencesRepository.userPreferencesFlow.first()
-                if (config.approvedVersionCode <= prefs.dismissedUpdateVersion) {
-                    _updateState.value = UpdateState.Idle
-                    return@withContext UpdateState.Idle
+                val lastDismissedCode = prefs.lastDismissedVersionCode
+                val lastDismissedTimestamp = prefs.lastDismissedTimestamp
+                val now = System.currentTimeMillis()
+
+                // Smart Edge Case 1: Newer Urgent Release Bypass:
+                // Only suppress if the remote approvedVersionCode <= lastDismissedCode.
+                // If remote approvedVersionCode > lastDismissedCode, bypass cooldown immediately!
+                if (config.approvedVersionCode <= lastDismissedCode) {
+                    val elapsed = now - lastDismissedTimestamp
+                    if (elapsed in 0 until COOLDOWN_MS) {
+                        _updateState.value = UpdateState.Idle
+                        return@withContext UpdateState.Idle
+                    }
                 }
             }
 
-            val state = UpdateState.Available(config)
+            // Dynamic APK File Size in MB: HTTP HEAD request or optional apkSizeMb from config
+            val remoteSize = fetchApkSize(config.downloadUrl)
+            val resolvedSize = remoteSize ?: config.apkSizeText
+            val resolvedConfig = if (resolvedSize != null) {
+                config.copy(apkSizeText = resolvedSize)
+            } else {
+                config
+            }
+
+            val state = UpdateState.Available(config = resolvedConfig, apkSizeText = resolvedConfig.apkSizeText)
             _updateState.value = state
             state
         } catch (e: Exception) {
-            val state = if (isManual) UpdateState.Error(e.message ?: "Network error checking for updates.") else UpdateState.Idle
+            val state = if (isManualCheck) UpdateState.Error(e.message ?: "Network error checking for updates.") else UpdateState.Idle
             _updateState.value = state
             state
         }
     }
 
     /**
-     * User chose "Later". Store the dismissed version code so they aren't interrupted repeatedly.
+     * User chose "Maybe Later". Store the dismissed version code and timestamp for 24-hour snooze cooldown.
      */
     suspend fun dismissUpdate(config: UpdateConfig) {
         _updateState.value = UpdateState.Idle
-        userPreferencesRepository.setDismissedUpdateVersion(config.approvedVersionCode)
+        userPreferencesRepository.recordDismissedUpdate(
+            versionCode = config.approvedVersionCode,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    suspend fun dismissUpdate(versionCode: Int) {
+        _updateState.value = UpdateState.Idle
+        userPreferencesRepository.recordDismissedUpdate(
+            versionCode = versionCode,
+            timestamp = System.currentTimeMillis()
+        )
     }
 
     /**
@@ -288,5 +323,60 @@ class UpdateManager @Inject constructor(
         } finally {
             connection.disconnect()
         }
+    }
+
+    /**
+     * Performs a lightweight background HTTP HEAD request to obtain the APK file size in MB.
+     * Follows HTTP redirects (301, 302, 303, 307, 308) to support AWS S3/CDN downloads from GitHub Releases.
+     */
+    private fun fetchApkSize(downloadUrl: String): String? {
+        var currentUrl = downloadUrl
+        var redirects = 0
+        while (redirects < 5) {
+            try {
+                val url = URL(currentUrl)
+                val connection = (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "HEAD"
+                    connectTimeout = 6000
+                    readTimeout = 6000
+                    instanceFollowRedirects = true
+                    setRequestProperty("User-Agent", "SadhanaCard-Android/${BuildConfig.VERSION_NAME}")
+                }
+                connection.connect()
+                val code = connection.responseCode
+                if (code in 300..399) {
+                    val location = connection.getHeaderField("Location")
+                    connection.disconnect()
+                    if (!location.isNullOrBlank()) {
+                        currentUrl = if (location.startsWith("http://") || location.startsWith("https://")) {
+                            location
+                        } else {
+                            URL(url, location).toString()
+                        }
+                        redirects++
+                        continue
+                    }
+                    return null
+                }
+                if (code in 200..299) {
+                    val lengthHeader = connection.getHeaderField("Content-Length")?.toLongOrNull()
+                    val totalBytes = lengthHeader ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        connection.contentLengthLong
+                    } else {
+                        connection.contentLength.toLong()
+                    }
+                    connection.disconnect()
+                    if (totalBytes > 0L) {
+                        val mb = totalBytes / (1024.0 * 1024.0)
+                        return String.format(Locale.US, "%.1f MB", mb)
+                    }
+                }
+                connection.disconnect()
+                return null
+            } catch (_: Exception) {
+                return null
+            }
+        }
+        return null
     }
 }

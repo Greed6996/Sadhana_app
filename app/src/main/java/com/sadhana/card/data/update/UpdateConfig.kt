@@ -10,7 +10,9 @@ data class UpdateConfig(
     val downloadUrl: String,
     val releaseNotes: String,
     val updateMessage: String,
-    val githubReleaseUrl: String = ""
+    val githubReleaseUrl: String = "",
+    val apkSizeMb: String? = null,
+    val apkSizeText: String? = null
 ) {
     companion object {
         const val UPDATE_CONFIG_URL =
@@ -22,6 +24,23 @@ data class UpdateConfig(
         const val EXPECTED_PACKAGE_NAME = "com.sadhana.card"
         const val EXPECTED_SIGNATURE_SHA256 =
             "75e471ee7feb55afe62bdc75f4f14a69a76c49a5c184e4664e60a6676886b5aa"
+
+        /**
+         * Normalizes an APK size string or number (e.g. "14.2", "14.2 MB") into standard "%.1f MB" format.
+         */
+        fun formatApkSizeMb(raw: String?): String? {
+            if (raw.isNullOrBlank()) return null
+            val trimmed = raw.trim()
+            val numOnly = trimmed.replace(Regex("(?i)\\s*mb$"), "").trim()
+            val doubleVal = numOnly.toDoubleOrNull()
+            return if (doubleVal != null) {
+                String.format(java.util.Locale.US, "%.1f MB", doubleVal)
+            } else if (trimmed.endsWith("MB", ignoreCase = true)) {
+                trimmed
+            } else {
+                "$trimmed MB"
+            }
+        }
 
         /**
          * Safely parses JSON string without external library dependencies,
@@ -48,6 +67,10 @@ data class UpdateConfig(
                     return pattern.find(jsonStr)?.groupValues?.get(1)?.toBooleanStrictOrNull() ?: false
                 }
 
+                val rawApkSizeMb = extractString("apkSizeMb")
+                val apkSizeMb = rawApkSizeMb.ifBlank { null }
+                val formattedSize = formatApkSizeMb(apkSizeMb)
+
                 val config = UpdateConfig(
                     updateEnabled = extractBoolean("updateEnabled"),
                     approvedVersion = extractString("approvedVersion"),
@@ -55,7 +78,9 @@ data class UpdateConfig(
                     downloadUrl = extractString("downloadUrl"),
                     releaseNotes = extractString("releaseNotes"),
                     updateMessage = extractString("updateMessage"),
-                    githubReleaseUrl = extractString("githubReleaseUrl").ifBlank { extractString("html_url") }
+                    githubReleaseUrl = extractString("githubReleaseUrl").ifBlank { extractString("html_url") },
+                    apkSizeMb = apkSizeMb,
+                    apkSizeText = formattedSize
                 )
                 if (config.approvedVersion.isBlank() && config.approvedVersionCode == -1) {
                     null

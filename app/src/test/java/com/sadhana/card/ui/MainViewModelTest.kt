@@ -167,7 +167,15 @@ class MainViewModelTest {
         }
 
         override suspend fun setDismissedUpdateVersion(version: Int) {
-            prefs.value = prefs.value.copy(dismissedUpdateVersion = version)
+            recordDismissedUpdate(version, System.currentTimeMillis())
+        }
+
+        override suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long) {
+            prefs.value = prefs.value.copy(
+                dismissedUpdateVersion = versionCode,
+                lastDismissedVersionCode = versionCode,
+                lastDismissedTimestamp = timestamp
+            )
         }
     }
 }

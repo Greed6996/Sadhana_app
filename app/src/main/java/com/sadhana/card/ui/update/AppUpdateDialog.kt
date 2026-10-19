@@ -131,6 +131,7 @@ fun AppUpdateDialog(
     versionName: String,
     changelogPoints: List<String>,
     githubReleaseUrl: String,
+    apkSizeText: String? = null,
     isDownloading: Boolean = false,
     downloadPercent: Int = 0,
     isReadyToInstall: Boolean = false,
@@ -186,6 +187,12 @@ fun AppUpdateDialog(
                         "v$versionName"
                     }
 
+                    val badgeText = if (!apkSizeText.isNullOrBlank()) {
+                        "$displayVersion • $apkSizeText"
+                    } else {
+                        displayVersion
+                    }
+
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -195,7 +202,7 @@ fun AppUpdateDialog(
                             .padding(horizontal = 14.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            text = displayVersion,
+                            text = badgeText,
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 12.5.sp,

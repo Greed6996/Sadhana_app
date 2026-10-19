@@ -1,8 +1,9 @@
 {
   "updateEnabled": true,
-  "approvedVersion": "1.0.27",
-  "approvedVersionCode": 27,
-  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.27/Sadhana-Card.apk",
-  "releaseNotes": "- Added the authentic cosmic meditation header artwork to update dialog\n- Refined 3-point changelog summary with direct GitHub release link\n- Improved background download progress and update reliability",
+  "approvedVersion": "1.0.28",
+  "approvedVersionCode": 28,
+  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.28/Sadhana-Card.apk",
+  "apkSizeMb": "14.2 MB",
+  "releaseNotes": "- Added update size (MB) indicator inside the top-right version badge\n- Added smart 24-hour snooze cooldown when tapping \"Maybe Later\"\n- Updated cosmic header artwork and improved background download reliability",
   "updateMessage": "A new version of My Sadhana Card is available."
 }

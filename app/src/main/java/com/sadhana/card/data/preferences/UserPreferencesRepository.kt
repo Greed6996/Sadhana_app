@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -29,7 +30,9 @@ data class UserPreferences(
     val acceptedTerms: Boolean = false,
     val acceptedTermsVersion: Int = 0,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val dismissedUpdateVersion: Int = 0
+    val dismissedUpdateVersion: Int = 0,
+    val lastDismissedTimestamp: Long = 0L,
+    val lastDismissedVersionCode: Int = 0
 ) {
     val isTermsAccepted: Boolean
         get() = acceptedTerms && acceptedTermsVersion >= CURRENT_TERMS_VERSION
@@ -47,6 +50,7 @@ interface UserPreferencesRepository {
     suspend fun setTermsAccepted(accepted: Boolean, version: Int = CURRENT_TERMS_VERSION)
     suspend fun setThemeMode(themeMode: ThemeMode)
     suspend fun setDismissedUpdateVersion(version: Int)
+    suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long = System.currentTimeMillis())
 }
 
 /**
@@ -65,6 +69,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val ACCEPTED_TERMS_VERSION = intPreferencesKey("acceptedTermsVersion")
         val THEME_MODE = stringPreferencesKey("themeMode")
         val DISMISSED_UPDATE_VERSION = intPreferencesKey("dismissed_update_version")
+        val LAST_DISMISSED_TIMESTAMP = longPreferencesKey("last_dismissed_timestamp")
+        val LAST_DISMISSED_VERSION_CODE = intPreferencesKey("last_dismissed_version_code")
         // Legacy fallback
         val LEGACY_HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
     }
@@ -84,7 +90,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             val version = preferences[PreferencesKeys.ACCEPTED_TERMS_VERSION] ?: if (accepted) 1 else 0
             val themeModeStr = preferences[PreferencesKeys.THEME_MODE] ?: ThemeMode.SYSTEM.name
             val themeMode = runCatching { ThemeMode.valueOf(themeModeStr) }.getOrDefault(ThemeMode.SYSTEM)
-            val dismissedVersion = preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] ?: 0
+            val dismissedVersion = preferences[PreferencesKeys.LAST_DISMISSED_VERSION_CODE]
+                ?: preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION]
+                ?: 0
+            val dismissedTimestamp = preferences[PreferencesKeys.LAST_DISMISSED_TIMESTAMP] ?: 0L
 
             UserPreferences(
                 sadhakaName = preferences[PreferencesKeys.SADHAKA_NAME] ?: "",
@@ -93,7 +102,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 acceptedTerms = accepted,
                 acceptedTermsVersion = version,
                 themeMode = themeMode,
-                dismissedUpdateVersion = dismissedVersion
+                dismissedUpdateVersion = dismissedVersion,
+                lastDismissedTimestamp = dismissedTimestamp,
+                lastDismissedVersionCode = dismissedVersion
             )
         }
 
@@ -129,8 +140,14 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setDismissedUpdateVersion(version: Int) {
+        recordDismissedUpdate(version, System.currentTimeMillis())
+    }
+
+    override suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = version
+            preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = versionCode
+            preferences[PreferencesKeys.LAST_DISMISSED_VERSION_CODE] = versionCode
+            preferences[PreferencesKeys.LAST_DISMISSED_TIMESTAMP] = timestamp
         }
     }
 }

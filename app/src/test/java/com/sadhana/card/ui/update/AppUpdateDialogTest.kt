@@ -42,4 +42,17 @@ class AppUpdateDialogTest {
         assertEquals("WhatsApp matrix sharing", points[1])
         assertEquals("Sanskrit dedication", points[2])
     }
+
+    @Test
+    fun testBadgeTextFormatting() {
+        fun formatBadge(versionName: String, apkSizeText: String?): String {
+            val displayVersion = if (versionName.startsWith("v", ignoreCase = true)) versionName else "v$versionName"
+            return if (!apkSizeText.isNullOrBlank()) "$displayVersion • $apkSizeText" else displayVersion
+        }
+
+        assertEquals("v1.0.28 • 14.2 MB", formatBadge("1.0.28", "14.2 MB"))
+        assertEquals("v1.0.28 • 14.2 MB", formatBadge("v1.0.28", "14.2 MB"))
+        assertEquals("v1.0.28", formatBadge("1.0.28", null))
+        assertEquals("v1.0.28", formatBadge("1.0.28", ""))
+    }
 }

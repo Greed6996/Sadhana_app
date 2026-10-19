@@ -54,15 +54,15 @@ jobs:
             if [[ "$PATCH_NUM" =~ ^[0-9]+$ ]]; then
               VER_CODE="$PATCH_NUM"
             else
-              VER_CODE="27"
+              VER_CODE="28"
             fi
             echo "version_name=$VER_NAME" >> "$GITHUB_OUTPUT"
             echo "version_code=$VER_CODE" >> "$GITHUB_OUTPUT"
             echo "tag_name=$RAW_TAG" >> "$GITHUB_OUTPUT"
           else
-            echo "version_name=1.0.27" >> "$GITHUB_OUTPUT"
-            echo "version_code=27" >> "$GITHUB_OUTPUT"
-            echo "tag_name=v1.0.27" >> "$GITHUB_OUTPUT"
+            echo "version_name=1.0.28" >> "$GITHUB_OUTPUT"
+            echo "version_code=28" >> "$GITHUB_OUTPUT"
+            echo "tag_name=v1.0.28" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
@@ -136,9 +136,9 @@ jobs:
           tag_name: ${{ (startsWith(github.ref, 'refs/tags/') && github.ref_name) || steps.version_meta.outputs.tag_name }}
           name: ${{ (startsWith(github.ref, 'refs/tags/') && format('Sadhana Card {0}', github.ref_name)) || format('Sadhana Card {0}', steps.version_meta.outputs.tag_name) }}
           body: |
-            - Added the authentic cosmic meditation header artwork to update dialog
-            - Refined 3-point changelog summary with direct GitHub release link
-            - Improved background download progress and update reliability
+            - Added update size (MB) indicator inside the top-right version badge
+            - Added smart 24-hour snooze cooldown when tapping "Maybe Later"
+            - Updated cosmic header artwork and improved background download reliability
           files: |
             Sadhana-Card.apk
           draft: false

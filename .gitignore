@@ -20,3 +20,6 @@ captures
 release.jks
 sadhana-release.jks
 *signing*.properties
+
+# Local Project Rules
+PROJECT_RULES.md
