@@ -229,5 +229,13 @@ class DailyEntryViewModelTest {
         override suspend fun setDismissedUpdateVersion(version: Int) {
             prefsFlow.value = prefsFlow.value.copy(dismissedUpdateVersion = version)
         }
+
+        override suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long) {
+            prefsFlow.value = prefsFlow.value.copy(
+                dismissedUpdateVersion = versionCode,
+                lastDismissedVersionCode = versionCode,
+                lastDismissedTimestamp = timestamp
+            )
+        }
     }
 }
