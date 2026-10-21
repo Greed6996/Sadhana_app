@@ -1,9 +1,9 @@
 {
   "updateEnabled": true,
-  "approvedVersion": "1.0.28",
-  "approvedVersionCode": 28,
-  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.28/Sadhana-Card.apk",
+  "approvedVersion": "1.0.29",
+  "approvedVersionCode": 29,
+  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.29/Sadhana-Card.apk",
   "apkSizeMb": "5.9 MB",
-  "releaseNotes": "- Added update size (MB) indicator inside the top-right version badge\n- Added smart 24-hour snooze cooldown when tapping \"Maybe Later\"\n- Updated cosmic header artwork and improved background download reliability",
-  "updateMessage": "A new version of My Sadhana Card is available."
+  "releaseNotes": "- Point System Refactored to 200 Max Score\n- Day Sleep (Nap) placed strictly after 16 Rounds Japa\n- Removed Travel / Train Journey and Seva tag management\n- Score Circle & Top Date synced (Red < 75, Yellow 75-199, Green 200 Full Marks)",
+  "updateMessage": "A new version of My Sadhana Card (v1.0.29) is available."
 }

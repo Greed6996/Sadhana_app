@@ -54,15 +54,15 @@ jobs:
             if [[ "$PATCH_NUM" =~ ^[0-9]+$ ]]; then
               VER_CODE="$PATCH_NUM"
             else
-              VER_CODE="28"
+              VER_CODE="29"
             fi
             echo "version_name=$VER_NAME" >> "$GITHUB_OUTPUT"
             echo "version_code=$VER_CODE" >> "$GITHUB_OUTPUT"
             echo "tag_name=$RAW_TAG" >> "$GITHUB_OUTPUT"
           else
-            echo "version_name=1.0.28" >> "$GITHUB_OUTPUT"
-            echo "version_code=28" >> "$GITHUB_OUTPUT"
-            echo "tag_name=v1.0.28" >> "$GITHUB_OUTPUT"
+            echo "version_name=1.0.29" >> "$GITHUB_OUTPUT"
+            echo "version_code=29" >> "$GITHUB_OUTPUT"
+            echo "tag_name=v1.0.29" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
@@ -136,9 +136,10 @@ jobs:
           tag_name: ${{ (startsWith(github.ref, 'refs/tags/') && github.ref_name) || steps.version_meta.outputs.tag_name }}
           name: ${{ (startsWith(github.ref, 'refs/tags/') && format('Sadhana Card {0}', github.ref_name)) || format('Sadhana Card {0}', steps.version_meta.outputs.tag_name) }}
           body: |
-            - Added update size (MB) indicator inside the top-right version badge
-            - Added smart 24-hour snooze cooldown when tapping "Maybe Later"
-            - Updated cosmic header artwork and improved background download reliability
+            - Point System Refactored to 200 Max Score (Bedtime: 25, Wake-up: 25, 16 Rounds: 50, Day Sleep: 25, Pathan: 25, Shravan: 25, Seva: 25)
+            - Day Sleep (Nap) placed strictly after 16 Rounds Japa in daily breakdown & weekly matrix
+            - Removed Travel / Train Journey allowance and Seva tag management
+            - Synced score colors: Red (<75), Yellow (75-199), Green (200 Full Marks)
           files: |
             Sadhana-Card.apk
           draft: false
