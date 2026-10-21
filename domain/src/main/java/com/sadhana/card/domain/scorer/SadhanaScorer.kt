@@ -16,42 +16,63 @@ import java.time.LocalTime
  */
 object SadhanaScorer {
 
+    const val MAX_DAILY_SCORE = 200
+
     data class DailyScores(
-        val bedScore: Int?,
-        val wakeScore: Int?,
-        val napScore: Int?,
-        val japaScore: Int?,
-        val totalScore: Int?
-    )
+        val bedScore: Int? = null,
+        val wakeScore: Int? = null,
+        val japaScore: Int? = null,
+        val napScore: Int? = null,
+        val pathanScore: Int? = null,
+        val sravanScore: Int? = null,
+        val sevaScore: Int? = null,
+        val totalScore: Int? = null
+    ) {
+        // Legacy 5-parameter constructor preserved for backward compatibility
+        constructor(
+            bedScore: Int?,
+            wakeScore: Int?,
+            napScore: Int?,
+            japaScore: Int?,
+            totalScore: Int?
+        ) : this(
+            bedScore = bedScore,
+            wakeScore = wakeScore,
+            japaScore = japaScore,
+            napScore = napScore,
+            pathanScore = null,
+            sravanScore = null,
+            sevaScore = null,
+            totalScore = totalScore
+        )
+    }
 
     // ── Category-based scoring (primary) ──────────────────────────────
 
     /**
-     * Bedtime score from selected category.
+     * Bedtime score from selected category (0–25 points).
      */
     fun scoreBedtimeCategory(category: BedtimeCategory?): Int? {
         return category?.points
     }
 
     /**
-     * Wake-up score from selected category.
+     * Wake-up score from selected category (0–25 points).
      */
     fun scoreWakeUpCategory(category: WakeUpCategory?): Int? {
         return category?.points
     }
 
     /**
-     * Day sleep score from selected category.
-     * Note: Train journey allowance is NOT applied to category-based scoring
-     * because the user selects the effective duration category directly.
+     * Day sleep score from selected category (0–25 points).
      */
     fun scoreDaySleepCategory(category: DaySleepCategory?): Int? {
         return category?.points
     }
 
     /**
-     * Japa score from selected category.
-     * Selecting any category directly awards its points (5, 4, 3, 2, 1, or 0 pts).
+     * Japa score from selected category (0–50 points).
+     * Selecting any category directly awards its points (50, 40, 30, 20, 10, or 0 pts).
      */
     fun scoreJapaCategory(category: JapaCategory?): Int? {
         return category?.points
@@ -65,12 +86,85 @@ object SadhanaScorer {
         return if (japaCompleted) category.points else 0
     }
 
+    // ── Activity-based scoring (Pathan, Shravan, Seva) ────────────────
+
+    /**
+     * Pathan (Reading) scoring:
+     * >= 60 mins -> 25 points
+     * 45..59 mins -> 20 points
+     * 30..44 mins -> 15 points
+     * 15..29 mins -> 5 points
+     * 10..14 mins -> 3 points
+     * 5..9 mins -> 2 points
+     * 0 mins (or <= 0) -> -5 points (Penalty for zero reading)
+     */
+    fun scorePathan(minutes: Int?): Int? {
+        if (minutes == null) return null
+        return when {
+            minutes >= 60 -> 25
+            minutes in 45..59 -> 20
+            minutes in 30..44 -> 15
+            minutes in 15..29 -> 5
+            minutes in 10..14 -> 3
+            minutes in 5..9 -> 2
+            else -> -5
+        }
+    }
+
+    /**
+     * Shravan (Listening) scoring:
+     * >= 60 mins -> 25 points
+     * 45..59 mins -> 20 points
+     * 30..44 mins -> 15 points
+     * 15..29 mins -> 5 points
+     * 10..14 mins -> 3 points
+     * 5..9 mins -> 2 points
+     * 0 mins (or <= 0) -> -5 points (Penalty for zero listening)
+     */
+    fun scoreShravan(minutes: Int?): Int? {
+        if (minutes == null) return null
+        return when {
+            minutes >= 60 -> 25
+            minutes in 45..59 -> 20
+            minutes in 30..44 -> 15
+            minutes in 15..29 -> 5
+            minutes in 10..14 -> 3
+            minutes in 5..9 -> 2
+            else -> -5
+        }
+    }
+
+    fun scoreSravan(minutes: Int?): Int? = scoreShravan(minutes)
+
+    /**
+     * Seva (Practical Service) scoring:
+     * >= 60 mins -> 25 points
+     * 45..59 mins -> 20 points
+     * 30..44 mins -> 15 points
+     * 15..29 mins -> 5 points
+     * 10..14 mins -> 3 points
+     * 5..9 mins -> 2 points
+     * 0 mins (or <= 0) -> 0 points (No penalty for Seva)
+     */
+    fun scoreSeva(minutes: Int?): Int? {
+        if (minutes == null) return null
+        return when {
+            minutes >= 60 -> 25
+            minutes in 45..59 -> 20
+            minutes in 30..44 -> 15
+            minutes in 15..29 -> 5
+            minutes in 10..14 -> 3
+            minutes in 5..9 -> 2
+            else -> 0
+        }
+    }
+
     // ── Legacy time-based scoring (fallback for historical data) ──────
 
     /**
-     * Bedtime scoring (0–5) from exact time.
-     * <= 21:30 -> 5, 21:31–22:00 -> 4, 22:01–22:30 -> 3,
-     * 22:31–22:45 -> 2, 22:46–23:00 -> 1, after 23:00 -> 0.
+     * Bedtime scoring (0–25) from exact time.
+     * <= 21:30 -> 25, 21:31–22:00 -> 20, 22:01–22:30 -> 15,
+     * 22:31–22:45 -> 10, 22:46–23:00 -> 5, after 23:00 -> 0.
      * EDGE CASE: 00:00 to 03:59 are late-night and score 0.
      * null -> null (not logged)
      */
@@ -80,73 +174,71 @@ object SadhanaScorer {
         return when {
             // Late night 00:00 to 03:59 (0 <= m < 240) -> 0
             m in 0 until 4 * 60 -> 0
-            // 04:00 to 21:30 (240 <= m <= 1290) -> 5
-            m in (4 * 60)..(21 * 60 + 30) -> 5
-            // 21:31 to 22:00 (1291 <= m <= 1320) -> 4
-            m in (21 * 60 + 31)..(22 * 60) -> 4
-            // 22:01 to 22:30 (1321 <= m <= 1350) -> 3
-            m in (22 * 60 + 1)..(22 * 60 + 30) -> 3
-            // 22:31 to 22:45 (1351 <= m <= 1365) -> 2
-            m in (22 * 60 + 31)..(22 * 60 + 45) -> 2
-            // 22:46 to 23:00 (1366 <= m <= 1380) -> 1
-            m in (22 * 60 + 46)..(23 * 60) -> 1
+            // 04:00 to 21:30 (240 <= m <= 1290) -> 25
+            m in (4 * 60)..(21 * 60 + 30) -> 25
+            // 21:31 to 22:00 (1291 <= m <= 1320) -> 20
+            m in (21 * 60 + 31)..(22 * 60) -> 20
+            // 22:01 to 22:30 (1321 <= m <= 1350) -> 15
+            m in (22 * 60 + 1)..(22 * 60 + 30) -> 15
+            // 22:31 to 22:45 (1351 <= m <= 1365) -> 10
+            m in (22 * 60 + 31)..(22 * 60 + 45) -> 10
+            // 22:46 to 23:00 (1366 <= m <= 1380) -> 5
+            m in (22 * 60 + 46)..(23 * 60) -> 5
             // After 23:00 (1381 <= m <= 1439) -> 0
             else -> 0
         }
     }
 
     /**
-     * Wake-up scoring (0–5) from exact time.
-     * before 03:00 -> 5, 03:00–03:30 -> 4, 03:31–04:00 -> 3,
-     * 04:01–04:15 -> 2, 04:16–04:30 -> 1, after 04:30 -> 0.
+     * Wake-up scoring (0–25) from exact time.
+     * before 03:00 -> 25, 03:00–03:30 -> 20, 03:31–04:00 -> 15,
+     * 04:01–04:15 -> 10, 04:16–04:30 -> 5, after 04:30 -> 0.
      * null -> null (not logged)
      */
     fun scoreWakeUp(time: LocalTime?): Int? {
         if (time == null) return null
         val m = minuteOfDay(time)
         return when {
-            m < 3 * 60 -> 5
-            m in (3 * 60)..(3 * 60 + 30) -> 4
-            m in (3 * 60 + 31)..(4 * 60) -> 3
-            m in (4 * 60 + 1)..(4 * 60 + 15) -> 2
-            m in (4 * 60 + 16)..(4 * 60 + 30) -> 1
+            m < 3 * 60 -> 25
+            m in (3 * 60)..(3 * 60 + 30) -> 20
+            m in (3 * 60 + 31)..(4 * 60) -> 15
+            m in (4 * 60 + 1)..(4 * 60 + 15) -> 10
+            m in (4 * 60 + 16)..(4 * 60 + 30) -> 5
             else -> 0
         }
     }
 
     /**
-     * Day sleep scoring (0–5) from exact minutes with optional train journey allowance.
-     * effective = max(0, napMinutes - (if trainJourney 60 else 0))
-     * effective <= 30 -> 5, 31–45 -> 4, 46–60 -> 2, > 60 -> 0.
+     * Day sleep scoring (0–25) from exact minutes.
+     * Travel allowance logic has been removed.
+     * <= 30 -> 25, 31–45 -> 20, 46–60 -> 10, > 60 -> 0.
      * null -> null (not logged)
      */
     fun scoreDaySleep(napMinutes: Int?, trainJourney: Boolean = false): Int? {
         if (napMinutes == null) return null
-        val allowance = if (trainJourney) 60 else 0
-        val effective = maxOf(0, napMinutes - allowance)
         return when {
-            effective <= 30 -> 5
-            effective in 31..45 -> 4
-            effective in 46..60 -> 2
+            napMinutes <= 30 -> 25
+            napMinutes in 31..45 -> 20
+            napMinutes in 46..60 -> 10
             else -> 0
         }
     }
 
     /**
-     * Japa scoring (0–5) from exact time.
-     * <= 07:15 -> 5, 07:16–09:00 -> 4, 09:01–11:59 -> 3,
-     * 12:00–15:00 -> 2, 15:01–18:00 -> 1, after 18:00 -> 0.
+     * Japa scoring (0–50) from exact time.
+     * <= 07:15 -> 50, 07:16–09:00 -> 40, 09:01–11:59 -> 30,
+     * 12:00–15:00 -> 20, 15:01–18:00 -> 10, after 18:00 -> 0.
      * null -> null (not logged)
      */
     fun scoreJapa(time: LocalTime?): Int? {
         if (time == null) return null
         val m = minuteOfDay(time)
         return when {
-            m <= 7 * 60 + 15 -> 5
-            m in (7 * 60 + 16)..(9 * 60) -> 4
-            m in (9 * 60 + 1)..(11 * 60 + 59) -> 3
-            m in (12 * 60)..(15 * 60) -> 2
-            m in (15 * 60 + 1)..(18 * 60) -> 1
+            m <= 7 * 60 + 15 -> 50
+            m in (7 * 60 + 16)..(9 * 60) -> 40
+            m in (9 * 60 + 1)..(11 * 60 + 59) -> 30
+            m in (12 * 60)..(15 * 60) -> 20
+            m in (15 * 60 + 1)..(18 * 60) -> 10
             else -> 0
         }
     }
@@ -154,30 +246,38 @@ object SadhanaScorer {
     // ── Unified daily scoring ─────────────────────────────────────────
 
     /**
-     * Computes daily scores using the legacy time-based inputs.
+     * Computes daily scores using legacy time-based inputs.
      * If all fields are null (unlogged day), totalScore is null.
-     * Otherwise totalScore is sum of the non-null scores (max 20).
      */
     fun scoreDaily(
         bedtime: LocalTime?,
         wakeTime: LocalTime?,
         napMinutes: Int?,
-        trainJourney: Boolean,
-        japaTime: LocalTime?
+        trainJourney: Boolean = false,
+        japaTime: LocalTime?,
+        pathanMinutes: Int? = null,
+        sravanMinutes: Int? = null,
+        sevaMinutes: Int? = null
     ): DailyScores {
         val bed = scoreBedtime(bedtime)
         val wake = scoreWakeUp(wakeTime)
-        val nap = scoreDaySleep(napMinutes, trainJourney)
         val japa = scoreJapa(japaTime)
+        val nap = scoreDaySleep(napMinutes)
+        val pathan = scorePathan(pathanMinutes)
+        val sravan = scoreShravan(sravanMinutes)
+        val seva = scoreSeva(sevaMinutes)
 
-        val logged = listOfNotNull(bed, wake, nap, japa)
+        val logged = listOfNotNull(bed, wake, japa, nap, pathan, sravan, seva)
         val total = if (logged.isEmpty()) null else logged.sum()
 
         return DailyScores(
             bedScore = bed,
             wakeScore = wake,
-            napScore = nap,
             japaScore = japa,
+            napScore = nap,
+            pathanScore = pathan,
+            sravanScore = sravan,
+            sevaScore = seva,
             totalScore = total
         )
     }
@@ -185,6 +285,15 @@ object SadhanaScorer {
     /**
      * Scores a [SadhanaEntry] using category fields when available,
      * falling back to legacy time-based fields for backward compatibility.
+     *
+     * Order of categories in breakdown:
+     * 1. Bedtime (0–25)
+     * 2. Wake-up (0–25)
+     * 3. 16 Rounds Japa (0–50)
+     * 4. Day Sleep / Nap (0–25) [Placed after Japa]
+     * 5. Pathan (-5 to 25)
+     * 6. Shravan (-5 to 25)
+     * 7. Seva (0 to 25)
      */
     fun scoreEntry(entry: SadhanaEntry): DailyScores {
         // Bedtime: category takes precedence over legacy time
@@ -201,15 +310,6 @@ object SadhanaScorer {
             scoreWakeUp(entry.wakeTime)
         }
 
-        // Day sleep: category takes precedence
-        // When using category, train journey allowance is NOT applied
-        // because the user already selects the effective duration category.
-        val nap = if (entry.daySleepCategory != null) {
-            scoreDaySleepCategory(entry.daySleepCategory)
-        } else {
-            scoreDaySleep(entry.napMinutes, entry.trainJourney)
-        }
-
         // Japa: category takes precedence
         val japa = if (entry.japaCategory != null) {
             scoreJapaCategory(entry.japaCategory, entry.japaCompleted)
@@ -217,14 +317,46 @@ object SadhanaScorer {
             scoreJapa(entry.japaTime)
         }
 
-        val logged = listOfNotNull(bed, wake, nap, japa)
-        val total = if (logged.isEmpty()) null else logged.sum()
+        // Day sleep: category takes precedence (placed after Japa)
+        val nap = if (entry.daySleepCategory != null) {
+            scoreDaySleepCategory(entry.daySleepCategory)
+        } else {
+            scoreDaySleep(entry.napMinutes)
+        }
+
+        // Study & Service scores
+        val pathan = scorePathan(entry.pathanMinutes)
+        val sravan = scoreShravan(entry.sravanMinutes)
+        val seva = scoreSeva(entry.sevaMinutes)
+
+        // Determine if entry has any recorded input (is logged)
+        val hasLoggedData = entry.bedtimeCategory != null ||
+            entry.wakeUpCategory != null ||
+            entry.daySleepCategory != null ||
+            entry.japaCategory != null ||
+            entry.bedtime != null ||
+            entry.wakeTime != null ||
+            entry.napMinutes != null ||
+            entry.japaTime != null ||
+            entry.pathanMinutes > 0 ||
+            entry.sravanMinutes > 0 ||
+            entry.sevaMinutes > 0
+
+        val total = if (!hasLoggedData) {
+            null
+        } else {
+            (bed ?: 0) + (wake ?: 0) + (japa ?: 0) + (nap ?: 0) +
+                (pathan ?: 0) + (sravan ?: 0) + (seva ?: 0)
+        }
 
         return DailyScores(
             bedScore = bed,
             wakeScore = wake,
-            napScore = nap,
             japaScore = japa,
+            napScore = nap,
+            pathanScore = pathan,
+            sravanScore = sravan,
+            sevaScore = seva,
             totalScore = total
         )
     }

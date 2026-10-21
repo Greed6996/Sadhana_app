@@ -42,6 +42,7 @@ fun WeekDaySelector(
     startOfWeek: LocalDate,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
+    activeColor: Color = DarkPrimary,
     modifier: Modifier = Modifier
 ) {
     val pillShape = RoundedCornerShape(16.dp)
@@ -58,7 +59,7 @@ fun WeekDaySelector(
 
             val accessibilityText = "${date.dayOfWeek.name}, ${date.month.name} ${date.dayOfMonth}${if (isSelected) ", Selected" else ""}"
 
-            val bg = if (isSelected) DarkPrimary else DarkSurface
+            val bg = if (isSelected) activeColor else DarkSurface
             val textColor = if (isSelected) DarkBg else DarkTextPrimary
             val nameColor = if (isSelected) DarkBg.copy(alpha = 0.85f) else DarkTextMuted
             val borderModifier = if (isSelected) {

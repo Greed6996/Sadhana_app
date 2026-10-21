@@ -122,13 +122,13 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue("Sravan 30 mins missing", xml.contains("30 mins"))
         assertTrue("Seva duration 60 mins missing", xml.contains("60 mins"))
         assertTrue("Seva tags Cooking, Book Distribution missing", xml.contains("Cooking, Book Distribution"))
-        assertTrue("Sunday total score 20 / 20 missing", xml.contains("20 / 20"))
+        assertTrue("Sunday total score 185 / 200 missing", xml.contains("185 / 200"))
 
         // Verify Monday train journey bonus
         assertTrue("Train journey bonus missing", xml.contains("+60 mins bonus"))
 
         // Verify summary row
-        assertTrue("Summary total score missing", xml.contains("Total Score = 37 / 140 pts"))
+        assertTrue("Summary total score missing", xml.contains("Total Score = 305 / 1400 pts"))
     }
 
     @Test
@@ -168,21 +168,21 @@ class SadhanaWeeklyExcelExporterTest {
             entries = entries
         )
 
-        // Verify Sunday category labels and 20/20 points
+        // Verify Sunday category labels and 185/200 points
         assertTrue("Bedtime category label missing", xml.contains("9:30 PM or before"))
         assertTrue("Wake-up category label missing", xml.contains("Before 3:00 AM"))
         assertTrue("Day sleep category label missing", xml.contains("30 minutes or less"))
         assertTrue("Japa category label missing", xml.contains("Before 7:15 AM"))
-        assertTrue("Sunday total 20 / 20 missing", xml.contains("20 / 20"))
+        assertTrue("Sunday total 185 / 200 missing", xml.contains("185 / 200"))
 
-        // Verify Monday incomplete japa label and 12/20 points (4+4+4+0)
+        // Verify Monday incomplete japa label and 110/200 points (20+20+20+0+15+20+15)
         assertTrue("Monday bedtime category missing", xml.contains("Before 10:00 PM"))
         assertTrue("Monday wake-up category missing", xml.contains("Before 3:30 AM"))
         assertTrue("Monday incomplete japa missing", xml.contains("(Incomplete)"))
-        assertTrue("Monday total 12 / 20 missing", xml.contains("12 / 20"))
+        assertTrue("Monday total 110 / 200 missing", xml.contains("110 / 200"))
 
-        // Verify weekly total: 20 + 12 = 32
-        assertTrue("Weekly total score missing", xml.contains("Total Score = 32 / 140 pts"))
+        // Verify weekly total: 185 + 110 = 295
+        assertTrue("Weekly total score missing", xml.contains("Total Score = 295 / 1400 pts"))
     }
 
     @Test
@@ -205,7 +205,7 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue(xml.contains("—"))
         assertFalse(xml.contains("[enter value]"))
         assertFalse(xml.contains("[total]"))
-        assertTrue(xml.contains("Total Score = 0 / 140 pts"))
+        assertTrue(xml.contains("Total Score = 0 / 1400 pts"))
     }
 
     @Test
@@ -213,6 +213,8 @@ class SadhanaWeeklyExcelExporterTest {
         val templateFile = listOf(
             File("src/main/assets/templates/Sadhana_Weekly_Excel_Template.xlsx"),
             File("app/src/main/assets/templates/Sadhana_Weekly_Excel_Template.xlsx"),
+            File("../templates/Sadhana_Weekly_Excel_Template.xlsx"),
+            File("templates/Sadhana_Weekly_Excel_Template.xlsx"),
             File("../Sadhana_Weekly_Excel_Template.xlsx"),
             File("Sadhana_Weekly_Excel_Template.xlsx")
         ).firstOrNull { it.exists() } ?: error("Template file not found")

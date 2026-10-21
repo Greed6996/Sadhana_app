@@ -117,6 +117,8 @@ class DailyEntryViewModel internal constructor(
 
         val score = SadhanaScorer.scoreEntry(activeEntry)
 
+        val isDayLogged = (repositoryEntry != null || (pendingEntry != null && pendingEntry.date == date)) && score.totalScore != null
+
         DailyEntryUiState(
             selectedDate = date,
             startOfWeek = DateUtils.getStartOfWeek(date),
@@ -125,6 +127,7 @@ class DailyEntryViewModel internal constructor(
             sadhakaName = localSadhaka ?: preferences.sadhakaName,
             counselorName = localCounselor ?: preferences.counselorName,
             hasAcceptedTerms = preferences.hasAcceptedTerms,
+            isLogged = isDayLogged,
             isLoading = false
         )
     }.stateIn(

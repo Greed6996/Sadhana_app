@@ -66,7 +66,7 @@ class DailyEntryViewModelTest {
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel.updateBedtime(LocalTime.of(21, 15)) // <= 21:30 -> 5 pts
+        viewModel.updateBedtime(LocalTime.of(21, 15)) // <= 21:30 -> 25 pts
         testDispatcher.scheduler.advanceTimeBy(350)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -75,11 +75,11 @@ class DailyEntryViewModelTest {
         assertEquals(LocalTime.of(21, 15), saved?.bedtime)
 
         val state = viewModel.uiState.value
-        assertEquals(5, state.score.bedScore)
+        assertEquals(25, state.score.bedScore)
     }
 
     @Test
-    fun testTrainJourney_adjustsNapScore() = runTest(testDispatcher) {
+    fun testTrainJourney_travelAllowanceRemoved() = runTest(testDispatcher) {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -92,10 +92,10 @@ class DailyEntryViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(0, viewModel.uiState.value.score.napScore)
 
-        // Turn on train journey -> effective = 75 - 60 = 15 min -> <= 30 min -> 5 pts!
+        // Travel allowance logic removed -> remains 0 pts
         viewModel.updateTrainJourney(true)
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(5, viewModel.uiState.value.score.napScore)
+        assertEquals(0, viewModel.uiState.value.score.napScore)
     }
 
     @Test
@@ -136,7 +136,7 @@ class DailyEntryViewModelTest {
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Select Before 7:15 AM -> immediately awards 5 points and sets japaCompleted = true
+        // Select Before 7:15 AM -> immediately awards 50 points and sets japaCompleted = true
         viewModel.updateJapaCategory(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM)
         testDispatcher.scheduler.advanceTimeBy(350)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -144,7 +144,7 @@ class DailyEntryViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM, state.entry.japaCategory)
         assertEquals(true, state.entry.japaCompleted)
-        assertEquals(5, state.score.japaScore)
+        assertEquals(50, state.score.japaScore)
 
         val saved = fakeRepository.getEntry(date).first()
         assertNotNull(saved)

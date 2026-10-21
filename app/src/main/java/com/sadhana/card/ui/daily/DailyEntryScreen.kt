@@ -145,6 +145,18 @@ fun DailyEntryContent(
     val monthShort = uiState.startOfWeek.format(DateTimeFormatter.ofPattern("MMM", Locale.ENGLISH))
     val weekTitle = "Week of ${uiState.startOfWeek.dayOfMonth} $monthShort"
     val dayFullName = uiState.selectedDate.format(DateTimeFormatter.ofPattern("EEEE", Locale.ENGLISH))
+    val formattedDate = uiState.selectedDate.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH))
+
+    val total = uiState.score.totalScore ?: 0
+    val topDateColor = if (!uiState.isLogged) {
+        Color(0xFFF5B041) // Default State (Unlogged / Normal): Yellow
+    } else {
+        when {
+            total < 75 -> Color(0xFFEF4444)   // Red: totalScore < 75
+            total < 200 -> Color(0xFFF5B041)  // Yellow: 75 <= totalScore < 200
+            else -> Color(0xFF10B981)         // Green: totalScore == 200
+        }
+    }
 
     var expandedSection by rememberSaveable { mutableStateOf(DailyEntryAccordionSection.NONE) }
 
@@ -155,7 +167,7 @@ fun DailyEntryContent(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Top Header Row: Sadhaka Name + Day Title + Week Chevrons & Settings Button
+        // 1. Top Header Row: Sadhaka Name + Day & Date + Week Chevrons & Settings Button
         item(key = "header") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -178,7 +190,14 @@ fun DailyEntryContent(
                         fontWeight = FontWeight.Bold,
                         fontSize = 32.sp,
                         lineHeight = 36.sp,
-                        color = DarkTextPrimary
+                        color = topDateColor
+                    )
+                    Text(
+                        text = formattedDate,
+                        fontFamily = DmSansFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 13.5.sp,
+                        color = topDateColor
                     )
                 }
 
@@ -253,19 +272,23 @@ fun DailyEntryContent(
             WeekDaySelector(
                 startOfWeek = uiState.startOfWeek,
                 selectedDate = uiState.selectedDate,
-                onDateSelected = onSelectDate
+                onDateSelected = onSelectDate,
+                activeColor = topDateColor
             )
         }
 
-        // 4. Hero Score Card with 4 Circular Progress Rings
+        // 4. Hero Score Card with Circular Total Score and 7 Category Breakdown
         item(key = "score_hero") {
             ScoreCard(
                 score = uiState.score.totalScore,
-                maxScore = 20,
+                maxScore = 200,
                 bedScore = uiState.score.bedScore,
                 wakeScore = uiState.score.wakeScore,
+                japaScore = uiState.score.japaScore,
                 napScore = uiState.score.napScore,
-                japaScore = uiState.score.japaScore
+                pathanScore = uiState.score.pathanScore,
+                sravanScore = uiState.score.sravanScore,
+                sevaScore = uiState.score.sevaScore
             )
         }
 
@@ -288,7 +311,7 @@ fun DailyEntryContent(
                 // Row 1: Bedtime
                 V5AccordionRow(
                     title = "Bedtime",
-                    subtitle = "5 pts if by 9:30 PM",
+                    subtitle = "25 pts if by 9:30 PM",
                     score = uiState.score.bedScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.BEDTIME,
                     onToggleExpand = {
@@ -324,7 +347,7 @@ fun DailyEntryContent(
                 // Row 2: Wake-up
                 V5AccordionRow(
                     title = "Wake-up",
-                    subtitle = "5 pts if before 3:00 AM",
+                    subtitle = "25 pts if before 3:00 AM",
                     score = uiState.score.wakeScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.WAKE_UP,
                     onToggleExpand = {
@@ -357,10 +380,10 @@ fun DailyEntryContent(
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
-                // Row 3: 16 rounds done by (JAPA) - No checkbox!
+                // Row 3: 16 rounds done by (JAPA) - Placed BEFORE Day Sleep
                 V5AccordionRow(
                     title = "16 rounds done by",
-                    subtitle = "5 pts if by 7:15 AM",
+                    subtitle = "50 pts if by 7:15 AM",
                     score = uiState.score.japaScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
                     onToggleExpand = {
@@ -383,7 +406,6 @@ fun DailyEntryContent(
                                 points = cat.points,
                                 isSelected = uiState.entry.japaCategory == cat,
                                 onClick = {
-                                    // Selecting immediately awards points & marks japa completed
                                     onUpdateJapaCategory(cat)
                                     expandedSection = DailyEntryAccordionSection.NONE
                                 }
@@ -394,10 +416,10 @@ fun DailyEntryContent(
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
-                // Row 4: Day sleep
+                // Row 4: Day sleep (Nap) - Placed AFTER 16 Rounds Japa
                 V5AccordionRow(
                     title = "Day sleep",
-                    subtitle = "5 pts up to 30 min",
+                    subtitle = "25 pts up to 30 min",
                     score = uiState.score.napScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.DAY_SLEEP,
                     onToggleExpand = {
@@ -427,58 +449,6 @@ fun DailyEntryContent(
                         }
                     }
                 }
-
-                HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
-
-                // Row 5: Train journey / travel Checkbox
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(role = Role.Checkbox) {
-                            onUpdateTrainJourney(!uiState.entry.trainJourney)
-                        }
-                        .padding(vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(22.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (uiState.entry.trainJourney) DarkPrimary else DarkSurfaceVariant)
-                            .border(
-                                BorderStroke(1.dp, if (uiState.entry.trainJourney) DarkPrimary else DarkBorder),
-                                RoundedCornerShape(6.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (uiState.entry.trainJourney) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = DarkBg,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-
-                    Column {
-                        Text(
-                            text = "Train journey / travel",
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.5.sp,
-                            color = DarkTextPrimary
-                        )
-                        Text(
-                            text = "+60 min allowance before scoring",
-                            fontFamily = DmSansFontFamily,
-                            fontSize = 12.sp,
-                            color = DarkTextMuted
-                        )
-                    }
-                }
             }
         }
 
@@ -489,8 +459,6 @@ fun DailyEntryContent(
 
         // Unified Card: STUDY & SERVICE · MINUTES
         item(key = "card_study_service") {
-            var showCustomTagDialog by remember { mutableStateOf(false) }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -500,141 +468,38 @@ fun DailyEntryContent(
                     .padding(vertical = 12.dp, horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Row 1: Pathan
+                // Row 1: Pathan (Reading)
                 V5MinuteStepperRow(
                     title = "Pathan",
-                    subtitle = "Reading Prabhupada's books",
+                    subtitle = "Reading Srila Prabhupada’s books",
                     minutes = uiState.entry.pathanMinutes,
+                    score = uiState.score.pathanScore,
                     onMinutesChanged = onUpdatePathanMinutes,
-                    step = 15
+                    step = 5
                 )
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
-                // Row 2: Sravan
+                // Row 2: Sravan (Hearing)
                 V5MinuteStepperRow(
                     title = "Sravan",
                     subtitle = "Hearing lectures",
                     minutes = uiState.entry.sravanMinutes,
+                    score = uiState.score.sravanScore,
                     onMinutesChanged = onUpdateSravanMinutes,
-                    step = 15
+                    step = 5
                 )
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
-                // Row 3: Seva
+                // Row 3: Seva (Practical Service) - Tags removed
                 V5MinuteStepperRow(
                     title = "Seva",
-                    subtitle = "Practical service",
+                    subtitle = "Practical devotional service",
                     minutes = uiState.entry.sevaMinutes,
+                    score = uiState.score.sevaScore,
                     onMinutesChanged = onUpdateSevaMinutes,
-                    step = 15
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Service Tags Multi-Select
-                val defaultTags = listOf("Cooking", "Mentoring", "Lecturing", "Calling", "Temple cleaning")
-                val allTags = remember(uiState.entry.sevaTags) {
-                    (defaultTags + uiState.entry.sevaTags).distinct()
-                }
-
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    allTags.forEach { tag ->
-                        val isSelected = uiState.entry.sevaTags.contains(tag)
-                        Box(
-                            modifier = Modifier
-                                .clip(PillShape)
-                                .background(if (isSelected) DarkPrimary else DarkSurfaceVariant)
-                                .border(
-                                    BorderStroke(1.dp, if (isSelected) DarkPrimary else DarkBorder),
-                                    PillShape
-                                )
-                                .clickable(role = Role.Checkbox) {
-                                    if (isSelected) {
-                                        onUpdateSevaTags(uiState.entry.sevaTags - tag)
-                                    } else {
-                                        onUpdateSevaTags(uiState.entry.sevaTags + tag)
-                                    }
-                                }
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = tag,
-                                fontFamily = DmSansFontFamily,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.sp,
-                                color = if (isSelected) DarkBg else DarkTextPrimary
-                            )
-                        }
-                    }
-
-                    // + Add tag dashed pill
-                    Box(
-                        modifier = Modifier
-                            .clip(PillShape)
-                            .border(BorderStroke(1.dp, DarkGoldBorder), PillShape)
-                            .clickable(role = Role.Button) { showCustomTagDialog = true }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "+ Add tag",
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            color = DarkPrimary
-                        )
-                    }
-                }
-            }
-
-            if (showCustomTagDialog) {
-                var newTagName by remember { mutableStateOf("") }
-                AlertDialog(
-                    onDismissRequest = { showCustomTagDialog = false },
-                    title = {
-                        Text(
-                            text = "Add Service Tag",
-                            fontFamily = DmSansFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = DarkPrimary
-                        )
-                    },
-                    text = {
-                        OutlinedTextField(
-                            value = newTagName,
-                            onValueChange = { newTagName = it },
-                            placeholder = { Text("e.g. Deity Garland", color = DarkTextMuted) },
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                val trimmed = newTagName.trim()
-                                if (trimmed.isNotEmpty() && !uiState.entry.sevaTags.contains(trimmed)) {
-                                    onUpdateSevaTags(uiState.entry.sevaTags + trimmed)
-                                }
-                                showCustomTagDialog = false
-                            }
-                        ) {
-                            Text("Add", fontWeight = FontWeight.Bold, color = DarkPrimary)
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showCustomTagDialog = false }) {
-                            Text("Cancel", color = DarkTextMuted)
-                        }
-                    }
+                    step = 5
                 )
             }
         }
@@ -670,12 +535,12 @@ private fun V5ScorePillBadge(
     modifier: Modifier = Modifier
 ) {
     val (bgColor, textColor, borderColor) = when {
-        score == 0 -> Triple(
+        score <= 0 -> Triple(
             Color(0xFF2D1416),
             Color(0xFFEF4444),
             Color(0xFFEF4444).copy(alpha = 0.35f)
         )
-        score in 1..4 -> Triple(
+        score in 1..24 -> Triple(
             Color(0xFF2B2113),
             Color(0xFFF5B041),
             Color(0xFFD4932E).copy(alpha = 0.35f)
@@ -696,7 +561,7 @@ private fun V5ScorePillBadge(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "+$score",
+            text = if (score > 0) "+$score" else "$score",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 13.sp,
@@ -810,8 +675,9 @@ private fun V5MinuteStepperRow(
     title: String,
     subtitle: String,
     minutes: Int,
+    score: Int? = null,
     onMinutesChanged: (Int?) -> Unit,
-    step: Int = 15
+    step: Int = 5
 ) {
     Row(
         modifier = Modifier
@@ -837,17 +703,26 @@ private fun V5MinuteStepperRow(
             )
         }
 
-        V5InlineStepper(
-            value = minutes,
-            onDecrement = {
-                val next = (minutes - step).coerceAtLeast(0)
-                onMinutesChanged(if (next == 0) null else next)
-            },
-            onIncrement = {
-                val next = (minutes + step).coerceAtMost(720)
-                onMinutesChanged(next)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (score != null) {
+                V5ScorePillBadge(score = score)
             }
-        )
+
+            V5InlineStepper(
+                value = minutes,
+                onDecrement = {
+                    val next = (minutes - step).coerceAtLeast(0)
+                    onMinutesChanged(next)
+                },
+                onIncrement = {
+                    val next = (minutes + step).coerceAtMost(720)
+                    onMinutesChanged(next)
+                }
+            )
+        }
     }
 }
 

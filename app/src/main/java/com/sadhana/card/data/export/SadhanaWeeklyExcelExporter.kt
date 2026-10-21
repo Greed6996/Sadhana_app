@@ -230,11 +230,11 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         sb.append("""<row r="11" ht="24" customHeight="1"><c r="A11" s="6" t="inlineStr"><is><t>NIDRA – To bed</t></is></c></row>""")
 
         // Rows 12-17: Scoring reference for Bedtime
-        appendReferenceRow(sb, 12, "Scoring reference: 9:30 pm or before = 5 points")
-        appendReferenceRow(sb, 13, "Before 10:00 pm = 4 points")
-        appendReferenceRow(sb, 14, "Before 10:30 pm = 3 points")
-        appendReferenceRow(sb, 15, "Before 10:45 pm = 2 points")
-        appendReferenceRow(sb, 16, "Before 11:00 pm = 1 point")
+        appendReferenceRow(sb, 12, "Scoring reference: 9:30 pm or before = 25 points")
+        appendReferenceRow(sb, 13, "Before 10:00 pm = 20 points")
+        appendReferenceRow(sb, 14, "Before 10:30 pm = 15 points")
+        appendReferenceRow(sb, 15, "Before 10:45 pm = 10 points")
+        appendReferenceRow(sb, 16, "Before 11:00 pm = 5 points")
         appendReferenceRow(sb, 17, "After 11:00 pm = 0 points")
 
         // Row 18: Recorded bedtime
@@ -259,11 +259,11 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         sb.append("""<row r="20" ht="24" customHeight="1"><c r="A20" s="6" t="inlineStr"><is><t>NIDRA – Wake up</t></is></c></row>""")
 
         // Rows 21-26: Scoring reference for Wake up
-        appendReferenceRow(sb, 21, "Scoring reference: Before 3:00 am = 5 points")
-        appendReferenceRow(sb, 22, "Before 3:30 am = 4 points")
-        appendReferenceRow(sb, 23, "Before 4:00 am = 3 points")
-        appendReferenceRow(sb, 24, "Before 4:15 am = 2 points")
-        appendReferenceRow(sb, 25, "Before 4:30 am = 1 point")
+        appendReferenceRow(sb, 21, "Scoring reference: Before 3:00 am = 25 points")
+        appendReferenceRow(sb, 22, "Before 3:30 am = 20 points")
+        appendReferenceRow(sb, 23, "Before 4:00 am = 15 points")
+        appendReferenceRow(sb, 24, "Before 4:15 am = 10 points")
+        appendReferenceRow(sb, 25, "Before 4:30 am = 5 points")
         appendReferenceRow(sb, 26, "After 4:30 am = 0 points")
 
         // Row 27: Recorded wake-up time
@@ -287,12 +287,12 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 29: Section NIDRA – Day Sleep
         sb.append("""<row r="29" ht="24" customHeight="1"><c r="A29" s="6" t="inlineStr"><is><t>NIDRA – Day Sleep</t></is></c></row>""")
 
-        // Rows 30-34: Scoring reference for Day Sleep
-        appendReferenceRow(sb, 30, "Scoring reference: 30 minutes or less = 5 points")
-        appendReferenceRow(sb, 31, "45 minutes = 4 points")
-        appendReferenceRow(sb, 32, "60 minutes = 2 points")
+        // Rows 30-33: Scoring reference for Day Sleep
+        appendReferenceRow(sb, 30, "Scoring reference: 30 minutes or less = 25 points")
+        appendReferenceRow(sb, 31, "45 minutes = 20 points")
+        appendReferenceRow(sb, 32, "60 minutes = 10 points")
         appendReferenceRow(sb, 33, "More than 60 minutes = 0 points")
-        appendReferenceRow(sb, 34, "Train journey: one-hour bonus / day sleep free (if applicable)")
+        appendReferenceRow(sb, 34, "Train journey: travel option removed")
 
         // Row 35: Recorded day-sleep duration
         sb.append("""<row r="35" ht="26" customHeight="1"><c r="A35" s="9" t="inlineStr"><is><t>Recorded day-sleep duration (minutes)</t></is></c>""")
@@ -327,11 +327,11 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         sb.append("""<row r="38" ht="24" customHeight="1"><c r="A38" s="6" t="inlineStr"><is><t>JAPA – 16 rounds</t></is></c></row>""")
 
         // Rows 39-44: Scoring reference for Japa
-        appendReferenceRow(sb, 39, "Scoring reference: All rounds before 7:15 am = 5 points")
-        appendReferenceRow(sb, 40, "Before 9:00 am = 4 points")
-        appendReferenceRow(sb, 41, "Before 11:59 am = 3 points")
-        appendReferenceRow(sb, 42, "Before 3:00 pm = 2 points")
-        appendReferenceRow(sb, 43, "Before 6:00 pm = 1 point")
+        appendReferenceRow(sb, 39, "Scoring reference: All rounds before 7:15 am = 50 points")
+        appendReferenceRow(sb, 40, "Before 9:00 am = 40 points")
+        appendReferenceRow(sb, 41, "Before 11:59 am = 30 points")
+        appendReferenceRow(sb, 42, "Before 3:00 pm = 20 points")
+        appendReferenceRow(sb, 43, "Before 6:00 pm = 10 points")
         appendReferenceRow(sb, 44, "After 6:00 pm = 0 points")
 
         // Row 45: Recorded Japa completion time
@@ -408,13 +408,13 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         // Row 54: WEEKLY TOTAL
         sb.append("""<row r="54" ht="26" customHeight="1"><c r="A54" s="13" t="inlineStr"><is><t>WEEKLY TOTAL</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = if (day.scores?.totalScore != null) "${day.scores.totalScore} / 20" else "—"
+            val text = if (day.scores?.totalScore != null) "${day.scores.totalScore} / 200" else "—"
             sb.append("""<c r="${day.col}54" s="13" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")
 
         // Row 56: Summary footer
-        val summaryNote = "Weekly Summary: Total Score = $weekTotalScore / 140 pts | Reading = ${totalPathan}m | Hearing = ${totalSravan}m | Seva = ${totalSeva}m"
+        val summaryNote = "Weekly Summary: Total Score = $weekTotalScore / 1400 pts | Reading = ${totalPathan}m | Hearing = ${totalSravan}m | Seva = ${totalSeva}m"
         sb.append("""<row r="56" ht="30" customHeight="1"><c r="A56" s="14" t="inlineStr"><is><t>${xmlEscape(summaryNote)}</t></is></c></row>""")
 
         sb.append("""</sheetData>""")

@@ -311,7 +311,7 @@ fun WeeklySummaryHeroCard(
     uiState: WeeklyMatrixUiState,
     modifier: Modifier = Modifier
 ) {
-    val maxScore = 140f
+    val maxScore = uiState.maxWeeklyScore.toFloat()
     val progress = (uiState.weekTotalScore.toFloat() / maxScore).coerceIn(0f, 1f)
     val animatedSweep by animateFloatAsState(
         targetValue = progress * 360f,
@@ -369,7 +369,7 @@ fun WeeklySummaryHeroCard(
                     }
                 }
 
-                // Centered Score & "of 140"
+                // Centered Score & "of 1400"
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -378,15 +378,15 @@ fun WeeklySummaryHeroCard(
                         text = "$animatedScore",
                         fontFamily = DmSansFontFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 30.sp,
-                        lineHeight = 32.sp,
+                        fontSize = 26.sp,
+                        lineHeight = 28.sp,
                         color = DarkTextPrimary
                     )
                     Text(
-                        text = "of 140",
+                        text = "of ${uiState.maxWeeklyScore}",
                         fontFamily = DmSansFontFamily,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         color = DarkTextMuted
                     )
                 }
@@ -504,21 +504,21 @@ fun WeeklyHeatmapMatrixCard(
                 onDayClick = onDayClick
             )
 
-            // 3. Day sleep (pts)
-            V5MatrixScoreRow(
-                label = "Day sleep",
-                unit = "pts",
-                columns = columns,
-                getScore = { it.scores.napScore },
-                onDayClick = onDayClick
-            )
-
-            // 4. Japa (pts)
+            // 3. Japa (pts) - Sequence: Japa before Day sleep
             V5MatrixScoreRow(
                 label = "Japa",
                 unit = "pts",
                 columns = columns,
                 getScore = { it.scores.japaScore },
+                onDayClick = onDayClick
+            )
+
+            // 4. Day sleep (pts) - Sequence: Day sleep after 16 Rounds Japa
+            V5MatrixScoreRow(
+                label = "Day sleep",
+                unit = "pts",
+                columns = columns,
+                getScore = { it.scores.napScore },
                 onDayClick = onDayClick
             )
 
@@ -549,10 +549,10 @@ fun WeeklyHeatmapMatrixCard(
                 onDayClick = onDayClick
             )
 
-            // 8. Total (of 20)
+            // 8. Total (of 200)
             V5MatrixTotalRow(
                 label = "Total",
-                unit = "of 20",
+                unit = "of 200",
                 columns = columns,
                 onDayClick = onDayClick
             )
@@ -684,11 +684,11 @@ private fun V5ScoreMatrixCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (bg, textColor) = when (score) {
-        null -> Pair(CellUnloggedBg, CellUnloggedText)
-        0 -> Pair(CellScore0Bg, CellScore0Text)
-        in 1..4 -> Pair(CellScore1to4Bg, CellScore1to4Text)
-        else -> Pair(CellScore5Bg, CellScore5Text)
+    val (bg, textColor) = when {
+        score == null -> Pair(CellUnloggedBg, CellUnloggedText)
+        score <= 0 -> Pair(CellScore0Bg, CellScore0Text)
+        score == 25 || score == 50 -> Pair(CellScore5Bg, CellScore5Text)
+        else -> Pair(CellScore1to4Bg, CellScore1to4Text)
     }
 
     Box(

@@ -82,7 +82,7 @@ class WeeklyMatrixViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(7, state.columns.size)
-        assertEquals(36, state.weekTotalScore) // 20 + 16
+        assertEquals(330, state.weekTotalScore) // 185 + 145
         assertEquals(90, state.totalPathanMinutes) // 60 + 30
         assertEquals(90, state.totalSravanMinutes) // 30 + 60
         assertEquals(60, state.totalSevaMinutes) // 45 + 15
