@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Firestore Rules Emulator Tests
         run: |
-          npx --yes firebase-tools emulators:exec --only firestore "npm --prefix firestore-tests test"
+          npx --yes firebase-tools emulators:exec --project sadhana-card-test --only firestore "npm --prefix firestore-tests test"
 
   build-apk:
     name: Build Android APKs
