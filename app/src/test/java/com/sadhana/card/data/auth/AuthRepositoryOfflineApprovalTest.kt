@@ -60,6 +60,41 @@ class AuthRepositoryOfflineApprovalTest {
         assertFalse("Prompt must be reset for subsequent accounts", prefs.hasPromptedHistoricalSync)
     }
 
+    @Test
+    fun pendingApproval_state_isProperlyConstructedForUnapprovedCounselor() {
+        val pendingState = AuthState.PendingApproval(
+            uid = "counselor_1",
+            email = "counselor@test.com",
+            displayName = "Counselor Prabhu",
+            role = "COUNSELOR"
+        )
+        assertEquals("counselor_1", pendingState.uid)
+        assertEquals("counselor@test.com", pendingState.email)
+        assertEquals("COUNSELOR", pendingState.role)
+    }
+
+    @Test
+    fun authenticated_state_preservesApprovalForCounselorAndDevotee() {
+        val approvedCounselor = AuthState.Authenticated(
+            uid = "guru_1",
+            email = "guru@test.com",
+            displayName = "Guru Maharaj",
+            role = "COUNSELOR",
+            isCounselorApproved = true
+        )
+        assertTrue(approvedCounselor.isCounselorApproved)
+        assertEquals("COUNSELOR", approvedCounselor.role)
+
+        val devotee = AuthState.Authenticated(
+            uid = "devotee_1",
+            email = "devotee@test.com",
+            displayName = "Bhakta",
+            role = "DEVOTEE",
+            isCounselorApproved = false
+        )
+        assertEquals("DEVOTEE", devotee.role)
+    }
+
     private class FakeUserPreferencesRepository : UserPreferencesRepository {
         private val state = MutableStateFlow(UserPreferences())
 

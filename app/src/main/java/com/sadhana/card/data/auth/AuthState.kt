@@ -7,7 +7,13 @@ sealed interface AuthState {
         val uid: String,
         val email: String,
         val displayName: String,
-        val role: String, // "devotee" | "counselor"
+        val role: String, // "DEVOTEE" | "COUNSELOR"
         val isCounselorApproved: Boolean
+    ) : AuthState
+    data class PendingApproval(
+        val uid: String,
+        val email: String,
+        val displayName: String,
+        val role: String = "COUNSELOR"
     ) : AuthState
 }

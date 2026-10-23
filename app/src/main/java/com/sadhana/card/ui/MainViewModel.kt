@@ -16,11 +16,13 @@ import com.sadhana.card.data.preferences.UserPreferencesRepository
 import com.sadhana.card.data.update.UpdateConfig
 import com.sadhana.card.data.update.UpdateManager
 import com.sadhana.card.data.update.UpdateState
+import com.sadhana.card.ui.auth.AuthUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -90,8 +92,54 @@ class MainViewModel @Inject constructor(
     private val _isAuthLoading = MutableStateFlow(false)
     val isAuthLoading: StateFlow<Boolean> = _isAuthLoading.asStateFlow()
 
+    private val _isCheckingStatus = MutableStateFlow(false)
+    val isCheckingStatus: StateFlow<Boolean> = _isCheckingStatus.asStateFlow()
+
     private val _authErrorMessage = MutableStateFlow<String?>(null)
     val authErrorMessage: StateFlow<String?> = _authErrorMessage.asStateFlow()
+
+    val authUiState: StateFlow<AuthUiState> = combine(
+        authState,
+        _isAuthLoading,
+        _authErrorMessage
+    ) { state, loading, error ->
+        when {
+            loading -> AuthUiState.Loading
+            error != null -> AuthUiState.Error(error)
+            state is AuthState.Authenticated -> {
+                if (state.role.equals("counselor", ignoreCase = true) && !state.isCounselorApproved) {
+                    AuthUiState.PendingApproval(
+                        uid = state.uid,
+                        email = state.email,
+                        displayName = state.displayName,
+                        role = "COUNSELOR"
+                    )
+                } else {
+                    AuthUiState.Authenticated(
+                        uid = state.uid,
+                        email = state.email,
+                        displayName = state.displayName,
+                        role = state.role,
+                        isApproved = state.isCounselorApproved
+                    )
+                }
+            }
+            state is AuthState.PendingApproval -> {
+                AuthUiState.PendingApproval(
+                    uid = state.uid,
+                    email = state.email,
+                    displayName = state.displayName,
+                    role = state.role
+                )
+            }
+            state is AuthState.Loading -> AuthUiState.Loading
+            else -> AuthUiState.Idle
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = AuthUiState.Idle
+    )
 
     private val _showHistoricalSyncPrompt = MutableStateFlow(false)
     val showHistoricalSyncPrompt: StateFlow<Boolean> = _showHistoricalSyncPrompt.asStateFlow()
@@ -209,6 +257,17 @@ class MainViewModel @Inject constructor(
 
     fun clearAuthError() {
         _authErrorMessage.value = null
+    }
+
+    fun refreshAuthStatus() {
+        viewModelScope.launch {
+            _isCheckingStatus.value = true
+            try {
+                authRepository?.refreshAuthStatus()
+            } finally {
+                _isCheckingStatus.value = false
+            }
+        }
     }
 
     fun signOut() {

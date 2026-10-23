@@ -98,7 +98,7 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
             try {
                 val snapshot = withContext(Dispatchers.IO) {
                     firestore.collection("users")
-                        .whereEqualTo("role", "devotee")
+                        .whereIn("role", listOf("devotee", "DEVOTEE"))
                         .get()
                         .await()
                 }

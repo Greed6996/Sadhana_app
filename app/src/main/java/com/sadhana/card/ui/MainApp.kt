@@ -26,6 +26,7 @@ import com.sadhana.card.data.preferences.ThemeMode
 import com.sadhana.card.data.update.UpdateState
 import com.sadhana.card.ui.auth.AuthChoiceDialog
 import com.sadhana.card.ui.auth.CounselorPendingDialog
+import com.sadhana.card.ui.auth.CounselorPendingScreen
 import com.sadhana.card.ui.auth.HistoricalSyncConsentDialog
 import com.sadhana.card.ui.components.ProfileDialog
 import com.sadhana.card.ui.counselor.CounselorDashboardViewModel
@@ -63,6 +64,7 @@ fun MainApp(
     val counselorName by mainViewModel.counselorName.collectAsStateWithLifecycle()
     val authState by mainViewModel.authState.collectAsStateWithLifecycle()
     val isAuthLoading by mainViewModel.isAuthLoading.collectAsStateWithLifecycle()
+    val isCheckingStatus by mainViewModel.isCheckingStatus.collectAsStateWithLifecycle()
     val authErrorMessage by mainViewModel.authErrorMessage.collectAsStateWithLifecycle()
     val showHistoricalSyncPrompt by mainViewModel.showHistoricalSyncPrompt.collectAsStateWithLifecycle()
     val localRecordCount by mainViewModel.localRecordCount.collectAsStateWithLifecycle()
@@ -73,6 +75,14 @@ fun MainApp(
     var isOnboardingProfileDismissed by rememberSaveable { mutableStateOf(false) }
     var isOnboardingAuthDismissed by rememberSaveable { mutableStateOf(false) }
     var showManualAuthChoiceDialog by rememberSaveable { mutableStateOf(false) }
+
+    // Automatically dismiss auth modal dialogs upon successful authentication
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated || authState is AuthState.PendingApproval) {
+            showManualAuthChoiceDialog = false
+            isOnboardingAuthDismissed = true
+        }
+    }
 
     LaunchedEffect(authErrorMessage) {
         val err = authErrorMessage
@@ -130,8 +140,8 @@ fun MainApp(
         )
     }
 
-    // Counselor Pending Approval Dialog
-    if (showCounselorPendingPrompt) {
+    // Counselor Pending Approval Dialog (shown when user selects counselor role during dialog)
+    if (showCounselorPendingPrompt && authState !is AuthState.PendingApproval) {
         CounselorPendingDialog(
             onDismiss = mainViewModel::dismissCounselorPendingPrompt
         )
@@ -149,6 +159,16 @@ fun MainApp(
     if (isTermsAccepted == null) {
         // Read BEFORE the first screen renders: show lightweight splash (no flash of terms)
         SplashScreen()
+    } else if (authState is AuthState.PendingApproval) {
+        // Dedicated non-dismissible Pending Approval screen for counselors with live snapshot sync
+        val pendingUser = authState as AuthState.PendingApproval
+        CounselorPendingScreen(
+            email = pendingUser.email,
+            displayName = pendingUser.displayName,
+            isCheckingStatus = isCheckingStatus,
+            onCheckStatus = mainViewModel::refreshAuthStatus,
+            onSignOut = mainViewModel::signOut
+        )
     } else {
         val rootNavController = rememberNavController()
         val startDestination = if (isTermsAccepted == true) {

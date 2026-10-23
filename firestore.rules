@@ -12,9 +12,14 @@ service cloud.firestore {
     }
 
     function isApprovedCounselor() {
-      return isAuthenticated() &&
-        exists(/databases/$(database)/documents/counselors/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/counselors/$(request.auth.uid)).data.approved == true;
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/counselors/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/counselors/$(request.auth.uid)).data.approved == true) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'APPROVED') &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['counselor', 'COUNSELOR'])
+      );
     }
 
     // -------------------------------------------------------------------------
@@ -37,15 +42,23 @@ service cloud.firestore {
       // Devotee can read their own profile. Approved counselors can inspect directory of devotees.
       allow read: if isOwner(userId) || isApprovedCounselor();
 
-      // Devotee creating initial profile: role must be 'devotee'. Devotees CANNOT set role='counselor'.
+      // Devotee creating initial profile: role must be devotee, or counselor with pending unapproved status.
       allow create: if isOwner(userId)
                     && request.resource.data.keys().hasOnly([
                       'uid', 'displayName', 'email', 'role', 'requestedRole',
+                      'status', 'isApproved', 'requestedAt',
                       'counselorName', 'updatedAt', 'currentWeekStart',
                       'currentWeekScore', 'currentWeekPercentage', 'currentWeekUpdatedAt'
                     ])
                     && request.resource.data.uid == userId
-                    && request.resource.data.role == 'devotee'
+                    && (
+                      (request.resource.data.role in ['devotee', 'DEVOTEE'] &&
+                       (!('status' in request.resource.data) || request.resource.data.status in ['APPROVED', 'approved']) &&
+                       (!('isApproved' in request.resource.data) || request.resource.data.isApproved == true)) ||
+                      (request.resource.data.role in ['counselor', 'COUNSELOR'] &&
+                       request.resource.data.status == 'PENDING' &&
+                       request.resource.data.isApproved == false)
+                    )
                     && (!('currentWeekScore' in request.resource.data) || (
                         request.resource.data.currentWeekScore is int &&
                         request.resource.data.currentWeekScore >= 0 &&
@@ -57,9 +70,9 @@ service cloud.firestore {
                         request.resource.data.currentWeekPercentage <= 100
                     ));
 
-      // Devotee updating profile: cannot modify role, cannot escalate privileges, scores bounded
+      // User updating profile: cannot modify role or approval status, cannot escalate privileges
       allow update: if isOwner(userId)
-                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isCounselorApproved']))
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'isApproved', 'isCounselorApproved']))
                     && (!('currentWeekScore' in request.resource.data) || (
                         request.resource.data.currentWeekScore is int &&
                         request.resource.data.currentWeekScore >= 0 &&

@@ -3,7 +3,9 @@ package com.sadhana.card.data.auth
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.sadhana.card.data.local.dao.SadhanaDao
 import com.sadhana.card.data.preferences.UserPreferencesRepository
@@ -25,6 +27,7 @@ interface AuthRepository {
     val authState: StateFlow<AuthState>
     suspend fun signInWithGoogleCredential(idToken: String, requestedRole: String): Result<AuthState>
     suspend fun checkCounselorApproval(uid: String): Boolean
+    suspend fun refreshAuthStatus(): AuthState
     suspend fun claimLocalRecords(googleUid: String)
     suspend fun getLocalRecordCount(): Int
     suspend fun setHistoricalSyncPrompted(prompted: Boolean)
@@ -47,44 +50,133 @@ class AuthRepositoryImpl @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
+    private var userDocListener: ListenerRegistration? = null
+
     init {
         scope.launch {
+            // Restore session immediately from local DataStore preferences
             val prefs = userPreferencesRepository.userPreferencesFlow.first()
-            val currentUser = auth.currentUser
-
-            if (currentUser != null && prefs.authUid == currentUser.uid) {
-                val isApproved = if (prefs.authRole == "counselor") {
-                    checkCounselorApproval(currentUser.uid)
+            if (prefs.authUid.isNotBlank()) {
+                val isCounselorRole = prefs.authRole.equals("counselor", ignoreCase = true)
+                _authState.value = if (isCounselorRole && !prefs.isCounselorApproved) {
+                    AuthState.PendingApproval(
+                        uid = prefs.authUid,
+                        email = prefs.authEmail,
+                        displayName = prefs.sadhakaName,
+                        role = "COUNSELOR"
+                    )
                 } else {
-                    false
+                    AuthState.Authenticated(
+                        uid = prefs.authUid,
+                        email = prefs.authEmail,
+                        displayName = prefs.sadhakaName,
+                        role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                        isCounselorApproved = if (isCounselorRole) prefs.isCounselorApproved else true
+                    )
                 }
-                _authState.value = AuthState.Authenticated(
-                    uid = currentUser.uid,
-                    email = currentUser.email ?: "",
-                    displayName = prefs.sadhakaName.ifBlank { currentUser.displayName ?: "" },
-                    role = prefs.authRole.ifBlank { "devotee" },
-                    isCounselorApproved = isApproved
-                )
-            } else if (currentUser != null) {
-                // Recover session from Firebase Auth directly
-                val role = prefs.authRole.ifBlank { "devotee" }
-                val isApproved = if (role == "counselor") checkCounselorApproval(currentUser.uid) else false
-                userPreferencesRepository.updateAuthSession(
-                    uid = currentUser.uid,
-                    email = currentUser.email ?: "",
-                    role = role,
-                    isApproved = isApproved
-                )
-                _authState.value = AuthState.Authenticated(
-                    uid = currentUser.uid,
-                    email = currentUser.email ?: "",
-                    displayName = prefs.sadhakaName.ifBlank { currentUser.displayName ?: "" },
-                    role = role,
-                    isCounselorApproved = isApproved
-                )
-            } else {
+            } else if (auth.currentUser == null) {
                 _authState.value = AuthState.Unauthenticated
             }
+        }
+
+        // Attach Firebase Auth state listener for robust persistent session tracking across launches
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user == null) {
+                detachSnapshotListener()
+                scope.launch {
+                    val prefs = userPreferencesRepository.userPreferencesFlow.first()
+                    if (prefs.authUid.isNotBlank()) {
+                        userPreferencesRepository.clearAuthSession()
+                    }
+                    _authState.value = AuthState.Unauthenticated
+                }
+            } else {
+                attachUserSnapshotListener(user.uid)
+            }
+        }
+    }
+
+    private fun detachSnapshotListener() {
+        userDocListener?.remove()
+        userDocListener = null
+    }
+
+    private fun attachUserSnapshotListener(uid: String) {
+        detachSnapshotListener()
+        userDocListener = firestore.collection("users").document(uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                scope.launch {
+                    if (snapshot != null && snapshot.exists()) {
+                        val roleRaw = snapshot.getString("role") ?: "DEVOTEE"
+                        val isCounselorRole = roleRaw.equals("counselor", ignoreCase = true)
+                        val status = snapshot.getString("status")?.uppercase() ?: ""
+                        val isApprovedExplicit = snapshot.getBoolean("isApproved") == true
+
+                        val isApproved = if (isCounselorRole) {
+                            isApprovedExplicit || status == "APPROVED" || checkCounselorDoc(uid)
+                        } else {
+                            true
+                        }
+
+                        val currentUser = auth.currentUser
+                        val email = snapshot.getString("email") ?: currentUser?.email ?: ""
+                        val displayName = snapshot.getString("displayName") ?: currentUser?.displayName ?: "Devotee"
+
+                        userPreferencesRepository.updateAuthSession(
+                            uid = uid,
+                            email = email,
+                            role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                            isApproved = isApproved
+                        )
+
+                        _authState.value = if (isCounselorRole && !isApproved) {
+                            AuthState.PendingApproval(
+                                uid = uid,
+                                email = email,
+                                displayName = displayName,
+                                role = "COUNSELOR"
+                            )
+                        } else {
+                            AuthState.Authenticated(
+                                uid = uid,
+                                email = email,
+                                displayName = displayName,
+                                role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                                isCounselorApproved = isApproved
+                            )
+                        }
+                    } else if (auth.currentUser != null) {
+                        // User exists in Auth but document hasn't synced yet; preserve cached state
+                        val prefs = userPreferencesRepository.userPreferencesFlow.first()
+                        if (prefs.authUid == uid) {
+                            val isCounselorRole = prefs.authRole.equals("counselor", ignoreCase = true)
+                            _authState.value = if (isCounselorRole && !prefs.isCounselorApproved) {
+                                AuthState.PendingApproval(uid = uid, email = prefs.authEmail, displayName = prefs.sadhakaName)
+                            } else {
+                                AuthState.Authenticated(
+                                    uid = uid,
+                                    email = prefs.authEmail,
+                                    displayName = prefs.sadhakaName,
+                                    role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                                    isCounselorApproved = if (isCounselorRole) prefs.isCounselorApproved else true
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+    }
+
+    private suspend fun checkCounselorDoc(uid: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val doc = firestore.collection("counselors").document(uid).get().await()
+            doc.exists() && doc.getBoolean("approved") == true
+        } catch (_: Exception) {
+            false
         }
     }
 
@@ -100,14 +192,57 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun checkCounselorApproval(uid: String): Boolean = withContext(Dispatchers.IO) {
         val cachedApproval = userPreferencesRepository.userPreferencesFlow.first().isCounselorApproved
         try {
-            val doc = firestore.collection("counselors").document(uid).get().await()
-            val approved = doc.exists() && doc.getBoolean("approved") == true
-            userPreferencesRepository.setCounselorApproved(approved)
-            approved
+            // 1. Check user profile document in /users/{uid}
+            val userDoc = firestore.collection("users").document(uid).get().await()
+            val approvedInUserDoc = userDoc.exists() && (
+                userDoc.getBoolean("isApproved") == true ||
+                userDoc.getString("status")?.equals("APPROVED", ignoreCase = true) == true
+            )
+
+            // 2. Fallback check /counselors/{uid}
+            val approvedInCounselorDoc = checkCounselorDoc(uid)
+
+            val finalApproval = approvedInUserDoc || approvedInCounselorDoc
+            userPreferencesRepository.setCounselorApproved(finalApproval)
+            finalApproval
         } catch (e: Exception) {
             // Preserve cached approval during transient network failures; do not revoke offline access
             cachedApproval
         }
+    }
+
+    override suspend fun refreshAuthStatus(): AuthState = withContext(Dispatchers.IO) {
+        val user = auth.currentUser ?: run {
+            _authState.value = AuthState.Unauthenticated
+            return@withContext AuthState.Unauthenticated
+        }
+        val prefs = userPreferencesRepository.userPreferencesFlow.first()
+        val isCounselorRole = prefs.authRole.equals("counselor", ignoreCase = true)
+
+        val isApproved = if (isCounselorRole) {
+            checkCounselorApproval(user.uid)
+        } else {
+            true
+        }
+
+        val state = if (isCounselorRole && !isApproved) {
+            AuthState.PendingApproval(
+                uid = user.uid,
+                email = user.email ?: "",
+                displayName = prefs.sadhakaName.ifBlank { user.displayName ?: "Counselor" },
+                role = "COUNSELOR"
+            )
+        } else {
+            AuthState.Authenticated(
+                uid = user.uid,
+                email = user.email ?: "",
+                displayName = prefs.sadhakaName.ifBlank { user.displayName ?: "Devotee" },
+                role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                isCounselorApproved = isApproved
+            )
+        }
+        _authState.value = state
+        state
     }
 
     override suspend fun signInWithGoogleCredential(
@@ -121,47 +256,87 @@ class AuthRepositoryImpl @Inject constructor(
 
             val prefs = userPreferencesRepository.userPreferencesFlow.first()
             val finalDisplayName = prefs.sadhakaName.ifBlank { user.displayName ?: "Devotee" }
+            val isCounselorRequest = requestedRole.equals("counselor", ignoreCase = true)
 
-            val isApproved = if (requestedRole == "counselor") {
-                checkCounselorApproval(user.uid)
+            // Inspect if user document already exists in Firestore
+            val userDocRef = firestore.collection("users").document(user.uid)
+            val existingDoc = userDocRef.get().await()
+
+            val isApproved: Boolean
+            val normalizedRole: String
+
+            if (existingDoc.exists()) {
+                // Existing document: PRESERVE existing approval status (do not overwrite approved counselor to pending)
+                val existingRole = existingDoc.getString("role")?.uppercase() ?: if (isCounselorRequest) "COUNSELOR" else "DEVOTEE"
+                normalizedRole = existingRole
+
+                val wasApproved = existingDoc.getBoolean("isApproved") == true ||
+                    existingDoc.getString("status")?.equals("APPROVED", ignoreCase = true) == true ||
+                    checkCounselorDoc(user.uid)
+
+                isApproved = if (normalizedRole == "COUNSELOR") wasApproved else true
+
+                val updates = mutableMapOf<String, Any>(
+                    "displayName" to finalDisplayName,
+                    "email" to (user.email ?: ""),
+                    "updatedAt" to System.currentTimeMillis()
+                )
+                if (prefs.counselorName.isNotBlank() && !existingDoc.contains("counselorName")) {
+                    updates["counselorName"] = prefs.counselorName
+                }
+
+                userDocRef.set(updates, SetOptions.merge()).await()
             } else {
-                false
-            }
+                // First-time sign in: initialize document according to schema specification
+                normalizedRole = if (isCounselorRequest) "COUNSELOR" else "DEVOTEE"
+                isApproved = if (isCounselorRequest) false else true
 
-            // Sync user profile document in Firestore
-            val userData = mutableMapOf<String, Any>(
-                "uid" to user.uid,
-                "displayName" to finalDisplayName,
-                "email" to (user.email ?: ""),
-                "role" to "devotee", // Client write is constrained to role = devotee by security rules
-                "updatedAt" to System.currentTimeMillis()
-            )
-            if (requestedRole == "counselor") {
-                userData["requestedRole"] = "counselor"
-            }
-            if (prefs.counselorName.isNotBlank()) {
-                userData["counselorName"] = prefs.counselorName
-            }
+                val profileData = mutableMapOf<String, Any>(
+                    "uid" to user.uid,
+                    "displayName" to finalDisplayName,
+                    "email" to (user.email ?: ""),
+                    "role" to normalizedRole,
+                    "requestedRole" to normalizedRole,
+                    "status" to (if (isCounselorRequest) "PENDING" else "APPROVED"),
+                    "isApproved" to isApproved,
+                    "updatedAt" to System.currentTimeMillis()
+                )
+                if (isCounselorRequest) {
+                    profileData["requestedAt"] = System.currentTimeMillis()
+                }
+                if (prefs.counselorName.isNotBlank()) {
+                    profileData["counselorName"] = prefs.counselorName
+                }
 
-            firestore.collection("users").document(user.uid)
-                .set(userData, SetOptions.merge())
-                .await()
+                userDocRef.set(profileData, SetOptions.merge()).await()
+            }
 
             userPreferencesRepository.updateAuthSession(
                 uid = user.uid,
                 email = user.email ?: "",
-                role = requestedRole,
+                role = normalizedRole,
                 isApproved = isApproved
             )
 
-            val newState = AuthState.Authenticated(
-                uid = user.uid,
-                email = user.email ?: "",
-                displayName = finalDisplayName,
-                role = requestedRole,
-                isCounselorApproved = isApproved
-            )
+            val newState = if (normalizedRole == "COUNSELOR" && !isApproved) {
+                AuthState.PendingApproval(
+                    uid = user.uid,
+                    email = user.email ?: "",
+                    displayName = finalDisplayName,
+                    role = "COUNSELOR"
+                )
+            } else {
+                AuthState.Authenticated(
+                    uid = user.uid,
+                    email = user.email ?: "",
+                    displayName = finalDisplayName,
+                    role = normalizedRole,
+                    isCounselorApproved = isApproved
+                )
+            }
+
             _authState.value = newState
+            attachUserSnapshotListener(user.uid)
             Result.success(newState)
         } catch (e: Exception) {
             Result.failure(e)
@@ -198,6 +373,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signOut() = withContext(Dispatchers.IO) {
+        detachSnapshotListener()
         auth.signOut()
         userPreferencesRepository.clearAuthSession()
         _authState.value = AuthState.Unauthenticated
