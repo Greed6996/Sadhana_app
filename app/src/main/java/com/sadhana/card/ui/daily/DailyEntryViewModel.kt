@@ -128,6 +128,8 @@ class DailyEntryViewModel internal constructor(
             activeEntry
         }
 
+        val isDayLogged = (repositoryEntry != null || (pendingEntry != null && pendingEntry.date == date)) && score.totalScore != null
+
         DailyEntryUiState(
             selectedDate = date,
             startOfWeek = DateUtils.getStartOfWeek(date),
