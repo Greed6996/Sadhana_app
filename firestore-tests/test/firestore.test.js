@@ -192,12 +192,13 @@ describe("Sadhana Card Firestore Security Rules", () => {
     });
 
     it("approved counselor can inspect devotee profiles", async () => {
-      // Seed approved counselor doc
+      // 1. Seed counselor and devotee documents with security rules disabled
       await testEnv.withSecurityRulesDisabled(async (context) => {
-        await context.firestore().collection("counselors").doc("counselor_guru").set({
+        const adminDb = context.firestore();
+        await adminDb.collection("counselors").doc("counselor_guru").set({
           approved: true,
         });
-        await context.firestore().collection("users").doc("alice_uid").set({
+        await adminDb.collection("users").doc("alice_uid").set({
           uid: "alice_uid",
           displayName: "Alice",
           role: "devotee",
@@ -205,9 +206,12 @@ describe("Sadhana Card Firestore Security Rules", () => {
         });
       });
 
+      // 2. Client context for approved counselor
       const guruDb = testEnv
         .authenticatedContext("counselor_guru")
         .firestore();
+
+      // 3. Approved counselor should succeed reading devotee profile
       await assertSucceeds(
         guruDb.collection("users").doc("alice_uid").get()
       );
