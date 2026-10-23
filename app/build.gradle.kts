@@ -196,8 +196,8 @@ dependencies {
     // Baseline Profile Installer
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
-    // Firebase BoM & Products
-    implementation(platform("com.google.firebase:firebase-bom:35.0.2"))
+    // Firebase BoM & Products (pinned to 33.7.0 for Kotlin 2.0 metadata compatibility)
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
