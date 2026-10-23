@@ -23,3 +23,6 @@ sadhana-release.jks
 
 # Local Project Rules
 PROJECT_RULES.md
+
+# Node modules for Firestore rules tests
+firestore-tests/node_modules/

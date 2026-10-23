@@ -117,17 +117,27 @@ class DailyEntryViewModel internal constructor(
 
         val score = SadhanaScorer.scoreEntry(activeEntry)
 
-        val isDayLogged = (repositoryEntry != null || (pendingEntry != null && pendingEntry.date == date)) && score.totalScore != null
+        val kolkataZone = java.time.ZoneId.of("Asia/Kolkata")
+        val today = LocalDate.now(kolkataZone)
+        val isCurrentDayEditable = date == today
+
+        val currentUserId = preferences.authUid.ifBlank { "local" }
+        val entryWithUser = if (activeEntry.userId.isBlank() || activeEntry.userId != currentUserId) {
+            activeEntry.copy(userId = currentUserId)
+        } else {
+            activeEntry
+        }
 
         DailyEntryUiState(
             selectedDate = date,
             startOfWeek = DateUtils.getStartOfWeek(date),
-            entry = activeEntry,
+            entry = entryWithUser,
             score = score,
             sadhakaName = localSadhaka ?: preferences.sadhakaName,
             counselorName = localCounselor ?: preferences.counselorName,
             hasAcceptedTerms = preferences.hasAcceptedTerms,
             isLogged = isDayLogged,
+            isEditable = isCurrentDayEditable,
             isLoading = false
         )
     }.stateIn(
@@ -248,6 +258,13 @@ class DailyEntryViewModel internal constructor(
     }
 
     private fun updateCurrentEntry(transform: (SadhanaEntry) -> SadhanaEntry) {
+        val kolkataZone = java.time.ZoneId.of("Asia/Kolkata")
+        val today = LocalDate.now(kolkataZone)
+        if (selectedDateFlow.value != today) {
+            // Guard: Historical entries are strictly read-only
+            return
+        }
+
         val current = uiState.value.entry
         val updated = transform(current).copy(
             date = selectedDateFlow.value,

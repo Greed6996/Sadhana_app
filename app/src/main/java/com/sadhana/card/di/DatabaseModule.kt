@@ -24,7 +24,10 @@ object DatabaseModule {
             context,
             SadhanaDatabase::class.java,
             SadhanaDatabase.DATABASE_NAME
-        ).addMigrations(SadhanaDatabase.MIGRATION_1_2).build()
+        ).addMigrations(
+            SadhanaDatabase.MIGRATION_1_2,
+            SadhanaDatabase.MIGRATION_2_3
+        ).build()
     }
 
     @Provides

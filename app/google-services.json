@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "217964004157",
+    "project_id": "sadhana-card-c51db",
+    "storage_bucket": "sadhana-card-c51db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217964004157:android:016fa31b5c61a20d6ebb54",
+        "android_client_info": {
+          "package_name": "com.sadhana.card"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217964004157-otu58v49icnk8p1rul8iujhpk2ap2uto.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUvYCGoLNk1l5MpBeN8cPuladim0UvyDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217964004157-otu58v49icnk8p1rul8iujhpk2ap2uto.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

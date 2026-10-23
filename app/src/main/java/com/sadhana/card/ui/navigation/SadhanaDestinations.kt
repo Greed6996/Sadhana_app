@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.ui.graphics.vector.ImageVector
 
+import androidx.compose.material.icons.filled.SupervisorAccount
+
 sealed class Screen(
     val route: String,
     val title: String,
@@ -14,4 +16,5 @@ sealed class Screen(
 ) {
     object Daily : Screen("daily", "Daily", Icons.Default.EditCalendar)
     object Weekly : Screen("weekly", "Weekly", Icons.Default.ViewWeek)
+    object Counselor : Screen("counselor", "Devotees", Icons.Default.SupervisorAccount)
 }

@@ -20,10 +20,11 @@ import java.time.LocalTime
  */
 @Entity(
     tableName = "sadhana_entries",
-    indices = [Index(value = ["date"], unique = true)]
+    primaryKeys = ["userId", "date"],
+    indices = [Index(value = ["userId", "date"], unique = true)]
 )
 data class SadhanaEntryEntity(
-    @PrimaryKey
+    val userId: String = "local",
     val date: LocalDate,
     // Legacy fields
     val bedtime: LocalTime? = null,
@@ -42,6 +43,7 @@ data class SadhanaEntryEntity(
     val sravanMinutes: Int = 0,
     val sevaMinutes: Int = 0,
     val sevaTags: List<String> = emptyList(),
+    val isSynced: Boolean = false,
     val updatedAt: Long = System.currentTimeMillis()
 )
 
@@ -50,6 +52,7 @@ data class SadhanaEntryEntity(
  */
 fun SadhanaEntryEntity.toDomain(): SadhanaEntry = SadhanaEntry(
     date = date,
+    userId = userId,
     bedtime = bedtime,
     wakeTime = wakeTime,
     napMinutes = napMinutes,
@@ -64,10 +67,12 @@ fun SadhanaEntryEntity.toDomain(): SadhanaEntry = SadhanaEntry(
     sravanMinutes = sravanMinutes,
     sevaMinutes = sevaMinutes,
     sevaTags = sevaTags,
+    isSynced = isSynced,
     updatedAt = updatedAt
 )
 
 fun SadhanaEntry.toEntity(): SadhanaEntryEntity = SadhanaEntryEntity(
+    userId = userId,
     date = date,
     bedtime = bedtime,
     wakeTime = wakeTime,
@@ -83,5 +88,6 @@ fun SadhanaEntry.toEntity(): SadhanaEntryEntity = SadhanaEntryEntity(
     sravanMinutes = sravanMinutes,
     sevaMinutes = sevaMinutes,
     sevaTags = sevaTags,
+    isSynced = isSynced,
     updatedAt = updatedAt
 )

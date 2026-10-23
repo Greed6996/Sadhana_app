@@ -25,4 +25,10 @@ abstract class RepositoryModule {
     abstract fun bindUserPreferencesRepository(
         impl: UserPreferencesRepositoryImpl
     ): UserPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        impl: com.sadhana.card.data.auth.AuthRepositoryImpl
+    ): com.sadhana.card.data.auth.AuthRepository
 }

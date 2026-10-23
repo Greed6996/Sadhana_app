@@ -81,7 +81,10 @@ fun SettingsScreen(
     isCheckingForUpdates: Boolean = false,
     sadhakaName: String = "",
     counselorName: String = "",
-    onSaveProfile: (sadhaka: String, counselor: String) -> Unit = { _, _ -> }
+    onSaveProfile: (sadhaka: String, counselor: String) -> Unit = { _, _ -> },
+    authState: com.sadhana.card.data.auth.AuthState = com.sadhana.card.data.auth.AuthState.Unauthenticated,
+    onSignInClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {}
 ) {
     var showProfileDialog by remember { mutableStateOf(false) }
 
@@ -203,7 +206,90 @@ fun SettingsScreen(
                 }
             }
 
-            // Section 2: Appearance / Theme
+            // Section 2: Account & Cloud Sync
+            SettingsSection(title = "Account & Cloud Sync") {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    when (authState) {
+                        is com.sadhana.card.data.auth.AuthState.Authenticated -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = authState.email.ifBlank { "Connected Account" },
+                                        fontFamily = DmSansFontFamily,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 15.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    val roleText = if (authState.role == "counselor") {
+                                        if (authState.isCounselorApproved) "Counselor • Verified" else "Counselor • Pending Approval"
+                                    } else {
+                                        "Devotee Account • Cloud Synced"
+                                    }
+                                    Text(
+                                        text = roleText,
+                                        fontFamily = DmSansFontFamily,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                androidx.compose.material3.OutlinedButton(
+                                    onClick = onSignOutClick,
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Sign Out",
+                                        fontFamily = DmSansFontFamily,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                        else -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Offline Mode",
+                                    fontFamily = DmSansFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 15.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Sign in with Google to synchronize your daily sadhana records and weekly summaries to the cloud.",
+                                    fontFamily = DmSansFontFamily,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                androidx.compose.material3.Button(
+                                    onClick = onSignInClick,
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "Sign in with Google",
+                                        fontFamily = DmSansFontFamily,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Section 3: Appearance / Theme
             SettingsSection(title = "Appearance") {
                 Column(
                     modifier = Modifier.fillMaxWidth(),

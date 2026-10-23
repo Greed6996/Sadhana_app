@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -194,6 +195,20 @@ dependencies {
 
     // Baseline Profile Installer
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
+
+    // Firebase BoM & Products
+    implementation(platform("com.google.firebase:firebase-bom:35.0.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Google Sign-In with Credential Manager
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // WorkManager for Reliable Offline Sync
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

@@ -13,8 +13,8 @@ import com.sadhana.card.data.local.entity.SadhanaEntryEntity
  * Room Database for Sadhana Card.
  */
 @Database(
-    entities = [SadhanaEntryEntity::class],
-    version = 2,
+    entities = [SadhanaEntryEntity::class, com.sadhana.card.data.local.entity.SadhanaEntryConflictEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(SadhanaTypeConverters::class)
@@ -39,5 +39,83 @@ abstract class SadhanaDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE sadhana_entries ADD COLUMN japaCompleted INTEGER NOT NULL DEFAULT 0")
             }
         }
+
+        /**
+         * Migration from version 2 to 3:
+         * Adds userId column and isSynced flag.
+         * Updates primary key to composite (userId, date).
+         * Creates sadhana_entry_conflicts table for safe historical claim preservation.
+         * Migrates existing rows under userId = 'local'.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS sadhana_entries_v3 (
+                        userId TEXT NOT NULL DEFAULT 'local',
+                        date TEXT NOT NULL,
+                        bedtime TEXT,
+                        wakeTime TEXT,
+                        napMinutes INTEGER,
+                        trainJourney INTEGER NOT NULL DEFAULT 0,
+                        japaTime TEXT,
+                        bedtimeCategory TEXT,
+                        wakeUpCategory TEXT,
+                        daySleepCategory TEXT,
+                        japaCategory TEXT,
+                        japaCompleted INTEGER NOT NULL DEFAULT 0,
+                        pathanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sravanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sevaMinutes INTEGER NOT NULL DEFAULT 0,
+                        sevaTags TEXT NOT NULL DEFAULT '[]',
+                        isSynced INTEGER NOT NULL DEFAULT 0,
+                        updatedAt INTEGER NOT NULL,
+                        PRIMARY KEY(userId, date)
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO sadhana_entries_v3 (
+                        userId, date, bedtime, wakeTime, napMinutes, trainJourney, japaTime,
+                        bedtimeCategory, wakeUpCategory, daySleepCategory, japaCategory, japaCompleted,
+                        pathanMinutes, sravanMinutes, sevaMinutes, sevaTags, isSynced, updatedAt
+                    )
+                    SELECT 'local', date, bedtime, wakeTime, napMinutes, trainJourney, japaTime,
+                           bedtimeCategory, wakeUpCategory, daySleepCategory, japaCategory, japaCompleted,
+                           pathanMinutes, sravanMinutes, sevaMinutes, sevaTags, 0, updatedAt
+                    FROM sadhana_entries
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE sadhana_entries")
+                db.execSQL("ALTER TABLE sadhana_entries_v3 RENAME TO sadhana_entries")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_sadhana_entries_userId_date ON sadhana_entries(userId, date)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS sadhana_entry_conflicts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        userId TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        source TEXT NOT NULL,
+                        conflictTimestamp INTEGER NOT NULL,
+                        bedtime TEXT,
+                        wakeTime TEXT,
+                        napMinutes INTEGER,
+                        trainJourney INTEGER NOT NULL DEFAULT 0,
+                        japaTime TEXT,
+                        bedtimeCategory TEXT,
+                        wakeUpCategory TEXT,
+                        daySleepCategory TEXT,
+                        japaCategory TEXT,
+                        japaCompleted INTEGER NOT NULL DEFAULT 0,
+                        pathanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sravanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sevaMinutes INTEGER NOT NULL DEFAULT 0,
+                        sevaTags TEXT NOT NULL DEFAULT '[]',
+                        isSynced INTEGER NOT NULL DEFAULT 0,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
     }
 }
+

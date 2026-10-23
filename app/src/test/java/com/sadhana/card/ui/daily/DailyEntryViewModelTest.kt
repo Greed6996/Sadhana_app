@@ -62,7 +62,7 @@ class DailyEntryViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val date = LocalDate.of(2026, 10, 11)
+        val date = LocalDate.now(java.time.ZoneId.of("Asia/Kolkata"))
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -79,11 +79,32 @@ class DailyEntryViewModelTest {
     }
 
     @Test
+    fun testPastDate_isReadOnlyAndCannotBeEdited() = runTest(testDispatcher) {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val kolkataZone = java.time.ZoneId.of("Asia/Kolkata")
+        val pastDate = LocalDate.now(kolkataZone).minusDays(2)
+        viewModel.selectDate(pastDate)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.isEditable)
+
+        viewModel.updateBedtimeCategory(com.sadhana.card.domain.model.BedtimeCategory.BY_9_30_PM)
+        testDispatcher.scheduler.advanceTimeBy(350)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Guard prevented saving
+        val saved = fakeRepository.getEntry(pastDate).first()
+        assertEquals(null, saved)
+    }
+
+    @Test
     fun testTrainJourney_travelAllowanceRemoved() = runTest(testDispatcher) {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val date = LocalDate.of(2026, 10, 11)
+        val date = LocalDate.now(java.time.ZoneId.of("Asia/Kolkata"))
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -132,7 +153,7 @@ class DailyEntryViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val date = LocalDate.of(2026, 10, 11)
+        val date = LocalDate.now(java.time.ZoneId.of("Asia/Kolkata"))
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 

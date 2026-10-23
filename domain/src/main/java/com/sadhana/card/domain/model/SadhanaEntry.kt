@@ -78,5 +78,7 @@ data class SadhanaEntry(
     val sravanMinutes: Int = 0,
     val sevaMinutes: Int = 0,
     val sevaTags: List<String> = emptyList(),
+    val userId: String = "local",
+    val isSynced: Boolean = false,
     val updatedAt: Long = System.currentTimeMillis()
 )

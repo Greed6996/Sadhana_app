@@ -24,3 +24,14 @@
 -dontwarn kotlinx.coroutines.**
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+
+# Firebase & Firestore Models
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+-keep class com.sadhana.card.data.model.cloud.** { *; }
+
+# WorkManager
+-keep class androidx.work.** { *; }
+-keep class * extends androidx.work.Worker { *; }
+-keep class * extends androidx.work.ListenableWorker { *; }
+

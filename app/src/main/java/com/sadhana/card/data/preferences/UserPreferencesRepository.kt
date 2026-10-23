@@ -21,7 +21,7 @@ enum class ThemeMode {
     DARK
 }
 
-const val CURRENT_TERMS_VERSION = 1
+const val CURRENT_TERMS_VERSION = 2
 
 data class UserPreferences(
     val sadhakaName: String = "",
@@ -32,7 +32,12 @@ data class UserPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val dismissedUpdateVersion: Int = 0,
     val lastDismissedTimestamp: Long = 0L,
-    val lastDismissedVersionCode: Int = 0
+    val lastDismissedVersionCode: Int = 0,
+    val authUid: String = "",
+    val authEmail: String = "",
+    val authRole: String = "",
+    val isCounselorApproved: Boolean = false,
+    val hasPromptedHistoricalSync: Boolean = false
 ) {
     val isTermsAccepted: Boolean
         get() = acceptedTerms && acceptedTermsVersion >= CURRENT_TERMS_VERSION
@@ -40,6 +45,12 @@ data class UserPreferences(
     // Compatibility alias
     val hasAcceptedTerms: Boolean
         get() = isTermsAccepted
+
+    val isAuthenticated: Boolean
+        get() = authUid.isNotBlank()
+
+    val isCounselor: Boolean
+        get() = authRole == "counselor" && isCounselorApproved
 }
 
 interface UserPreferencesRepository {
@@ -51,6 +62,10 @@ interface UserPreferencesRepository {
     suspend fun setThemeMode(themeMode: ThemeMode)
     suspend fun setDismissedUpdateVersion(version: Int)
     suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long = System.currentTimeMillis())
+    suspend fun updateAuthSession(uid: String, email: String, role: String, isApproved: Boolean) {}
+    suspend fun clearAuthSession() {}
+    suspend fun setHistoricalSyncPrompted(prompted: Boolean) {}
+    suspend fun setCounselorApproved(approved: Boolean) {}
 }
 
 /**
@@ -71,6 +86,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val DISMISSED_UPDATE_VERSION = intPreferencesKey("dismissed_update_version")
         val LAST_DISMISSED_TIMESTAMP = longPreferencesKey("last_dismissed_timestamp")
         val LAST_DISMISSED_VERSION_CODE = intPreferencesKey("last_dismissed_version_code")
+        // Auth keys
+        val AUTH_UID = stringPreferencesKey("auth_uid")
+        val AUTH_EMAIL = stringPreferencesKey("auth_email")
+        val AUTH_ROLE = stringPreferencesKey("auth_role")
+        val IS_COUNSELOR_APPROVED = booleanPreferencesKey("is_counselor_approved")
+        val HAS_PROMPTED_HISTORICAL_SYNC = booleanPreferencesKey("has_prompted_historical_sync")
         // Legacy fallback
         val LEGACY_HAS_ACCEPTED_TERMS = booleanPreferencesKey("has_accepted_terms")
     }
@@ -104,7 +125,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 themeMode = themeMode,
                 dismissedUpdateVersion = dismissedVersion,
                 lastDismissedTimestamp = dismissedTimestamp,
-                lastDismissedVersionCode = dismissedVersion
+                lastDismissedVersionCode = dismissedVersion,
+                authUid = preferences[PreferencesKeys.AUTH_UID] ?: "",
+                authEmail = preferences[PreferencesKeys.AUTH_EMAIL] ?: "",
+                authRole = preferences[PreferencesKeys.AUTH_ROLE] ?: "",
+                isCounselorApproved = preferences[PreferencesKeys.IS_COUNSELOR_APPROVED] ?: false,
+                hasPromptedHistoricalSync = preferences[PreferencesKeys.HAS_PROMPTED_HISTORICAL_SYNC] ?: false
             )
         }
 
@@ -148,6 +174,37 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences[PreferencesKeys.DISMISSED_UPDATE_VERSION] = versionCode
             preferences[PreferencesKeys.LAST_DISMISSED_VERSION_CODE] = versionCode
             preferences[PreferencesKeys.LAST_DISMISSED_TIMESTAMP] = timestamp
+        }
+    }
+
+    override suspend fun updateAuthSession(uid: String, email: String, role: String, isApproved: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTH_UID] = uid
+            preferences[PreferencesKeys.AUTH_EMAIL] = email
+            preferences[PreferencesKeys.AUTH_ROLE] = role
+            preferences[PreferencesKeys.IS_COUNSELOR_APPROVED] = isApproved
+        }
+    }
+
+    override suspend fun clearAuthSession() {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTH_UID] = ""
+            preferences[PreferencesKeys.AUTH_EMAIL] = ""
+            preferences[PreferencesKeys.AUTH_ROLE] = ""
+            preferences[PreferencesKeys.IS_COUNSELOR_APPROVED] = false
+            preferences[PreferencesKeys.HAS_PROMPTED_HISTORICAL_SYNC] = false
+        }
+    }
+
+    override suspend fun setHistoricalSyncPrompted(prompted: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HAS_PROMPTED_HISTORICAL_SYNC] = prompted
+        }
+    }
+
+    override suspend fun setCounselorApproved(approved: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IS_COUNSELOR_APPROVED] = approved
         }
     }
 }

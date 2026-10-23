@@ -35,6 +35,8 @@ class SadhanaEntityMappingTest {
         assertEquals(domain.sravanMinutes, entity.sravanMinutes)
         assertEquals(domain.sevaMinutes, entity.sevaMinutes)
         assertEquals(domain.sevaTags, entity.sevaTags)
+        assertEquals(domain.userId, entity.userId)
+        assertEquals(domain.isSynced, entity.isSynced)
         assertEquals(domain.updatedAt, entity.updatedAt)
 
         val reconstructed = entity.toDomain()

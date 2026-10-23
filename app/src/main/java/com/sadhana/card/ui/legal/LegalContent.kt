@@ -5,20 +5,20 @@ object LegalContent {
     val PRIVACY_POLICY_TEXT = """
         Effective Date: October 2026
         
-        1. 100% Offline & Device-Only Storage
-        Sadhana Card is strictly an offline-first application. It does not request or possess network permissions (android.permission.INTERNET is completely absent). All records, including sleep times, wake-up times, chanting rounds, study minutes, service records, sadhaka names, and counselor names, are stored solely in an encrypted-capable local SQLite database on your physical device.
+        1. Offline-First Architecture & Local Storage
+        Sadhana Card is built with an offline-first architecture. All daily devotional entries, sleep times, chanting rounds, study minutes, and service records are saved immediately to your device's local database. You can use the app completely offline without ever creating an account.
         
-        2. No Personal Data Collection or Transmission
-        We do not collect, transmit, sell, or analyze your personal information. There are no tracking scripts, advertising SDKs, analytics frameworks, or cloud backups.
+        2. Optional Google Sign-In & Cloud Synchronization
+        If you choose to sign in with your Google account, your spiritual practice data and weekly summaries are synchronized with Google Cloud Firestore. This enables seamless recovery across devices and allows authorized spiritual counselors to view your weekly progress. If you do not sign in, no data is ever transmitted off your device.
         
-        3. Local Data Deletion & Control
-        You have exclusive and absolute control over your information. Clearing the application's data through Android Settings or uninstalling the app permanently erases all stored records from your device.
+        3. Counselor Access & Spiritual Mentorship
+        When signed in as a devotee, your weekly sadhana summaries and daily breakdown become accessible in read-only format to approved spiritual counselors within the community to aid in your spiritual guidance. Counselors cannot modify or edit your records.
         
-        4. Permissions
-        This application requires zero runtime permissions (no camera, no microphone, no location, no contacts, no network).
+        4. Data Control & Sign Out
+        You have complete control over your account. You can sign out at any time through the app settings, which returns the app to offline-only operation. Clearing app data or uninstalling the app deletes local records.
         
         5. Contact & Support
-        For any inquiries or feedback regarding your spiritual records, consult your spiritual counselor or mentor locally.
+        For any questions regarding your spiritual records or mentorship program, please consult your spiritual counselor or community mentor.
     """.trimIndent()
 
     const val TERMS_CONDITIONS_TITLE = "Terms and Conditions"
@@ -28,13 +28,16 @@ object LegalContent {
         1. Devotional Purpose
         Sadhana Card is provided as a devotional and personal regulatory aid for practitioners (sadhakas) following the devotional standards of Gaudiya Vaishnavism and ISKCON as taught by His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda.
         
-        2. Voluntary Self-Regulation
-        The scoring metrics and time benchmarks (e.g., bedtime before 21:30, wake-up before 03:30, and completing 16 rounds before 07:15) are intended for voluntary self-discipline and reflection. They do not constitute medical, health, or psychological advice. Sadhakas should adjust their schedule under guidance of their mentors if health demands.
+        2. Voluntary Self-Regulation & Daily Logging
+        The scoring metrics and time benchmarks are intended for voluntary self-discipline and reflection. They do not constitute medical, health, or psychological advice. Sadhakas should adjust their schedule under guidance of their mentors if health demands. Daily entries are editable for the current day to preserve accuracy and spiritual integrity.
         
-        3. Disclaimer of Warranty
-        The application is provided "as is", without warranty of any kind, express or implied. The developers are not liable for any data loss resulting from device failure, operating system updates, or device clearing.
+        3. Cloud Sync & Counselor Dashboard
+        By signing in with Google, you consent to synchronizing your devotional metrics with our secure cloud database and allowing verified community counselors to review your weekly sadhana completion.
         
-        4. Acceptance
-        By ticking the consent checkboxes and proceeding, you acknowledge that you have read, understood, and agreed to these terms for your personal spiritual practice.
+        4. Disclaimer of Warranty
+        The application is provided "as is", without warranty of any kind, express or implied. The developers are not liable for any data loss resulting from device failure, network disruption, or operating system updates.
+        
+        5. Acceptance
+        By proceeding and accepting these terms, you acknowledge that you understand and agree to these terms for your personal spiritual practice.
     """.trimIndent()
 }

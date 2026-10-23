@@ -42,9 +42,14 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
 fun SadhanaBottomBar(
     currentRoute: String?,
     onNavigateToRoute: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isCounselor: Boolean = false
 ) {
-    val items = listOf(Screen.Daily, Screen.Weekly)
+    val items = if (isCounselor) {
+        listOf(Screen.Daily, Screen.Weekly, Screen.Counselor)
+    } else {
+        listOf(Screen.Daily, Screen.Weekly)
+    }
 
     Column(
         modifier = modifier

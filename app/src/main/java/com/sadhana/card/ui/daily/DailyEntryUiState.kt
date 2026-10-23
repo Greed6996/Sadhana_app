@@ -16,5 +16,6 @@ data class DailyEntryUiState(
     val counselorName: String = "",
     val hasAcceptedTerms: Boolean = false,
     val isLogged: Boolean = false,
+    val isEditable: Boolean = true,
     val isLoading: Boolean = false
 )

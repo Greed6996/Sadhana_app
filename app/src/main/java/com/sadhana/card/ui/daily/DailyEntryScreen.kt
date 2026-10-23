@@ -292,6 +292,44 @@ fun DailyEntryContent(
             )
         }
 
+        if (!uiState.isEditable) {
+            item(key = "historical_banner") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF1E1B16))
+                        .border(BorderStroke(1.dp, DarkGoldBorder.copy(alpha = 0.5f)), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "🔒",
+                            fontSize = 16.sp
+                        )
+                        Column {
+                            Text(
+                                text = "Historical Entry • Read-Only",
+                                fontFamily = DmSansFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = DarkPrimary
+                            )
+                            Text(
+                                text = "Entries for past dates are preserved and cannot be modified.",
+                                fontFamily = DmSansFontFamily,
+                                fontSize = 11.5.sp,
+                                color = DarkTextMuted
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         // 5. Section Header: SLEEP & JAPA
         item(key = "header_sleep_japa") {
             V5SectionHeader(title = "SLEEP & JAPA")
@@ -314,6 +352,7 @@ fun DailyEntryContent(
                     subtitle = "25 pts if by 9:30 PM",
                     score = uiState.score.bedScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.BEDTIME,
+                    enabled = uiState.isEditable,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.BEDTIME) {
                             DailyEntryAccordionSection.NONE
@@ -333,9 +372,12 @@ fun DailyEntryContent(
                                 label = cat.label,
                                 points = cat.points,
                                 isSelected = uiState.entry.bedtimeCategory == cat,
+                                enabled = uiState.isEditable,
                                 onClick = {
-                                    onUpdateBedtimeCategory(cat)
-                                    expandedSection = DailyEntryAccordionSection.NONE
+                                    if (uiState.isEditable) {
+                                        onUpdateBedtimeCategory(cat)
+                                        expandedSection = DailyEntryAccordionSection.NONE
+                                    }
                                 }
                             )
                         }
@@ -350,6 +392,7 @@ fun DailyEntryContent(
                     subtitle = "25 pts if before 3:00 AM",
                     score = uiState.score.wakeScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.WAKE_UP,
+                    enabled = uiState.isEditable,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.WAKE_UP) {
                             DailyEntryAccordionSection.NONE
@@ -369,9 +412,12 @@ fun DailyEntryContent(
                                 label = cat.label,
                                 points = cat.points,
                                 isSelected = uiState.entry.wakeUpCategory == cat,
+                                enabled = uiState.isEditable,
                                 onClick = {
-                                    onUpdateWakeUpCategory(cat)
-                                    expandedSection = DailyEntryAccordionSection.NONE
+                                    if (uiState.isEditable) {
+                                        onUpdateWakeUpCategory(cat)
+                                        expandedSection = DailyEntryAccordionSection.NONE
+                                    }
                                 }
                             )
                         }
@@ -386,6 +432,7 @@ fun DailyEntryContent(
                     subtitle = "50 pts if by 7:15 AM",
                     score = uiState.score.japaScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
+                    enabled = uiState.isEditable,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.JAPA) {
                             DailyEntryAccordionSection.NONE
@@ -405,9 +452,12 @@ fun DailyEntryContent(
                                 label = cat.label,
                                 points = cat.points,
                                 isSelected = uiState.entry.japaCategory == cat,
+                                enabled = uiState.isEditable,
                                 onClick = {
-                                    onUpdateJapaCategory(cat)
-                                    expandedSection = DailyEntryAccordionSection.NONE
+                                    if (uiState.isEditable) {
+                                        onUpdateJapaCategory(cat)
+                                        expandedSection = DailyEntryAccordionSection.NONE
+                                    }
                                 }
                             )
                         }
@@ -422,6 +472,7 @@ fun DailyEntryContent(
                     subtitle = "25 pts up to 30 min",
                     score = uiState.score.napScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.DAY_SLEEP,
+                    enabled = uiState.isEditable,
                     onToggleExpand = {
                         expandedSection = if (expandedSection == DailyEntryAccordionSection.DAY_SLEEP) {
                             DailyEntryAccordionSection.NONE
@@ -441,9 +492,12 @@ fun DailyEntryContent(
                                 label = cat.label,
                                 points = cat.points,
                                 isSelected = uiState.entry.daySleepCategory == cat,
+                                enabled = uiState.isEditable,
                                 onClick = {
-                                    onUpdateDaySleepCategory(cat)
-                                    expandedSection = DailyEntryAccordionSection.NONE
+                                    if (uiState.isEditable) {
+                                        onUpdateDaySleepCategory(cat)
+                                        expandedSection = DailyEntryAccordionSection.NONE
+                                    }
                                 }
                             )
                         }
@@ -475,7 +529,8 @@ fun DailyEntryContent(
                     minutes = uiState.entry.pathanMinutes,
                     score = uiState.score.pathanScore,
                     onMinutesChanged = onUpdatePathanMinutes,
-                    step = 5
+                    step = 5,
+                    enabled = uiState.isEditable
                 )
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
@@ -487,7 +542,8 @@ fun DailyEntryContent(
                     minutes = uiState.entry.sravanMinutes,
                     score = uiState.score.sravanScore,
                     onMinutesChanged = onUpdateSravanMinutes,
-                    step = 5
+                    step = 5,
+                    enabled = uiState.isEditable
                 )
 
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
@@ -499,7 +555,8 @@ fun DailyEntryContent(
                     minutes = uiState.entry.sevaMinutes,
                     score = uiState.score.sevaScore,
                     onMinutesChanged = onUpdateSevaMinutes,
-                    step = 5
+                    step = 5,
+                    enabled = uiState.isEditable
                 )
             }
         }
@@ -582,6 +639,7 @@ private fun V5AccordionRow(
     score: Int,
     isExpanded: Boolean,
     onToggleExpand: () -> Unit,
+    enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -589,7 +647,7 @@ private fun V5AccordionRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable(role = Role.Button, onClick = onToggleExpand)
+                .clickable(enabled = enabled, role = Role.Button, onClick = onToggleExpand)
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -600,7 +658,7 @@ private fun V5AccordionRow(
                     fontFamily = DmSansFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = DarkTextPrimary
+                    color = if (enabled) DarkTextPrimary else DarkTextMuted
                 )
                 Text(
                     text = subtitle,
@@ -616,7 +674,7 @@ private fun V5AccordionRow(
         }
 
         AnimatedVisibility(
-            visible = isExpanded,
+            visible = isExpanded && enabled,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically()
         ) {
@@ -633,6 +691,7 @@ private fun V5OptionItem(
     label: String,
     points: Int,
     isSelected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
@@ -644,7 +703,7 @@ private fun V5OptionItem(
                 BorderStroke(1.dp, if (isSelected) DarkGoldBorder else DarkBorder),
                 RoundedCornerShape(10.dp)
             )
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -677,7 +736,8 @@ private fun V5MinuteStepperRow(
     minutes: Int,
     score: Int? = null,
     onMinutesChanged: (Int?) -> Unit,
-    step: Int = 5
+    step: Int = 5,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier
@@ -692,7 +752,7 @@ private fun V5MinuteStepperRow(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                color = DarkTextPrimary
+                color = if (enabled) DarkTextPrimary else DarkTextMuted
             )
             Text(
                 text = subtitle,
@@ -713,6 +773,7 @@ private fun V5MinuteStepperRow(
 
             V5InlineStepper(
                 value = minutes,
+                enabled = enabled,
                 onDecrement = {
                     val next = (minutes - step).coerceAtLeast(0)
                     onMinutesChanged(next)
@@ -734,13 +795,14 @@ private fun V5InlineStepper(
     value: Int,
     onDecrement: () -> Unit,
     onIncrement: () -> Unit,
-    onNumberClick: (() -> Unit)? = null
+    onNumberClick: (() -> Unit)? = null,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
             .background(DarkSurfaceVariant)
-            .border(BorderStroke(1.dp, DarkGoldBorder), RoundedCornerShape(12.dp))
+            .border(BorderStroke(1.dp, if (enabled) DarkGoldBorder else DarkBorder), RoundedCornerShape(12.dp))
             .padding(horizontal = 4.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -749,7 +811,7 @@ private fun V5InlineStepper(
             modifier = Modifier
                 .size(34.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .clickable(role = Role.Button, onClick = onDecrement),
+                .clickable(enabled = enabled, role = Role.Button, onClick = onDecrement),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -757,7 +819,7 @@ private fun V5InlineStepper(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-                color = DarkTextPrimary
+                color = if (enabled) DarkTextPrimary else DarkTextMuted
             )
         }
 
@@ -765,15 +827,15 @@ private fun V5InlineStepper(
         Box(
             modifier = Modifier
                 .width(42.dp)
-                .then(if (onNumberClick != null) Modifier.clickable(onClick = onNumberClick) else Modifier),
+                .then(if (onNumberClick != null && enabled) Modifier.clickable(onClick = onNumberClick) else Modifier),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "$value",
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = DarkPrimary
+                fontSize = 14.sp,
+                color = if (enabled) DarkTextPrimary else DarkTextMuted
             )
         }
 
@@ -782,7 +844,7 @@ private fun V5InlineStepper(
             modifier = Modifier
                 .size(34.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .clickable(role = Role.Button, onClick = onIncrement),
+                .clickable(enabled = enabled, role = Role.Button, onClick = onIncrement),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -790,7 +852,7 @@ private fun V5InlineStepper(
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-                color = DarkTextPrimary
+                color = if (enabled) DarkTextPrimary else DarkTextMuted
             )
         }
     }

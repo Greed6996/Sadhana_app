@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for common authorization checks
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isApprovedCounselor() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/counselors/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/counselors/$(request.auth.uid)).data.approved == true;
+    }
+
+    // -------------------------------------------------------------------------
+    // Counselors collection: /counselors/{counselorId}
+    // Only administrators or backend processes may create/update/delete.
+    // Devotees cannot self-promote.
+    // An individual authenticated user can read their own counselor record to check approval.
+    // Approved counselors can read other counselor records.
+    // -------------------------------------------------------------------------
+    match /counselors/{counselorId} {
+      allow read: if isOwner(counselorId) || isApprovedCounselor();
+      allow write: if false; // Strict admin-only writes via Firebase Admin SDK / Console
+    }
+
+    // -------------------------------------------------------------------------
+    // Users collection: /users/{userId}
+    // Root devotee documents containing display names, role, and current week summary.
+    // -------------------------------------------------------------------------
+    match /users/{userId} {
+      // Devotee can read their own profile. Approved counselors can inspect directory of devotees.
+      allow read: if isOwner(userId) || isApprovedCounselor();
+
+      // Devotee creating initial profile: role must be 'devotee'. Devotees CANNOT set role='counselor'.
+      allow create: if isOwner(userId)
+                    && request.resource.data.keys().hasOnly([
+                      'uid', 'displayName', 'email', 'role', 'requestedRole',
+                      'counselorName', 'updatedAt', 'currentWeekStart',
+                      'currentWeekScore', 'currentWeekPercentage', 'currentWeekUpdatedAt'
+                    ])
+                    && request.resource.data.uid == userId
+                    && request.resource.data.role == 'devotee'
+                    && (!('currentWeekScore' in request.resource.data) || (
+                        request.resource.data.currentWeekScore is int &&
+                        request.resource.data.currentWeekScore >= 0 &&
+                        request.resource.data.currentWeekScore <= 1400
+                    ))
+                    && (!('currentWeekPercentage' in request.resource.data) || (
+                        request.resource.data.currentWeekPercentage is int &&
+                        request.resource.data.currentWeekPercentage >= 0 &&
+                        request.resource.data.currentWeekPercentage <= 100
+                    ));
+
+      // Devotee updating profile: cannot modify role, cannot escalate privileges, scores bounded
+      allow update: if isOwner(userId)
+                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isCounselorApproved']))
+                    && (!('currentWeekScore' in request.resource.data) || (
+                        request.resource.data.currentWeekScore is int &&
+                        request.resource.data.currentWeekScore >= 0 &&
+                        request.resource.data.currentWeekScore <= 1400
+                    ))
+                    && (!('currentWeekPercentage' in request.resource.data) || (
+                        request.resource.data.currentWeekPercentage is int &&
+                        request.resource.data.currentWeekPercentage >= 0 &&
+                        request.resource.data.currentWeekPercentage <= 100
+                    ));
+
+      allow delete: if false;
+
+      // -----------------------------------------------------------------------
+      // Weekly summaries subcollection: /users/{userId}/weekly_summaries/{weekKey}
+      // weekKey is formatted as YYYY-MM-DD (Sunday of the week).
+      // -----------------------------------------------------------------------
+      match /weekly_summaries/{weekKey} {
+        // Devotee reads their own. Approved counselors can read weekly summaries for coaching.
+        allow read: if isOwner(userId) || isApprovedCounselor();
+
+        // Only the account owner may upload their weekly summary.
+        // Validate score boundaries: max daily is 200, max weekly total is 1400.
+        allow create, update: if isOwner(userId)
+                              && request.resource.data.weekTotalScore is int
+                              && request.resource.data.weekTotalScore >= 0
+                              && request.resource.data.weekTotalScore <= 1400
+                              && request.resource.data.percentage is int
+                              && request.resource.data.percentage >= 0
+                              && request.resource.data.percentage <= 100
+                              && (!('totalPathanMinutes' in request.resource.data) || request.resource.data.totalPathanMinutes is int)
+                              && (!('totalSravanMinutes' in request.resource.data) || request.resource.data.totalSravanMinutes is int)
+                              && (!('totalSevaMinutes' in request.resource.data) || request.resource.data.totalSevaMinutes is int);
+
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

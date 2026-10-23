@@ -1,26 +1,35 @@
 package com.sadhana.card.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sadhana.card.ui.components.ProfileDialog
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.sadhana.card.data.auth.AuthState
 import com.sadhana.card.data.preferences.ThemeMode
 import com.sadhana.card.data.update.UpdateState
+import com.sadhana.card.ui.auth.AuthChoiceDialog
+import com.sadhana.card.ui.auth.CounselorPendingDialog
+import com.sadhana.card.ui.auth.HistoricalSyncConsentDialog
+import com.sadhana.card.ui.components.ProfileDialog
+import com.sadhana.card.ui.counselor.CounselorDashboardViewModel
+import com.sadhana.card.ui.counselor.CounselorDirectoryScreen
 import com.sadhana.card.ui.daily.DailyEntryScreen
 import com.sadhana.card.ui.daily.DailyEntryViewModel
 import com.sadhana.card.ui.legal.TermsConsentScreen
@@ -52,8 +61,26 @@ fun MainApp(
     val updateState by mainViewModel.updateState.collectAsStateWithLifecycle()
     val sadhakaName by mainViewModel.sadhakaName.collectAsStateWithLifecycle()
     val counselorName by mainViewModel.counselorName.collectAsStateWithLifecycle()
+    val authState by mainViewModel.authState.collectAsStateWithLifecycle()
+    val isAuthLoading by mainViewModel.isAuthLoading.collectAsStateWithLifecycle()
+    val authErrorMessage by mainViewModel.authErrorMessage.collectAsStateWithLifecycle()
+    val showHistoricalSyncPrompt by mainViewModel.showHistoricalSyncPrompt.collectAsStateWithLifecycle()
+    val localRecordCount by mainViewModel.localRecordCount.collectAsStateWithLifecycle()
+    val showCounselorPendingPrompt by mainViewModel.showCounselorPendingPrompt.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isOnboardingProfileDismissed by rememberSaveable { mutableStateOf(false) }
+    var isOnboardingAuthDismissed by rememberSaveable { mutableStateOf(false) }
+    var showManualAuthChoiceDialog by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(authErrorMessage) {
+        val err = authErrorMessage
+        if (!err.isNullOrBlank()) {
+            Toast.makeText(context, err, Toast.LENGTH_LONG).show()
+            mainViewModel.clearAuthError()
+        }
+    }
 
     UpdateDialog(
         updateState = updateState,
@@ -63,7 +90,7 @@ fun MainApp(
         onResetState = mainViewModel::resetUpdateState
     )
 
-    // Onboarding popup: Immediately after accepting Terms or on app launch if terms are accepted but sadhakaName is blank
+    // Pop-up 2: Profile Dialog (Immediately after accepting Terms if sadhakaName is blank)
     val shouldShowOnboardingProfile = isTermsAccepted == true &&
         sadhakaName.isBlank() &&
         !isOnboardingProfileDismissed
@@ -80,6 +107,42 @@ fun MainApp(
                 mainViewModel.saveProfile(newSadhaka, newCounselor)
                 isOnboardingProfileDismissed = true
             }
+        )
+    }
+
+    // Pop-up 3: AuthChoiceDialog (Devotee or Counselor login or Continue Offline)
+    val shouldShowOnboardingAuth = isTermsAccepted == true &&
+        (sadhakaName.isNotBlank() || isOnboardingProfileDismissed) &&
+        authState is AuthState.Unauthenticated &&
+        !isOnboardingAuthDismissed
+
+    if (shouldShowOnboardingAuth || showManualAuthChoiceDialog) {
+        AuthChoiceDialog(
+            isLoading = isAuthLoading,
+            onSelectRole = { role ->
+                mainViewModel.launchGoogleSignIn(context, role)
+                showManualAuthChoiceDialog = false
+            },
+            onContinueOffline = {
+                isOnboardingAuthDismissed = true
+                showManualAuthChoiceDialog = false
+            }
+        )
+    }
+
+    // Counselor Pending Approval Dialog
+    if (showCounselorPendingPrompt) {
+        CounselorPendingDialog(
+            onDismiss = mainViewModel::dismissCounselorPendingPrompt
+        )
+    }
+
+    // Historical Sync Consent Dialog
+    if (showHistoricalSyncPrompt) {
+        HistoricalSyncConsentDialog(
+            localRecordCount = localRecordCount,
+            onConfirmSyncAll = mainViewModel::claimHistoricalRecords,
+            onSkipHistorical = mainViewModel::skipHistoricalRecords
         )
     }
 
@@ -118,6 +181,7 @@ fun MainApp(
                 MainTabsScaffold(
                     dailyViewModel = dailyViewModel,
                     weeklyViewModel = weeklyViewModel,
+                    authState = authState,
                     onOpenSettings = {
                         rootNavController.navigate(AppRoutes.SETTINGS)
                     }
@@ -146,7 +210,12 @@ fun MainApp(
                     counselorName = counselorName,
                     onSaveProfile = { newSadhaka, newCounselor ->
                         mainViewModel.saveProfile(newSadhaka, newCounselor)
-                    }
+                    },
+                    authState = authState,
+                    onSignInClick = {
+                        showManualAuthChoiceDialog = true
+                    },
+                    onSignOutClick = mainViewModel::signOut
                 )
             }
 
@@ -165,17 +234,23 @@ fun MainApp(
 private fun MainTabsScaffold(
     dailyViewModel: DailyEntryViewModel,
     weeklyViewModel: WeeklyMatrixViewModel,
+    authState: AuthState,
     onOpenSettings: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Daily.route
 
+    val isCounselor = (authState as? AuthState.Authenticated)?.let {
+        it.role == "counselor" && it.isCounselorApproved
+    } ?: false
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             SadhanaBottomBar(
                 currentRoute = currentRoute,
+                isCounselor = isCounselor,
                 onNavigateToRoute = { route ->
                     navController.navigate(route) {
                         popUpTo(navController.graph.findStartDestination().id) {
@@ -215,6 +290,13 @@ private fun MainTabsScaffold(
                         }
                     }
                 )
+            }
+
+            if (isCounselor) {
+                composable(Screen.Counselor.route) {
+                    val counselorViewModel: CounselorDashboardViewModel = hiltViewModel()
+                    CounselorDirectoryScreen(viewModel = counselorViewModel)
+                }
             }
         }
     }
