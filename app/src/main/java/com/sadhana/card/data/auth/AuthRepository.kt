@@ -180,14 +180,16 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getWebClientId(): String? {
-        val stringId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
-        return if (stringId != 0) {
-            context.getString(stringId)
-        } else {
-            null
+    private val cachedWebClientId: String? by lazy {
+        try {
+            context.getString(com.sadhana.card.R.string.default_web_client_id)
+        } catch (_: Exception) {
+            val stringId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
+            if (stringId != 0) context.getString(stringId) else null
         }
     }
+
+    override fun getWebClientId(): String? = cachedWebClientId
 
     override suspend fun checkCounselorApproval(uid: String): Boolean = withContext(Dispatchers.IO) {
         val cachedApproval = userPreferencesRepository.userPreferencesFlow.first().isCounselorApproved

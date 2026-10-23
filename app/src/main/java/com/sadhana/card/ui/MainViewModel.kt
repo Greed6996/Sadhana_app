@@ -175,6 +175,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private var cachedCredentialManager: CredentialManager? = null
+
+    private fun getCredentialManager(context: Context): CredentialManager {
+        return cachedCredentialManager ?: CredentialManager.create(context.applicationContext).also {
+            cachedCredentialManager = it
+        }
+    }
+
     fun launchGoogleSignIn(context: Context, role: String) {
         viewModelScope.launch {
             val repo = authRepository ?: return@launch
@@ -186,11 +194,11 @@ class MainViewModel @Inject constructor(
             _isAuthLoading.value = true
             _authErrorMessage.value = null
             try {
-                val credentialManager = CredentialManager.create(context)
+                val credentialManager = getCredentialManager(context)
                 val googleIdOption = GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
                     .setServerClientId(webClientId)
-                    .setAutoSelectEnabled(true)
+                    .setAutoSelectEnabled(false)
                     .build()
 
                 val request = GetCredentialRequest.Builder()
