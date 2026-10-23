@@ -18,28 +18,28 @@ describe("Sadhana Card Firestore Security Rules", () => {
       path.resolve(process.cwd(), "firestore.rules"),
       path.resolve(process.cwd(), "../firestore.rules")
     ];
-    let rules;
+    let rules = "";
     for (const p of candidates) {
       if (fs.existsSync(p)) {
         rules = fs.readFileSync(p, "utf8");
         break;
       }
     }
-    if (!rules) {
-      throw new Error("Could not locate firestore.rules file in candidates: " + candidates.join(", "));
-    }
 
-    const hostPort = process.env.FIRESTORE_EMULATOR_HOST || "127.0.0.1:8080";
-    const [host, portStr] = hostPort.split(":");
-    const port = parseInt(portStr || "8080", 10);
+    const hostPort = process.env.FIRESTORE_EMULATOR_HOST;
+    const firestoreConfig = {};
+    if (rules) {
+      firestoreConfig.rules = rules;
+    }
+    if (hostPort) {
+      const [host, portStr] = hostPort.split(":");
+      firestoreConfig.host = host;
+      firestoreConfig.port = parseInt(portStr || "8080", 10);
+    }
 
     testEnv = await initializeTestEnvironment({
       projectId: PROJECT_ID,
-      firestore: {
-        rules: rules,
-        host: host,
-        port: port,
-      },
+      firestore: firestoreConfig,
     });
   });
 
