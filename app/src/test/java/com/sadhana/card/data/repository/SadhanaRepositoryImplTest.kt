@@ -135,12 +135,22 @@ class SadhanaRepositoryImplTest {
         // 3. User claims local records safely
         fakeDao.claimLocalRecordsSafely("user_charlie")
 
-        // 4. Verify conflicts table has preserved entries and no crash occurred
-        assertEquals(1, fakeDao.conflicts.size)
-        val preservedConflict = fakeDao.conflicts.first()
-        assertEquals("user_charlie", preservedConflict.userId)
-        assertEquals(date, preservedConflict.date)
-        assertEquals("local_claim", preservedConflict.source)
+        // 4. Verify both versions are preserved in the conflicts table
+        assertEquals(2, fakeDao.conflicts.size)
+        val localConflict = fakeDao.conflicts.find { it.source == "local_claim" }
+        val supersededConflict = fakeDao.conflicts.find { it.source == "account_superseded" }
+
+        assertEquals("user_charlie", localConflict?.userId)
+        assertEquals(date, localConflict?.date)
+        assertEquals(30, localConflict?.napMinutes)
+
+        assertEquals("user_charlie", supersededConflict?.userId)
+        assertEquals(date, supersededConflict?.date)
+        assertEquals(10, supersededConflict?.napMinutes)
+
+        // Active entry for user_charlie is the newer local entry
+        val activeEntry = fakeDao.storage[Pair("user_charlie", date)]
+        assertEquals(30, activeEntry?.napMinutes)
     }
 
     private class FakeUserPreferencesRepository : UserPreferencesRepository {
