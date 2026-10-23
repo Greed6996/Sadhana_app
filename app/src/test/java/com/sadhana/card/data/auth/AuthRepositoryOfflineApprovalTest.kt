@@ -73,7 +73,7 @@ class AuthRepositoryOfflineApprovalTest {
         override suspend fun setDismissedUpdateVersion(version: Int) {}
         override suspend fun recordDismissedUpdate(versionCode: Int, timestamp: Long) {}
 
-        suspend fun updateAuthSession(uid: String, email: String, role: String, isApproved: Boolean) {
+        override suspend fun updateAuthSession(uid: String, email: String, role: String, isApproved: Boolean) {
             state.value = state.value.copy(
                 authUid = uid,
                 authEmail = email,
@@ -82,15 +82,15 @@ class AuthRepositoryOfflineApprovalTest {
             )
         }
 
-        suspend fun setCounselorApproved(approved: Boolean) {
+        override suspend fun setCounselorApproved(approved: Boolean) {
             state.value = state.value.copy(isCounselorApproved = approved)
         }
 
-        suspend fun setHistoricalSyncPrompted(prompted: Boolean) {
+        override suspend fun setHistoricalSyncPrompted(prompted: Boolean) {
             state.value = state.value.copy(hasPromptedHistoricalSync = prompted)
         }
 
-        suspend fun clearAuthSession() {
+        override suspend fun clearAuthSession() {
             state.value = state.value.copy(
                 authUid = "",
                 authEmail = "",
