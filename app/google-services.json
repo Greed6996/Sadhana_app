@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "217964004157-eu3cvsta8of5u52fnerkv75qtbr4ljvs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sadhana.card",
+            "certificate_hash": "bf7944a0c0979ce3af93a253d10bebe3c14f4868"
+          }
+        },
+        {
           "client_id": "217964004157-otu58v49icnk8p1rul8iujhpk2ap2uto.apps.googleusercontent.com",
           "client_type": 3
         }
