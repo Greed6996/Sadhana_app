@@ -95,6 +95,18 @@ jobs:
           printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "${{ runner.temp }}/release.jks"
         shell: bash
 
+      - name: Print Keystore Fingerprints for Firebase
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          echo "================================================================="
+          echo "  RELEASE KEYSTORE CERTIFICATE DETAILS & FINGERPRINTS"
+          echo "================================================================="
+          keytool -list -v -keystore "${{ runner.temp }}/release.jks" -storepass "$RELEASE_KEYSTORE_PASSWORD"
+          echo "================================================================="
+        shell: bash
+
       - name: Determine Version
         id: version_meta
         run: |
@@ -146,11 +158,16 @@ jobs:
             exit 1
           fi
 
+          ACTUAL_SHA1=$(echo "$SIGNATURE_OUTPUT" | grep -i "Signer #1 certificate SHA-1 digest:" | awk '{print $NF}')
           ACTUAL_SHA256=$(echo "$SIGNATURE_OUTPUT" | grep -i "Signer #1 certificate SHA-256 digest:" | awk '{print $NF}' | tr -d ':' | tr '[:upper:]' '[:lower:]')
           EXPECTED_SHA256="75e471ee7feb55afe62bdc75f4f14a69a76c49a5c184e4664e60a6676886b5aa"
 
-          echo "Expected Fingerprint: $EXPECTED_SHA256"
-          echo "Actual Fingerprint:   $ACTUAL_SHA256"
+          echo "================================================================="
+          echo "🎯 FIREBASE OAUTH / GOOGLE SIGN-IN FINGERPRINTS:"
+          echo "-----------------------------------------------------------------"
+          echo "SHA-1  (Copy into Firebase Console): $ACTUAL_SHA1"
+          echo "SHA-256 (App Verification):          $ACTUAL_SHA256"
+          echo "================================================================="
 
           if [ -z "$ACTUAL_SHA256" ]; then
             echo "❌ FAILED: Could not extract signer certificate SHA-256."
