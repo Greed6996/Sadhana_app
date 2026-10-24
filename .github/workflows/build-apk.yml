@@ -192,24 +192,32 @@ jobs:
 
       - name: Measure APK Size and Update update.json
         if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request'
+        env:
+          TAG_NAME: ${{ steps.version_meta.outputs.tag_name }}
+          VER_NAME: ${{ steps.version_meta.outputs.version_name }}
+          VER_CODE: ${{ steps.version_meta.outputs.version_code }}
         run: |
           APK_BYTES=$(stat -c%s Sadhana-Card.apk)
           APK_SIZE_MB=$(awk -v b="$APK_BYTES" 'BEGIN {printf "%.1f MB", b / 1048576}')
           echo "Real APK Size: $APK_BYTES bytes -> $APK_SIZE_MB"
-
-          TAG_NAME="${{ steps.version_meta.outputs.tag_name }}"
-          VER_NAME="${{ steps.version_meta.outputs.version_name }}"
-          VER_CODE="${{ steps.version_meta.outputs.version_code }}"
+          export APK_SIZE_MB
 
           python3 -c "
-          import json
+          import os, json
+          tag = os.environ['TAG_NAME']
+          ver_name = os.environ['VER_NAME']
+          ver_code = int(os.environ['VER_CODE'])
+          apk_size = os.environ['APK_SIZE_MB']
+
           with open('update.json', 'r') as f:
               data = json.load(f)
-          data['approvedVersion'] = '$VER_NAME'
-          data['approvedVersionCode'] = int('$VER_CODE')
-          data['downloadUrl'] = 'https://github.com/Greed6996/Sadhana_app/releases/download/$TAG_NAME/Sadhana-Card.apk'
-          data['apkSizeMb'] = '$APK_SIZE_MB'
-          data['updateMessage'] = f'A new version of My Sadhana Card ({TAG_NAME}) is available.'
+
+          data['approvedVersion'] = ver_name
+          data['approvedVersionCode'] = ver_code
+          data['downloadUrl'] = f'https://github.com/Greed6996/Sadhana_app/releases/download/{tag}/Sadhana-Card.apk'
+          data['apkSizeMb'] = apk_size
+          data['updateMessage'] = f'A new version of My Sadhana Card ({tag}) is available.'
+
           with open('update.json', 'w') as f:
               json.dump(data, f, indent=2)
               f.write('\n')
