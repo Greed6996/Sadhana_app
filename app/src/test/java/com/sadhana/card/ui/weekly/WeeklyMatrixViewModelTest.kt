@@ -106,6 +106,35 @@ class WeeklyMatrixViewModelTest {
         assertEquals(initialStart, viewModel.uiState.value.startOfWeek)
     }
 
+    @Test
+    fun testWeeklyProgressPercentageAndColor() {
+        // Calculation logic
+        fun calc(current: Int, target: Int): Int =
+            if (target > 0) ((current.toFloat() / target) * 100).toInt() else 0
+
+        assertEquals(0, calc(0, 1400))
+        assertEquals(7, calc(107, 1400))
+        assertEquals(74, calc(1036, 1400))
+        assertEquals(75, calc(1050, 1400))
+        assertEquals(99, calc(1386, 1400))
+        assertEquals(100, calc(1400, 1400))
+        assertEquals(107, calc(1500, 1400))
+
+        // Color thresholds
+        val red = androidx.compose.ui.graphics.Color(0xFFFF5252)
+        val yellow = androidx.compose.ui.graphics.Color(0xFFFFD54F)
+        val green = androidx.compose.ui.graphics.Color(0xFF4CAF50)
+
+        assertEquals(red, getWeeklyProgressColor(0))
+        assertEquals(red, getWeeklyProgressColor(50))
+        assertEquals(red, getWeeklyProgressColor(74))
+        assertEquals(yellow, getWeeklyProgressColor(75))
+        assertEquals(yellow, getWeeklyProgressColor(85))
+        assertEquals(yellow, getWeeklyProgressColor(99))
+        assertEquals(green, getWeeklyProgressColor(100))
+        assertEquals(green, getWeeklyProgressColor(115))
+    }
+
     private class FakeSadhanaRepository : SadhanaRepository {
         val storage = mutableMapOf<LocalDate, SadhanaEntry>()
         private val state = MutableStateFlow<Map<LocalDate, SadhanaEntry>>(emptyMap())

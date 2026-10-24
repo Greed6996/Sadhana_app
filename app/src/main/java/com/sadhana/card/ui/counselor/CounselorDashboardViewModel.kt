@@ -221,6 +221,20 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                             scores = scores.copy(japaScore = japaScoreDirect)
                         }
 
+                        val pathanScoreDirect = (dayData["pathanScore"] as? Long)?.toInt()
+                        val sravanScoreDirect = (dayData["sravanScore"] as? Long)?.toInt()
+                        val sevaScoreDirect = (dayData["sevaScore"] as? Long)?.toInt()
+
+                        if (pathanScoreDirect != null && (scores.pathanScore == null || scores.pathanScore == 0) && pathanScoreDirect > 0) {
+                            scores = scores.copy(pathanScore = pathanScoreDirect)
+                        }
+                        if (sravanScoreDirect != null && (scores.sravanScore == null || scores.sravanScore == 0) && sravanScoreDirect > 0) {
+                            scores = scores.copy(sravanScore = sravanScoreDirect)
+                        }
+                        if (sevaScoreDirect != null && (scores.sevaScore == null || scores.sevaScore == 0) && sevaScoreDirect > 0) {
+                            scores = scores.copy(sevaScore = sevaScoreDirect)
+                        }
+
                         val dayScore = scores.totalScore
                         if (dayScore != null) {
                             pathanTotal += pathanMin

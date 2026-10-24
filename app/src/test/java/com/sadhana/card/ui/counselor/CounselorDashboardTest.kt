@@ -111,4 +111,18 @@ class CounselorDashboardTest {
         assertEquals(40, dayData["sixteenRoundsDoneByScore"])
         assertEquals(40, dayData["roundsCompletedScore"])
     }
+
+    @Test
+    fun testCounselorPathanSravanSevaPoints_mappedCorrectly() {
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 24),
+            pathanMinutes = 30, // 30 min / 60 min * 25 = 12 or 13 pts
+            sravanMinutes = 45, // 45 min / 60 min * 25 = 18 or 19 pts
+            sevaMinutes = 60    // 60 min / 60 min * 25 = 25 pts
+        )
+        val scores = com.sadhana.card.domain.scorer.SadhanaScorer.scoreEntry(entry)
+        assertTrue(scores.pathanScore != null && scores.pathanScore!! > 0)
+        assertTrue(scores.sravanScore != null && scores.sravanScore!! > 0)
+        assertEquals(25, scores.sevaScore)
+    }
 }

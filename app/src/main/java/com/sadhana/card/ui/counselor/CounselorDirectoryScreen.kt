@@ -601,11 +601,11 @@ private fun ReadOnlyMatrixGrid(state: WeeklyMatrixUiState) {
         HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
         // Pathan
-        MatrixMinutesRow("Pathan", columns) { it.entry?.pathanMinutes }
+        MatrixMetricRow("Pathan", columns, maxScore = 25) { it.scores.pathanScore }
         // Sravan
-        MatrixMinutesRow("Sravan", columns) { it.entry?.sravanMinutes }
+        MatrixMetricRow("Sravan", columns, maxScore = 25) { it.scores.sravanScore }
         // Seva
-        MatrixMinutesRow("Seva", columns) { it.entry?.sevaMinutes }
+        MatrixMetricRow("Seva", columns, maxScore = 25) { it.scores.sevaScore }
 
         HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
@@ -711,47 +711,6 @@ private fun MatrixMetricRow(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MatrixMinutesRow(
-    title: String,
-    columns: List<MatrixDayColumn>,
-    minutesSelector: (MatrixDayColumn) -> Int?
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(modifier = Modifier.weight(1.3f)) {
-            Text(
-                text = title,
-                fontFamily = DmSansFontFamily,
-                fontSize = 11.sp,
-                color = DarkTextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        columns.forEach { col ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(24.dp)
-                    .padding(1.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                val min = minutesSelector(col)
-                Text(
-                    text = if (min != null && min > 0) "${min}m" else "—",
-                    fontFamily = DmSansFontFamily,
-                    fontSize = 10.sp,
-                    color = if (min != null && min > 0) DarkTextPrimary else DarkTextMuted
-                )
             }
         }
     }

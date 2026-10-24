@@ -301,25 +301,36 @@ fun WeeklyMatrixContent(
     }
 }
 
+internal fun getWeeklyProgressColor(percentage: Int): Color = when {
+    percentage < 75 -> Color(0xFFFF5252)
+    percentage in 75..99 -> Color(0xFFFFD54F)
+    else -> Color(0xFF4CAF50)
+}
+
 /**
  * V5 Weekly Summary Hero Card:
- * Left side: Large circular ring showing total score e.g. "103 / of 140"
- * Right side: Study breakdown rows (Pathan, Sravan, Read + hear) with bold gold numbers
+ * Left side: Large circular ring showing total score e.g. "103 / of 1400"
+ * Right side: Study breakdown rows (Pathan, Sravan, Progress) with bold numbers
  */
 @Composable
 fun WeeklySummaryHeroCard(
     uiState: WeeklyMatrixUiState,
     modifier: Modifier = Modifier
 ) {
-    val maxScore = uiState.maxWeeklyScore.toFloat()
-    val progress = (uiState.weekTotalScore.toFloat() / maxScore).coerceIn(0f, 1f)
+    val currentScore = uiState.weekTotalScore
+    val targetScore = uiState.maxWeeklyScore
+    val percentage = if (targetScore > 0) ((currentScore.toFloat() / targetScore) * 100).toInt() else 0
+    val progressColor = getWeeklyProgressColor(percentage)
+
+    val maxScore = targetScore.toFloat()
+    val progress = if (maxScore > 0f) (currentScore.toFloat() / maxScore).coerceIn(0f, 1f) else 0f
     val animatedSweep by animateFloatAsState(
         targetValue = progress * 360f,
         animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
         label = "WeeklyRingSweep"
     )
     val animatedScore by animateIntAsState(
-        targetValue = uiState.weekTotalScore,
+        targetValue = currentScore,
         animationSpec = tween(durationMillis = 900, easing = FastOutSlowInEasing),
         label = "WeeklyScoreCounter"
     )
@@ -357,10 +368,10 @@ fun WeeklySummaryHeroCard(
                         style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                     )
 
-                    // Gold Progress Arc
+                    // Progress Arc (linked to dynamic status color)
                     if (animatedSweep > 0f) {
                         drawArc(
-                            color = DarkPrimary,
+                            color = progressColor,
                             startAngle = -90f,
                             sweepAngle = animatedSweep,
                             useCenter = false,
@@ -394,7 +405,7 @@ fun WeeklySummaryHeroCard(
 
             Spacer(modifier = Modifier.width(20.dp))
 
-            // Right Side: Study Breakdown (3 rows with subtle dividers)
+            // Right Side: Study & Progress Breakdown (3 rows with subtle dividers)
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -403,7 +414,11 @@ fun WeeklySummaryHeroCard(
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
                 WeeklyStudyRow(label = "Sravan", value = uiState.sravanHoursMinutes)
                 HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
-                WeeklyStudyRow(label = "Read + hear", value = uiState.bothHoursMinutes)
+                WeeklyStudyRow(
+                    label = "Progress",
+                    value = "${percentage}%",
+                    valueColor = progressColor
+                )
             }
         }
     }
@@ -412,7 +427,8 @@ fun WeeklySummaryHeroCard(
 @Composable
 private fun WeeklyStudyRow(
     label: String,
-    value: String
+    value: String,
+    valueColor: Color = DarkPrimary
 ) {
     Row(
         modifier = Modifier
@@ -433,7 +449,7 @@ private fun WeeklyStudyRow(
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 17.sp,
-            color = DarkPrimary
+            color = valueColor
         )
     }
 }
