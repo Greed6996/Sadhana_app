@@ -509,6 +509,7 @@ fun WeeklyHeatmapMatrixCard(
                 label = "Japa",
                 unit = "pts",
                 columns = columns,
+                maxScore = 50,
                 getScore = { it.scores.japaScore },
                 onDayClick = onDayClick
             )
@@ -518,34 +519,38 @@ fun WeeklyHeatmapMatrixCard(
                 label = "Day sleep",
                 unit = "pts",
                 columns = columns,
+                maxScore = 25,
                 getScore = { it.scores.napScore },
                 onDayClick = onDayClick
             )
 
-            // 5. Pathan (min)
-            V5MatrixMinuteRow(
+            // 5. Pathan (pts)
+            V5MatrixScoreRow(
                 label = "Pathan",
-                unit = "min",
+                unit = "pts",
                 columns = columns,
-                getMinutes = { it.entry?.pathanMinutes ?: 0 },
+                maxScore = 25,
+                getScore = { it.scores.pathanScore },
                 onDayClick = onDayClick
             )
 
-            // 6. Sravan (min)
-            V5MatrixMinuteRow(
+            // 6. Sravan (pts)
+            V5MatrixScoreRow(
                 label = "Sravan",
-                unit = "min",
+                unit = "pts",
                 columns = columns,
-                getMinutes = { it.entry?.sravanMinutes ?: 0 },
+                maxScore = 25,
+                getScore = { it.scores.sravanScore },
                 onDayClick = onDayClick
             )
 
-            // 7. Seva (min)
-            V5MatrixMinuteRow(
+            // 7. Seva (pts)
+            V5MatrixScoreRow(
                 label = "Seva",
-                unit = "min",
+                unit = "pts",
                 columns = columns,
-                getMinutes = { it.entry?.sevaMinutes ?: 0 },
+                maxScore = 25,
+                getScore = { it.scores.sevaScore },
                 onDayClick = onDayClick
             )
 
@@ -571,7 +576,8 @@ private fun V5MatrixScoreRow(
     unit: String,
     columns: List<MatrixDayColumn>,
     getScore: (MatrixDayColumn) -> Int?,
-    onDayClick: (LocalDate) -> Unit
+    onDayClick: (LocalDate) -> Unit,
+    maxScore: Int = 25
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -584,6 +590,7 @@ private fun V5MatrixScoreRow(
             val score = getScore(col)
             V5ScoreMatrixCell(
                 score = score,
+                maxScore = maxScore,
                 onClick = { onDayClick(col.date) },
                 modifier = Modifier.weight(1f)
             )
@@ -676,18 +683,19 @@ private fun V5MatrixRowLabel(
 }
 
 /**
- * Scored matrix cell (0–5 pts) using Red (0), Yellow (1–4), Green (5), and Muted Slate (null).
+ * Scored matrix cell (0–5 pts or 0–25/50 pts) using Red (0), Yellow (partial), Green (max), and Muted Slate (null).
  */
 @Composable
 private fun V5ScoreMatrixCell(
     score: Int?,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxScore: Int = 25
 ) {
     val (bg, textColor) = when {
         score == null -> Pair(CellUnloggedBg, CellUnloggedText)
         score <= 0 -> Pair(CellScore0Bg, CellScore0Text)
-        score == 25 || score == 50 -> Pair(CellScore5Bg, CellScore5Text)
+        score >= maxScore -> Pair(CellScore5Bg, CellScore5Text)
         else -> Pair(CellScore1to4Bg, CellScore1to4Text)
     }
 
@@ -700,7 +708,7 @@ private fun V5ScoreMatrixCell(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (score != null) "$score" else "-",
+            text = if (score != null) "${score.coerceAtLeast(0)}" else "-",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 14.5.sp,

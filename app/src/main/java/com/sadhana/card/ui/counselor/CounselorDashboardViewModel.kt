@@ -181,10 +181,10 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                     val dayData = daysMap[dateKey] as? Map<*, *>
 
                     if (dayData != null) {
-                        val bedCategoryStr = dayData["bedtimeCategory"] as? String
-                        val wakeCategoryStr = dayData["wakeUpCategory"] as? String
-                        val japaCategoryStr = dayData["japaCategory"] as? String
-                        val napCategoryStr = dayData["daySleepCategory"] as? String
+                        val bedCategoryStr = (dayData["bedtimeCategory"] as? String)?.ifBlank { null }
+                        val wakeCategoryStr = (dayData["wakeUpCategory"] as? String)?.ifBlank { null }
+                        val japaCategoryStr = (dayData["japaCategory"] as? String)?.ifBlank { null }
+                        val napCategoryStr = (dayData["daySleepCategory"] as? String)?.ifBlank { null }
                         val pathanMin = (dayData["pathanMinutes"] as? Long)?.toInt() ?: 0
                         val sravanMin = (dayData["sravanMinutes"] as? Long)?.toInt() ?: 0
                         val sevaMin = (dayData["sevaMinutes"] as? Long)?.toInt() ?: 0
@@ -194,11 +194,20 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                         val japaCat = japaCategoryStr?.let { runCatching { JapaCategory.valueOf(it) }.getOrNull() }
                         val napCat = napCategoryStr?.let { runCatching { DaySleepCategory.valueOf(it) }.getOrNull() }
 
+                        val japaScoreDirect = (dayData["japaScore"] as? Long)?.toInt()
+                            ?: (dayData["sixteenRoundsDoneByScore"] as? Long)?.toInt()
+                            ?: (dayData["roundsCompletedScore"] as? Long)?.toInt()
+
+                        val japaDone = (dayData["japaCompleted"] as? Boolean)
+                            ?: (japaCat != null)
+                            ?: (japaScoreDirect != null && japaScoreDirect > 0)
+
                         val entry = SadhanaEntry(
                             date = date,
                             bedtimeCategory = bedCat,
                             wakeUpCategory = wakeCat,
                             japaCategory = japaCat,
+                            japaCompleted = japaDone,
                             daySleepCategory = napCat,
                             pathanMinutes = pathanMin,
                             sravanMinutes = sravanMin,
@@ -207,18 +216,24 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                             isSynced = true
                         )
 
-                        val scores = SadhanaScorer.scoreEntry(entry)
-                        pathanTotal += pathanMin
-                        sravanTotal += sravanMin
-                        sevaTotal += sevaMin
-                        val dayScore = scores.totalScore ?: 0
-                        weekTotal += dayScore
+                        var scores = SadhanaScorer.scoreEntry(entry)
+                        if (japaScoreDirect != null && (scores.japaScore == null || scores.japaScore == 0) && japaScoreDirect > 0) {
+                            scores = scores.copy(japaScore = japaScoreDirect)
+                        }
+
+                        val dayScore = scores.totalScore
+                        if (dayScore != null) {
+                            pathanTotal += pathanMin
+                            sravanTotal += sravanMin
+                            sevaTotal += sevaMin
+                            weekTotal += dayScore
+                        }
 
                         MatrixDayColumn(
                             date = date,
                             dayName = DateUtils.formatDayName(date),
                             dayNumber = DateUtils.formatDayNumber(date),
-                            entry = entry,
+                            entry = if (dayScore != null) entry else null,
                             scores = scores,
                             totalScore = dayScore
                         )
@@ -228,7 +243,7 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                             dayName = DateUtils.formatDayName(date),
                             dayNumber = DateUtils.formatDayNumber(date),
                             entry = null,
-                            scores = SadhanaScorer.DailyScores(null, null, null, null, null),
+                            scores = SadhanaScorer.DailyScores(),
                             totalScore = null
                         )
                     }

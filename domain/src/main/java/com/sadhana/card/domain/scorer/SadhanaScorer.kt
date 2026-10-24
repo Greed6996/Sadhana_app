@@ -324,11 +324,6 @@ object SadhanaScorer {
             scoreDaySleep(entry.napMinutes)
         }
 
-        // Study & Service scores
-        val pathan = scorePathan(entry.pathanMinutes)
-        val sravan = scoreShravan(entry.sravanMinutes)
-        val seva = scoreSeva(entry.sevaMinutes)
-
         // Determine if entry has any recorded input (is logged)
         val hasLoggedData = entry.bedtimeCategory != null ||
             entry.wakeUpCategory != null ||
@@ -341,6 +336,11 @@ object SadhanaScorer {
             entry.pathanMinutes > 0 ||
             entry.sravanMinutes > 0 ||
             entry.sevaMinutes > 0
+
+        // Study & Service scores (null if unlogged)
+        val pathan = if (!hasLoggedData) null else scorePathan(entry.pathanMinutes)
+        val sravan = if (!hasLoggedData) null else scoreShravan(entry.sravanMinutes)
+        val seva = if (!hasLoggedData) null else scoreSeva(entry.sevaMinutes)
 
         val total = if (!hasLoggedData) {
             null

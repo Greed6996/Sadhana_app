@@ -590,13 +590,13 @@ private fun ReadOnlyMatrixGrid(state: WeeklyMatrixUiState) {
         HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
         // Bedtime
-        MatrixMetricRow("Bedtime", columns) { it.scores.bedScore }
+        MatrixMetricRow("Bedtime", columns, maxScore = 25) { it.scores.bedScore }
         // Wake-up
-        MatrixMetricRow("Wake-up", columns) { it.scores.wakeScore }
+        MatrixMetricRow("Wake-up", columns, maxScore = 25) { it.scores.wakeScore }
         // 16 rounds
-        MatrixMetricRow("16 Rnds", columns) { it.scores.japaScore }
+        MatrixMetricRow("16 Rnds", columns, maxScore = 50) { it.scores.japaScore }
         // Day Sleep
-        MatrixMetricRow("Day Sleep", columns) { it.scores.napScore }
+        MatrixMetricRow("Day Sleep", columns, maxScore = 25) { it.scores.napScore }
 
         HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 
@@ -647,6 +647,7 @@ private fun ReadOnlyMatrixGrid(state: WeeklyMatrixUiState) {
 private fun MatrixMetricRow(
     title: String,
     columns: List<MatrixDayColumn>,
+    maxScore: Int = 25,
     scoreSelector: (MatrixDayColumn) -> Int?
 ) {
     Row(
@@ -675,8 +676,8 @@ private fun MatrixMetricRow(
                 val score = scoreSelector(col)
                 if (score != null) {
                     val (bg, text) = when {
-                        score > 0 -> CellScore5Bg to CellScore5Text
-                        score == 0 -> CellScore0Bg to CellScore0Text
+                        score <= 0 -> CellScore0Bg to CellScore0Text
+                        score >= maxScore -> CellScore5Bg to CellScore5Text
                         else -> CellScore1to4Bg to CellScore1to4Text
                     }
                     Box(
@@ -687,7 +688,7 @@ private fun MatrixMetricRow(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "$score",
+                            text = "${score.coerceAtLeast(0)}",
                             fontFamily = DmSansFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.sp,

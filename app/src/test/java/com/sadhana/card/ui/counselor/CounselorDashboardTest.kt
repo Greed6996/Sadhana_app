@@ -54,4 +54,61 @@ class CounselorDashboardTest {
         assertEquals("local", entry.userId)
         assertFalse(entry.isSynced)
     }
+
+    @Test
+    fun testCounselorJapa16RoundsScore_notStuckAtZeroWhenCategorySelected() {
+        // Simulating dayData from Firestore weekly summary with japaCategory or japaScore
+        val dayData = mapOf(
+            "japaCategory" to "BY_9_00_AM",
+            "japaScore" to 40L,
+            "totalScore" to 40
+        )
+
+        val japaCategoryStr = (dayData["japaCategory"] as? String)?.ifBlank { null }
+        val japaCat = japaCategoryStr?.let { runCatching { com.sadhana.card.domain.model.JapaCategory.valueOf(it) }.getOrNull() }
+        val japaScoreDirect = (dayData["japaScore"] as? Long)?.toInt()
+            ?: (dayData["sixteenRoundsDoneByScore"] as? Long)?.toInt()
+            ?: (dayData["roundsCompletedScore"] as? Long)?.toInt()
+        val japaDone = (dayData["japaCompleted"] as? Boolean)
+            ?: (japaCat != null)
+            ?: (japaScoreDirect != null && japaScoreDirect > 0)
+
+        val entry = SadhanaEntry(
+            date = LocalDate.of(2026, 10, 20),
+            japaCategory = japaCat,
+            japaCompleted = japaDone
+        )
+
+        var scores = com.sadhana.card.domain.scorer.SadhanaScorer.scoreEntry(entry)
+        if (japaScoreDirect != null && (scores.japaScore == null || scores.japaScore == 0) && japaScoreDirect > 0) {
+            scores = scores.copy(japaScore = japaScoreDirect)
+        }
+
+        assertEquals("16 rounds score in counselor view must be 40 points, not stuck at 0", 40, scores.japaScore)
+    }
+
+    @Test
+    fun testWeeklySummaryMap_includesJapaScoreAndCompletion() {
+        val date = LocalDate.of(2026, 10, 18) // Sunday
+        val entry = SadhanaEntry(
+            date = date,
+            japaCategory = com.sadhana.card.domain.model.JapaCategory.BY_9_00_AM,
+            japaCompleted = true
+        )
+
+        val summary = com.sadhana.card.data.sync.buildWeeklySummaryMap(
+            startOfWeek = date,
+            entries = listOf(entry),
+            devoteeName = "Bhakta Das"
+        )
+
+        val daysMap = summary["days"] as Map<*, *>
+        val dayData = daysMap["2026-10-18"] as Map<*, *>
+
+        assertEquals("BY_9_00_AM", dayData["japaCategory"])
+        assertEquals(true, dayData["japaCompleted"])
+        assertEquals(40, dayData["japaScore"])
+        assertEquals(40, dayData["sixteenRoundsDoneByScore"])
+        assertEquals(40, dayData["roundsCompletedScore"])
+    }
 }

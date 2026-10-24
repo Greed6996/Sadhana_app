@@ -256,10 +256,21 @@ fun buildWeeklySummaryMap(
             val dayTotal = scores.totalScore ?: 0
             weekTotal += dayTotal
 
+            val japaScoreVal = scores.japaScore ?: 0
             daysMap[dateKey] = mapOf(
                 "bedtimeCategory" to (entry.bedtimeCategory?.name ?: ""),
                 "wakeUpCategory" to (entry.wakeUpCategory?.name ?: ""),
                 "japaCategory" to (entry.japaCategory?.name ?: ""),
+                "japaCompleted" to (entry.japaCompleted || entry.japaCategory != null),
+                "japaScore" to japaScoreVal,
+                "sixteenRoundsDoneByScore" to japaScoreVal,
+                "roundsCompletedScore" to japaScoreVal,
+                "bedScore" to (scores.bedScore ?: 0),
+                "wakeScore" to (scores.wakeScore ?: 0),
+                "napScore" to (scores.napScore ?: 0),
+                "pathanScore" to (scores.pathanScore ?: 0),
+                "sravanScore" to (scores.sravanScore ?: 0),
+                "sevaScore" to (scores.sevaScore ?: 0),
                 "daySleepCategory" to (entry.daySleepCategory?.name ?: ""),
                 "pathanMinutes" to entry.pathanMinutes,
                 "sravanMinutes" to entry.sravanMinutes,

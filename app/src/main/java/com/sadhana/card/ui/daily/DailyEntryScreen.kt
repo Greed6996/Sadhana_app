@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -826,15 +827,18 @@ private fun V5InlineStepper(
         // Value text
         Box(
             modifier = Modifier
-                .width(42.dp)
+                .defaultMinSize(minWidth = 58.dp)
+                .padding(horizontal = 4.dp)
                 .then(if (onNumberClick != null && enabled) Modifier.clickable(onClick = onNumberClick) else Modifier),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "$value",
+                text = "$value min",
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
+                maxLines = 1,
+                softWrap = false,
                 color = if (enabled) DarkTextPrimary else DarkTextMuted
             )
         }

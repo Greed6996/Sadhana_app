@@ -441,6 +441,13 @@ class SadhanaScorerTest {
         val entry = SadhanaEntry(date = LocalDate.of(2026, 10, 14))
         val scores = SadhanaScorer.scoreEntry(entry)
         assertNull(scores.totalScore)
+        assertNull(scores.pathanScore)
+        assertNull(scores.sravanScore)
+        assertNull(scores.sevaScore)
+        assertNull(scores.japaScore)
+        assertNull(scores.bedScore)
+        assertNull(scores.wakeScore)
+        assertNull(scores.napScore)
     }
 
     @Test
