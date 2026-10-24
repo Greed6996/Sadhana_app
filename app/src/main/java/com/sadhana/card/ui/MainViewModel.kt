@@ -107,7 +107,8 @@ class MainViewModel @Inject constructor(
             loading -> AuthUiState.Loading
             error != null -> AuthUiState.Error(error)
             state is AuthState.Authenticated -> {
-                if (state.role.equals("counselor", ignoreCase = true) && !state.isCounselorApproved) {
+                val isCounselorRole = state.role.equals("counselor", ignoreCase = true)
+                if (isCounselorRole && !state.isCounselorApproved) {
                     AuthUiState.PendingApproval(
                         uid = state.uid,
                         email = state.email,
@@ -119,8 +120,8 @@ class MainViewModel @Inject constructor(
                         uid = state.uid,
                         email = state.email,
                         displayName = state.displayName,
-                        role = state.role,
-                        isApproved = state.isCounselorApproved
+                        role = if (isCounselorRole) "COUNSELOR" else "DEVOTEE",
+                        isApproved = if (isCounselorRole) state.isCounselorApproved else true
                     )
                 }
             }
@@ -140,6 +141,29 @@ class MainViewModel @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = AuthUiState.Idle
     )
+
+    /**
+     * Devotees bypass approval checks entirely.
+     * Counselors are granted dashboard access IF AND ONLY IF role is COUNSELOR and isApproved == true.
+     */
+    val isCounselorDashboardAccessible: StateFlow<Boolean> = authState
+        .map { state ->
+            (state as? AuthState.Authenticated)?.let {
+                it.role.equals("counselor", ignoreCase = true) && it.isCounselorApproved
+            } ?: false
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
+        )
+
+    fun canAccessCounselorDashboard(): Boolean {
+        val state = authState.value
+        return state is AuthState.Authenticated &&
+            state.role.equals("counselor", ignoreCase = true) &&
+            state.isCounselorApproved
+    }
 
     private val _showHistoricalSyncPrompt = MutableStateFlow(false)
     val showHistoricalSyncPrompt: StateFlow<Boolean> = _showHistoricalSyncPrompt.asStateFlow()
@@ -215,9 +239,9 @@ class MainViewModel @Inject constructor(
                     authResult.fold(
                         onSuccess = { state ->
                             if (state is AuthState.Authenticated) {
-                                if (state.role == "counselor" && !state.isCounselorApproved) {
+                                if (state.role.equals("counselor", ignoreCase = true) && !state.isCounselorApproved) {
                                     _showCounselorPendingPrompt.value = true
-                                } else if (state.role == "devotee") {
+                                } else if (state.role.equals("devotee", ignoreCase = true)) {
                                     val prefs = userPreferencesRepository.userPreferencesFlow.first()
                                     val count = repo.getLocalRecordCount()
                                     if (!prefs.hasPromptedHistoricalSync && count > 0) {

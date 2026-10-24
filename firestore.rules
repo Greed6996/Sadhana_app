@@ -16,8 +16,7 @@ service cloud.firestore {
         (exists(/databases/$(database)/documents/counselors/$(request.auth.uid)) &&
          get(/databases/$(database)/documents/counselors/$(request.auth.uid)).data.approved == true) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'APPROVED') &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true &&
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['counselor', 'COUNSELOR'])
       );
     }
@@ -39,24 +38,23 @@ service cloud.firestore {
     // Root devotee documents containing display names, role, and current week summary.
     // -------------------------------------------------------------------------
     match /users/{userId} {
-      // Devotee can read their own profile. Approved counselors can inspect directory of devotees.
+      // Devotee can read their own profile without approval checks. Approved counselors can inspect directory of devotees.
       allow read: if isOwner(userId) || isApprovedCounselor();
 
-      // Devotee creating initial profile: role must be devotee, or counselor with pending unapproved status.
+      // Devotee creating initial profile: devotees have instant access based on role without isApproved or status.
+      // Counselors write only isApproved: false on first sign-up.
       allow create: if isOwner(userId)
                     && request.resource.data.keys().hasOnly([
                       'uid', 'displayName', 'email', 'role', 'requestedRole',
-                      'status', 'isApproved', 'requestedAt',
+                      'isApproved', 'requestedAt',
                       'counselorName', 'updatedAt', 'currentWeekStart',
                       'currentWeekScore', 'currentWeekPercentage', 'currentWeekUpdatedAt'
                     ])
                     && request.resource.data.uid == userId
                     && (
                       (request.resource.data.role in ['devotee', 'DEVOTEE'] &&
-                       (!('status' in request.resource.data) || request.resource.data.status in ['APPROVED', 'approved']) &&
-                       (!('isApproved' in request.resource.data) || request.resource.data.isApproved == true)) ||
+                       !('isApproved' in request.resource.data)) ||
                       (request.resource.data.role in ['counselor', 'COUNSELOR'] &&
-                       request.resource.data.status == 'PENDING' &&
                        request.resource.data.isApproved == false)
                     )
                     && (!('currentWeekScore' in request.resource.data) || (

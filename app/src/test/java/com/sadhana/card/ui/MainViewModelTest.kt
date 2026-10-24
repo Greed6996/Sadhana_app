@@ -1,5 +1,7 @@
 package com.sadhana.card.ui
 
+import com.sadhana.card.data.auth.AuthRepository
+import com.sadhana.card.data.auth.AuthState
 import com.sadhana.card.data.preferences.CURRENT_TERMS_VERSION
 import com.sadhana.card.data.preferences.ThemeMode
 import com.sadhana.card.data.preferences.UserPreferences
@@ -132,6 +134,101 @@ class MainViewModelTest {
         assertEquals("Jayapataka Swami", viewModel.counselorName.value)
         assertEquals("Radharani Dasi", fakeRepository.userPreferencesFlow.first().sadhakaName)
         assertEquals("Jayapataka Swami", fakeRepository.userPreferencesFlow.first().counselorName)
+    }
+
+    @Test
+    fun devotee_bypassesApproval_grantedAuthenticatedUiState_noCounselorDashboardAccess() = runTest {
+        val fakeAuthRepo = FakeAuthRepository(
+            initialState = AuthState.Authenticated(
+                uid = "d1",
+                email = "devotee@krishna.com",
+                displayName = "Devotee Das",
+                role = "DEVOTEE",
+                isCounselorApproved = false // Devotees bypass approval
+            )
+        )
+        viewModel = MainViewModel(
+            userPreferencesRepository = fakeRepository,
+            updateManager = null,
+            authRepository = fakeAuthRepo,
+            syncManager = null
+        )
+        advanceUntilIdle()
+
+        val uiState = viewModel.authUiState.value
+        assertTrue("Devotee must be directly Authenticated in UI", uiState is com.sadhana.card.ui.auth.AuthUiState.Authenticated)
+        val authUi = uiState as com.sadhana.card.ui.auth.AuthUiState.Authenticated
+        assertTrue("Devotee approval check must be bypassed", authUi.isApproved)
+        assertEquals("DEVOTEE", authUi.role)
+
+        assertFalse("Devotee cannot access counselor dashboard", viewModel.isCounselorDashboardAccessible.value)
+        assertFalse("Devotee cannot access counselor dashboard", viewModel.canAccessCounselorDashboard())
+    }
+
+    @Test
+    fun counselor_dashboardAccess_grantedIfAndOnlyIfApproved() = runTest {
+        // 1. Unapproved counselor: cannot access dashboard, routed to pending approval
+        val fakeAuthRepo = FakeAuthRepository(
+            initialState = AuthState.Authenticated(
+                uid = "c1",
+                email = "counselor@krishna.com",
+                displayName = "Counselor Prabhu",
+                role = "COUNSELOR",
+                isCounselorApproved = false
+            )
+        )
+        viewModel = MainViewModel(
+            userPreferencesRepository = fakeRepository,
+            updateManager = null,
+            authRepository = fakeAuthRepo,
+            syncManager = null
+        )
+        advanceUntilIdle()
+
+        assertTrue("Unapproved counselor must be in PendingApproval UI state", viewModel.authUiState.value is com.sadhana.card.ui.auth.AuthUiState.PendingApproval)
+        assertFalse("Unapproved counselor cannot access counselor dashboard", viewModel.isCounselorDashboardAccessible.value)
+        assertFalse("Unapproved counselor cannot access counselor dashboard", viewModel.canAccessCounselorDashboard())
+
+        // 2. Approved counselor: granted dashboard access
+        fakeAuthRepo.setAuthState(
+            AuthState.Authenticated(
+                uid = "c1",
+                email = "counselor@krishna.com",
+                displayName = "Counselor Prabhu",
+                role = "COUNSELOR",
+                isCounselorApproved = true
+            )
+        )
+        advanceUntilIdle()
+
+        val uiState = viewModel.authUiState.value
+        assertTrue("Approved counselor must be Authenticated", uiState is com.sadhana.card.ui.auth.AuthUiState.Authenticated)
+        assertTrue("Approved counselor must have isApproved == true", (uiState as com.sadhana.card.ui.auth.AuthUiState.Authenticated).isApproved)
+        assertTrue("Approved counselor MUST access counselor dashboard", viewModel.isCounselorDashboardAccessible.value)
+        assertTrue("Approved counselor MUST access counselor dashboard", viewModel.canAccessCounselorDashboard())
+    }
+
+    private class FakeAuthRepository(initialState: AuthState = AuthState.Unauthenticated) : AuthRepository {
+        private val _authState = MutableStateFlow<AuthState>(initialState)
+        override val authState: kotlinx.coroutines.flow.StateFlow<AuthState> = _authState
+
+        fun setAuthState(state: AuthState) {
+            _authState.value = state
+        }
+
+        override suspend fun signInWithGoogleCredential(idToken: String, requestedRole: String): Result<AuthState> =
+            Result.success(_authState.value)
+
+        override suspend fun checkCounselorApproval(uid: String): Boolean = true
+        override suspend fun refreshAuthStatus(): AuthState = _authState.value
+        override suspend fun claimLocalRecords(googleUid: String) {}
+        override suspend fun getLocalRecordCount(): Int = 0
+        override suspend fun setHistoricalSyncPrompted(prompted: Boolean) {}
+        override suspend fun signOut() {
+            _authState.value = AuthState.Unauthenticated
+        }
+        override suspend fun syncProfileToCloud(sadhakaName: String, counselorName: String) {}
+        override fun getWebClientId(): String? = "fake_client_id"
     }
 
     private class FakeUserPreferencesRepository : UserPreferencesRepository {

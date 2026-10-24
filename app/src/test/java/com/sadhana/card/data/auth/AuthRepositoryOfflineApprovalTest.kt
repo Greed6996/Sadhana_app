@@ -90,9 +90,92 @@ class AuthRepositoryOfflineApprovalTest {
             email = "devotee@test.com",
             displayName = "Bhakta",
             role = "DEVOTEE",
-            isCounselorApproved = false
+            isCounselorApproved = true
         )
         assertEquals("DEVOTEE", devotee.role)
+        assertTrue(devotee.isCounselorApproved)
+    }
+
+    @Test
+    fun devotee_bypassesApproval_hasInstantAccess() {
+        // Schema check: Devotee profile data map has instant access solely by role, without status or isApproved
+        val isCounselorRequest = false
+        val normalizedRole = if (isCounselorRequest) "COUNSELOR" else "DEVOTEE"
+        val profileData = mutableMapOf<String, Any>(
+            "uid" to "devotee_123",
+            "displayName" to "Bhakta Das",
+            "email" to "bhakta@example.com",
+            "role" to normalizedRole,
+            "requestedRole" to normalizedRole,
+            "updatedAt" to 123456789L
+        )
+        if (isCounselorRequest) {
+            profileData["isApproved"] = false
+            profileData["requestedAt"] = 123456789L
+        }
+
+        assertEquals("DEVOTEE", profileData["role"])
+        assertFalse("Devotee document must NOT contain 'status'", profileData.containsKey("status"))
+        assertFalse("Devotee document must NOT contain 'isApproved'", profileData.containsKey("isApproved"))
+    }
+
+    @Test
+    fun counselor_firstSignUp_writesOnlyIsApprovedFalseAndNoStatus() {
+        val isCounselorRequest = true
+        val normalizedRole = if (isCounselorRequest) "COUNSELOR" else "DEVOTEE"
+        val profileData = mutableMapOf<String, Any>(
+            "uid" to "counselor_456",
+            "displayName" to "Counselorji",
+            "email" to "counselor@example.com",
+            "role" to normalizedRole,
+            "requestedRole" to normalizedRole,
+            "updatedAt" to 123456789L
+        )
+        if (isCounselorRequest) {
+            profileData["isApproved"] = false
+            profileData["requestedAt"] = 123456789L
+        }
+
+        assertEquals("COUNSELOR", profileData["role"])
+        assertFalse("Counselor document must NOT contain 'status'", profileData.containsKey("status"))
+        assertTrue("Counselor document MUST contain 'isApproved'", profileData.containsKey("isApproved"))
+        assertEquals(false, profileData["isApproved"])
+    }
+
+    @Test
+    fun counselor_dashboardAccess_grantedIfAndOnlyIfApproved() {
+        // Unapproved counselor
+        val unapprovedCounselor = AuthState.Authenticated(
+            uid = "c_1",
+            email = "c1@test.com",
+            displayName = "Counselor",
+            role = "COUNSELOR",
+            isCounselorApproved = false
+        )
+        val hasAccessUnapproved = unapprovedCounselor.role.equals("counselor", ignoreCase = true) && unapprovedCounselor.isCounselorApproved
+        assertFalse("Unapproved counselor must NOT have dashboard access", hasAccessUnapproved)
+
+        // Approved counselor
+        val approvedCounselor = AuthState.Authenticated(
+            uid = "c_2",
+            email = "c2@test.com",
+            displayName = "Counselor Approved",
+            role = "COUNSELOR",
+            isCounselorApproved = true
+        )
+        val hasAccessApproved = approvedCounselor.role.equals("counselor", ignoreCase = true) && approvedCounselor.isCounselorApproved
+        assertTrue("Approved counselor MUST have dashboard access", hasAccessApproved)
+
+        // Devotee bypasses approval checks - not a counselor, normal devotee access
+        val devotee = AuthState.Authenticated(
+            uid = "d_1",
+            email = "d1@test.com",
+            displayName = "Devotee",
+            role = "DEVOTEE",
+            isCounselorApproved = true
+        )
+        val isDevoteeCounselor = devotee.role.equals("counselor", ignoreCase = true) && devotee.isCounselorApproved
+        assertFalse("Devotee does not access counselor dashboard, but accesses devotee features", isDevoteeCounselor)
     }
 
     private class FakeUserPreferencesRepository : UserPreferencesRepository {

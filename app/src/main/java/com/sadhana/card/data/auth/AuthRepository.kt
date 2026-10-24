@@ -113,11 +113,10 @@ class AuthRepositoryImpl @Inject constructor(
                     if (snapshot != null && snapshot.exists()) {
                         val roleRaw = snapshot.getString("role") ?: "DEVOTEE"
                         val isCounselorRole = roleRaw.equals("counselor", ignoreCase = true)
-                        val status = snapshot.getString("status")?.uppercase() ?: ""
                         val isApprovedExplicit = snapshot.getBoolean("isApproved") == true
 
                         val isApproved = if (isCounselorRole) {
-                            isApprovedExplicit || status == "APPROVED" || checkCounselorDoc(uid)
+                            isApprovedExplicit || checkCounselorDoc(uid)
                         } else {
                             true
                         }
@@ -196,10 +195,7 @@ class AuthRepositoryImpl @Inject constructor(
         try {
             // 1. Check user profile document in /users/{uid}
             val userDoc = firestore.collection("users").document(uid).get().await()
-            val approvedInUserDoc = userDoc.exists() && (
-                userDoc.getBoolean("isApproved") == true ||
-                userDoc.getString("status")?.equals("APPROVED", ignoreCase = true) == true
-            )
+            val approvedInUserDoc = userDoc.exists() && userDoc.getBoolean("isApproved") == true
 
             // 2. Fallback check /counselors/{uid}
             val approvedInCounselorDoc = checkCounselorDoc(uid)
@@ -273,7 +269,6 @@ class AuthRepositoryImpl @Inject constructor(
                 normalizedRole = existingRole
 
                 val wasApproved = existingDoc.getBoolean("isApproved") == true ||
-                    existingDoc.getString("status")?.equals("APPROVED", ignoreCase = true) == true ||
                     checkCounselorDoc(user.uid)
 
                 isApproved = if (normalizedRole == "COUNSELOR") wasApproved else true
@@ -299,11 +294,10 @@ class AuthRepositoryImpl @Inject constructor(
                     "email" to (user.email ?: ""),
                     "role" to normalizedRole,
                     "requestedRole" to normalizedRole,
-                    "status" to (if (isCounselorRequest) "PENDING" else "APPROVED"),
-                    "isApproved" to isApproved,
                     "updatedAt" to System.currentTimeMillis()
                 )
                 if (isCounselorRequest) {
+                    profileData["isApproved"] = false
                     profileData["requestedAt"] = System.currentTimeMillis()
                 }
                 if (prefs.counselorName.isNotBlank()) {

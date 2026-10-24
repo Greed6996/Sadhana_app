@@ -262,7 +262,7 @@ private fun MainTabsScaffold(
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Daily.route
 
     val isCounselor = (authState as? AuthState.Authenticated)?.let {
-        it.role == "counselor" && it.isCounselorApproved
+        it.role.equals("counselor", ignoreCase = true) && it.isCounselorApproved
     } ?: false
 
     Scaffold(

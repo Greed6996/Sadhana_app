@@ -50,7 +50,7 @@ data class UserPreferences(
         get() = authUid.isNotBlank()
 
     val isCounselor: Boolean
-        get() = authRole == "counselor" && isCounselorApproved
+        get() = authRole.equals("counselor", ignoreCase = true) && isCounselorApproved
 }
 
 interface UserPreferencesRepository {

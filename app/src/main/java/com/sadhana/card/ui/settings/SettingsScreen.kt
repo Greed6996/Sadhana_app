@@ -227,7 +227,7 @@ fun SettingsScreen(
                                         fontSize = 15.sp,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    val roleText = if (authState.role == "counselor") {
+                                    val roleText = if (authState.role.equals("counselor", ignoreCase = true)) {
                                         if (authState.isCounselorApproved) "Counselor • Verified" else "Counselor • Pending Approval"
                                     } else {
                                         "Devotee Account • Cloud Synced"
