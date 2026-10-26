@@ -174,7 +174,6 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                 var weekTotal = 0
                 var pathanTotal = 0
                 var sravanTotal = 0
-                var sevaTotal = 0
 
                 val columns = weekDates.map { date ->
                     val dateKey = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -187,11 +186,18 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                         val napCategoryStr = (dayData["daySleepCategory"] as? String)?.ifBlank { null }
                         val pathanMin = (dayData["pathanMinutes"] as? Long)?.toInt() ?: 0
                         val sravanMin = (dayData["sravanMinutes"] as? Long)?.toInt() ?: 0
-                        val sevaMin = (dayData["sevaMinutes"] as? Long)?.toInt() ?: 0
 
                         val bedCat = bedCategoryStr?.let { runCatching { BedtimeCategory.valueOf(it) }.getOrNull() }
                         val wakeCat = wakeCategoryStr?.let { runCatching { WakeUpCategory.valueOf(it) }.getOrNull() }
-                        val japaCat = japaCategoryStr?.let { runCatching { JapaCategory.valueOf(it) }.getOrNull() }
+                        val japaCat = japaCategoryStr?.let { raw ->
+                            runCatching { JapaCategory.valueOf(raw) }.getOrElse {
+                                when (raw) {
+                                    "BY_7_15_AM" -> JapaCategory.BY_9_00_AM
+                                    "BY_11_59_AM" -> JapaCategory.BEFORE_12_00_PM
+                                    else -> null
+                                }
+                            }
+                        }
                         val napCat = napCategoryStr?.let { runCatching { DaySleepCategory.valueOf(it) }.getOrNull() }
 
                         val japaScoreDirect = (dayData["japaScore"] as? Long)?.toInt()
@@ -211,7 +217,6 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                             daySleepCategory = napCat,
                             pathanMinutes = pathanMin,
                             sravanMinutes = sravanMin,
-                            sevaMinutes = sevaMin,
                             userId = devotee.uid,
                             isSynced = true
                         )
@@ -223,7 +228,6 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
 
                         val pathanScoreDirect = (dayData["pathanScore"] as? Long)?.toInt()
                         val sravanScoreDirect = (dayData["sravanScore"] as? Long)?.toInt()
-                        val sevaScoreDirect = (dayData["sevaScore"] as? Long)?.toInt()
 
                         if (pathanScoreDirect != null && (scores.pathanScore == null || scores.pathanScore == 0) && pathanScoreDirect > 0) {
                             scores = scores.copy(pathanScore = pathanScoreDirect)
@@ -231,15 +235,11 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                         if (sravanScoreDirect != null && (scores.sravanScore == null || scores.sravanScore == 0) && sravanScoreDirect > 0) {
                             scores = scores.copy(sravanScore = sravanScoreDirect)
                         }
-                        if (sevaScoreDirect != null && (scores.sevaScore == null || scores.sevaScore == 0) && sevaScoreDirect > 0) {
-                            scores = scores.copy(sevaScore = sevaScoreDirect)
-                        }
 
                         val dayScore = scores.totalScore
                         if (dayScore != null) {
                             pathanTotal += pathanMin
                             sravanTotal += sravanMin
-                            sevaTotal += sevaMin
                             weekTotal += dayScore
                         }
 
@@ -269,7 +269,6 @@ class CounselorDashboardViewModel @Inject constructor() : ViewModel() {
                     weekTotalScore = weekTotal,
                     totalPathanMinutes = pathanTotal,
                     totalSravanMinutes = sravanTotal,
-                    totalSevaMinutes = sevaTotal,
                     sadhakaName = devotee.name,
                     counselorName = devotee.counselorName,
                     isLoading = false

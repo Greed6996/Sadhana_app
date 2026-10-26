@@ -40,7 +40,7 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
 import com.sadhana.card.ui.theme.NewsreaderFontFamily
 
 /**
- * Reusable stepper for minutes (e.g. Day Sleep, Reading, Hearing, Seva)
+ * Reusable stepper for minutes (e.g. Day Sleep, Reading, Hearing)
  * with [-] / [+] decrement/increment buttons and tap-to-type dialog.
  */
 @Composable

@@ -1619,11 +1619,11 @@
                         <circle class="score-circle-fill" id="score-circle-bar" cx="60" cy="60" r="50" stroke-width="10" stroke-dasharray="314.16" stroke-dashoffset="60" />
                     </svg>
                     <div class="score-circle-inner">
-                        <span class="score-circle-value" id="total-score-val">185</span>
-                        <span class="score-circle-max">/ 200 PTS</span>
+                        <span class="score-circle-value" id="total-score-val">150</span>
+                        <span class="score-circle-max">/ 150 PTS</span>
                     </div>
                 </div>
-                <!-- 7 Category Breakdown (Day Sleep strictly after 16 Rounds Japa) -->
+                <!-- 6 Category Breakdown (Day Sleep strictly after 16 Rounds Japa) -->
                 <div class="score-breakdown-grid" id="score-breakdown-container"></div>
             </div>
 
@@ -1667,7 +1667,7 @@
             </div>
 
             <!-- JAPA Section -->
-            <div class="section-header">JAPA (MAX 50 PTS)</div>
+            <div class="section-header">JAPA (MAX 25 PTS)</div>
 
             <!-- Japa Accordion -->
             <div class="category-accordion-card is-open" id="card-japa">
@@ -1677,10 +1677,10 @@
                     </div>
                     <div class="accordion-title-wrap">
                         <div class="entry-title">16 rounds done by</div>
-                        <div class="accordion-summary" id="japa-summary">All 16 rounds completed by 7:15 AM</div>
+                        <div class="accordion-summary" id="japa-summary">Before 9:00 AM</div>
                     </div>
                     <div class="accordion-right">
-                        <span class="score-pill" id="japa-pill">+50 pts</span>
+                        <span class="score-pill" id="japa-pill">+25 pts</span>
                         <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
                 </div>
@@ -1720,7 +1720,7 @@
             </div>
 
             <!-- STUDY & SERVICE Section -->
-            <div class="section-header">STUDY & SERVICE (MAX 75 PTS)</div>
+            <div class="section-header">READING &amp; HEARING (MAX 50 PTS)</div>
 
             <!-- Pathan -->
             <div class="entry-card">
@@ -1730,9 +1730,9 @@
                 <div class="entry-info">
                     <div style="display:flex;align-items:center;gap:6px">
                         <span class="entry-title">Pathan</span>
-                        <span class="score-pill" id="pathan-pill">+20 pts</span>
+                        <span class="score-pill" id="pathan-pill">+25 pts</span>
                     </div>
-                    <div class="entry-hint">Reading Prabhupada books (0m: -5, 60m+: 25)</div>
+                    <div class="entry-hint">Reading Prabhupada books (0m: -5, 30m+: 25)</div>
                 </div>
                 <div class="stepper-box">
                     <button type="button" class="stepper-btn" onclick="changeMinutes('pathanMinutes', -5)">−</button>
@@ -1752,9 +1752,9 @@
                 <div class="entry-info">
                     <div style="display:flex;align-items:center;gap:6px">
                         <span class="entry-title">Sravan</span>
-                        <span class="score-pill" id="sravan-pill">+15 pts</span>
+                        <span class="score-pill" id="sravan-pill">+25 pts</span>
                     </div>
-                    <div class="entry-hint">Hearing lectures (0m: -5, 60m+: 25)</div>
+                    <div class="entry-hint">Hearing lectures (0m: -5, 30m+: 25)</div>
                 </div>
                 <div class="stepper-box">
                     <button type="button" class="stepper-btn" onclick="changeMinutes('sravanMinutes', -5)">−</button>
@@ -1763,28 +1763,6 @@
                         <span class="unit-label">min</span>
                     </div>
                     <button type="button" class="stepper-btn" onclick="changeMinutes('sravanMinutes', 5)">+</button>
-                </div>
-            </div>
-
-            <!-- Seva (Tags removed) -->
-            <div class="entry-card">
-                <div class="icon-tile">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A3406" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path></svg>
-                </div>
-                <div class="entry-info">
-                    <div style="display:flex;align-items:center;gap:6px">
-                        <span class="entry-title">Seva</span>
-                        <span class="score-pill" id="seva-pill">+25 pts</span>
-                    </div>
-                    <div class="entry-hint">Practical service (0m: 0, 60m+: 25)</div>
-                </div>
-                <div class="stepper-box">
-                    <button type="button" class="stepper-btn" onclick="changeMinutes('sevaMinutes', -5)">−</button>
-                    <div class="stepper-input-col">
-                        <input type="text" inputmode="numeric" class="stepper-input" id="seva-input" value="60" onchange="setCustomMinutes('sevaMinutes', this.value)">
-                        <span class="unit-label">min</span>
-                    </div>
-                    <button type="button" class="stepper-btn" onclick="changeMinutes('sevaMinutes', 5)">+</button>
                 </div>
             </div>
 
@@ -1818,7 +1796,7 @@
             <div style="background:#5E2112;color:#FBF1DF;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
                 <div style="display:flex;align-items:baseline;justify-content:space-between">
                     <div style="font-size:13px;font-weight:500;opacity:0.9">Weekly score</div>
-                    <div style="font-family:'Newsreader',serif;font-size:38px;font-weight:600;line-height:1"><span id="weekly-total-score">103</span><span style="font-size:18px;font-weight:500;opacity:0.85"> / 1400</span></div>
+                    <div style="font-family:'Newsreader',serif;font-size:38px;font-weight:600;line-height:1"><span id="weekly-total-score">103</span><span style="font-size:18px;font-weight:500;opacity:0.85"> / 1050</span></div>
                 </div>
                 <div style="height:8px;border-radius:99px;background:rgba(251,241,223,0.22);overflow:hidden">
                     <div id="weekly-progress-bar" style="width:73.6%;height:100%;background:#F4B26B;border-radius:99px;transition:width 0.3s ease"></div>
@@ -1945,7 +1923,7 @@
             <!-- App Version Card -->
             <div class="settings-card">
                 <div class="settings-title">App Version</div>
-                <div class="settings-subtitle" style="font-family:'DM Sans', monospace;font-size:13px">v1.0.30 (Build 30) · Production Ready</div>
+                <div class="settings-subtitle" style="font-family:'DM Sans', monospace;font-size:13px">v1.0.31 (Build 31) · Production Ready</div>
             </div>
         </div>
 
@@ -1961,7 +1939,7 @@
             <div class="settings-card">
                 <div class="terms-body-text">
                     <h2>1. Purpose of Sadhana Card</h2>
-                    <p>Sadhana Card is a personal devotional spiritual accountability journal designed for practitioners of Krishna consciousness. It helps sadhakas log daily sadhana regulations—including bedtime, wake-up time, day rest, japa chanting, spiritual reading (Pathan), hearing lectures (Sravan), and practical service (Seva).</p>
+                    <p>Sadhana Card is a personal devotional spiritual accountability journal designed for practitioners of Krishna consciousness. It helps sadhakas log daily sadhana regulations—including bedtime, wake-up time, day rest, japa chanting, spiritual reading (Pathan), and hearing lectures (Sravan).</p>
 
                     <h2>2. Pure Offline Privacy & Local Storage</h2>
                     <p>Your devotional metrics, sadhaka name, and counselor name are stored 100% locally on your device using encrypted Room database and Jetpack DataStore preferences. No telemetry, third-party trackers, or cloud analytics are collected or transmitted across the network.</p>
@@ -2018,9 +1996,9 @@
     </div>
 
     <script>
-        // --- MAX DAILY SCORE = 200 PTS ---
-        const MAX_DAILY_SCORE = 200;
-        const MAX_WEEKLY_SCORE = 1400;
+        // --- MAX DAILY SCORE = 150 PTS ---
+        const MAX_DAILY_SCORE = 150;
+        const MAX_WEEKLY_SCORE = 1050;
 
         // 1. Bedtime (0–25 pts)
         const BEDTIME_CATEGORIES = [
@@ -2042,14 +2020,14 @@
             { id: 'WAKE_430_OR_LATER', label: '4:30 AM or later', points: 0 }
         ];
 
-        // 3. 16 Rounds Japa (0–50 pts)
+        // 3. 16 Rounds Japa (-5 to +25 pts)
         const JAPA_CATEGORIES = [
-            { id: 'JAPA_BY_715', label: 'All 16 rounds completed by 7:15 AM', points: 50 },
-            { id: 'JAPA_BY_900', label: 'All 16 rounds completed by 9:00 AM', points: 40 },
-            { id: 'JAPA_BY_1159', label: 'All 16 rounds completed by 11:59 AM', points: 30 },
-            { id: 'JAPA_BY_1500', label: 'All 16 rounds completed by 3:00 PM', points: 20 },
-            { id: 'JAPA_BY_1800', label: 'All 16 rounds completed by 6:00 PM', points: 10 },
-            { id: 'JAPA_AFTER_1800', label: 'Completed after 6:00 PM', points: 0 }
+            { id: 'JAPA_BY_900', label: 'Before 9:00 AM', points: 25 },
+            { id: 'JAPA_BEFORE_1200', label: 'Before 12:00 PM', points: 20 },
+            { id: 'JAPA_BY_1500', label: 'Before 3:00 PM', points: 15 },
+            { id: 'JAPA_BY_1800', label: 'Before 6:00 PM', points: 10 },
+            { id: 'JAPA_AFTER_1800', label: 'After 6:00 PM', points: 0 },
+            { id: 'JAPA_AFTER_2100_OR_INCOMPLETE', label: 'After 9:00 PM / Incomplete', points: -5 }
         ];
 
         // 4. Day Sleep / Nap (0–25 pts) - Placed strictly after 16 Rounds Japa
@@ -2071,9 +2049,9 @@
         }
 
         function scoreJapaCategory(catId, japaCompleted) {
-            if (japaCompleted === false) return 0;
+            if (japaCompleted === false) return -5;
             const cat = JAPA_CATEGORIES.find(c => c.id === catId);
-            return cat ? cat.points : 0;
+            return cat ? cat.points : -5;
         }
 
         // Travel allowance removed
@@ -2084,52 +2062,37 @@
 
         // 5. Pathan (Reading) [Max: 25 pts, Min: -5 pts]
         function scorePathan(mins) {
-            const m = Math.max(0, parseInt(mins, 10) || 0);
-            if (m >= 60) return 25;
-            if (m >= 45) return 20;
-            if (m >= 30) return 15;
-            if (m >= 15) return 5;
-            if (m >= 10) return 3;
-            if (m >= 5) return 2;
-            return -5;
+            const m = parseInt(mins, 10);
+            if (isNaN(m) || m <= 0) return -5;
+            if (m >= 30) return 25;
+            if (m >= 20) return 20;
+            if (m >= 15) return 10;
+            if (m >= 10) return 5;
+            return 0;
         }
 
         // 6. Shravan (Listening) [Max: 25 pts, Min: -5 pts]
         function scoreShravan(mins) {
-            const m = Math.max(0, parseInt(mins, 10) || 0);
-            if (m >= 60) return 25;
-            if (m >= 45) return 20;
-            if (m >= 30) return 15;
-            if (m >= 15) return 5;
-            if (m >= 10) return 3;
-            if (m >= 5) return 2;
-            return -5;
-        }
-
-        // 7. Seva [Max: 25 pts, Min: 0 pts]
-        function scoreSeva(mins) {
-            const m = Math.max(0, parseInt(mins, 10) || 0);
-            if (m >= 60) return 25;
-            if (m >= 45) return 20;
-            if (m >= 30) return 15;
-            if (m >= 15) return 5;
-            if (m >= 10) return 3;
-            if (m >= 5) return 2;
+            const m = parseInt(mins, 10);
+            if (isNaN(m) || m <= 0) return -5;
+            if (m >= 30) return 25;
+            if (m >= 20) return 20;
+            if (m >= 15) return 10;
+            if (m >= 10) return 5;
             return 0;
         }
 
-        // Compute 7-category daily scores
+        // Compute 6-category daily scores
         function computeDayScores(entry) {
-            if (!entry) return { bed: 0, wake: 0, japa: 0, nap: 0, pathan: -5, shravan: -5, seva: 0, total: -10 };
+            if (!entry) return { bed: 0, wake: 0, japa: 0, nap: 0, pathan: 0, shravan: 0, total: 0 };
             const bed = scoreBedtimeCategory(entry.bedtimeCategory);
             const wake = scoreWakeUpCategory(entry.wakeCategory);
             const japa = scoreJapaCategory(entry.japaCategory, entry.japaCompleted);
             const nap = scoreDaySleepCategory(entry.napCategory);
             const pathan = scorePathan(entry.pathanMinutes != null ? entry.pathanMinutes : 0);
             const shravan = scoreShravan(entry.sravanMinutes != null ? entry.sravanMinutes : 0);
-            const seva = scoreSeva(entry.sevaMinutes != null ? entry.sevaMinutes : 0);
-            const total = bed + wake + japa + nap + pathan + shravan + seva;
-            return { bed, wake, japa, nap, pathan, shravan, seva, total };
+            const total = bed + wake + japa + nap + pathan + shravan;
+            return { bed, wake, japa, nap, pathan, shravan, total };
         }
 
         function isDayLogged(entry) {
@@ -2139,36 +2102,37 @@
                 entry.japaCategory ||
                 entry.napCategory ||
                 (entry.pathanMinutes != null && entry.pathanMinutes > 0) ||
-                (entry.sravanMinutes != null && entry.sravanMinutes > 0) ||
-                (entry.sevaMinutes != null && entry.sevaMinutes > 0)
+                (entry.sravanMinutes != null && entry.sravanMinutes > 0)
             ));
         }
 
         // Color states:
         // Default unlogged: Yellow (#D97706)
         // Logged:
-        //   Red: totalScore < 75 (#DC2626)
-        //   Yellow: 75 <= totalScore < 200 (#D97706)
-        //   Green: totalScore == 200 (#16A34A)
+        //   Solid Red: totalScore <= 0 (#E53935)
+        //   Red: totalScore < 60 (#E53935)
+        //   Yellow: 60 <= totalScore < 150 (#D97706)
+        //   Green: totalScore == 150 (#16A34A)
         function getScoreColor(totalScore, isLogged) {
             if (!isLogged) return '#D97706';
-            if (totalScore < 75) return '#DC2626';
-            if (totalScore < 200) return '#D97706';
+            if (totalScore <= 0) return '#E53935';
+            if (totalScore < 60) return '#E53935';
+            if (totalScore < 150) return '#D97706';
             return '#16A34A';
         }
 
         function getScoreBadgeClass(totalScore, isLogged) {
             if (!isLogged) return 'badge-state-yellow';
-            if (totalScore < 75) return 'badge-state-red';
-            if (totalScore < 200) return 'badge-state-yellow';
+            if (totalScore <= 0 || totalScore < 60) return 'badge-state-red';
+            if (totalScore < 150) return 'badge-state-yellow';
             return 'badge-state-green';
         }
 
         function getScoreStatusText(totalScore, isLogged) {
             if (!isLogged) return 'Unlogged';
-            if (totalScore === 200) return 'Full Marks 🌟';
-            if (totalScore >= 150) return 'Very Good';
-            if (totalScore >= 75) return 'Good Progress';
+            if (totalScore >= 150) return 'Full Marks 🌟';
+            if (totalScore >= 115) return 'Very Good';
+            if (totalScore >= 60) return 'Good Progress';
             return 'Needs Attention';
         }
 
@@ -2179,13 +2143,13 @@
         const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         const defaultData = [
-            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 45, sravanMinutes: 30, sevaMinutes: 60 },
-            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_400', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 30, sravanMinutes: 45, sevaMinutes: 60 },
-            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_715', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 60, sravanMinutes: 30, sevaMinutes: 45 },
-            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_300', japaCategory: 'JAPA_BY_1159', japaCompleted: true, napCategory: 'NAP_46_TO_60', pathanMinutes: 20, sravanMinutes: 60, sevaMinutes: 0 },
-            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 40, sravanMinutes: 30, sevaMinutes: 60 },
-            { bedtimeCategory: 'BED_BEFORE_1045', wakeCategory: 'WAKE_BEFORE_415', japaCategory: 'JAPA_BY_1500', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 0, sravanMinutes: 20, sevaMinutes: 60 },
-            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_430', japaCategory: 'JAPA_BY_1159', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 25, sravanMinutes: 40, sevaMinutes: 30 }
+            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 45, sravanMinutes: 30 },
+            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_400', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 30, sravanMinutes: 45 },
+            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 60, sravanMinutes: 30 },
+            { bedtimeCategory: 'BED_BEFORE_1000', wakeCategory: 'WAKE_BEFORE_300', japaCategory: 'JAPA_BEFORE_1200', japaCompleted: true, napCategory: 'NAP_46_TO_60', pathanMinutes: 20, sravanMinutes: 60 },
+            { bedtimeCategory: 'BED_930_OR_BEFORE', wakeCategory: 'WAKE_BEFORE_330', japaCategory: 'JAPA_BY_900', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 40, sravanMinutes: 30 },
+            { bedtimeCategory: 'BED_BEFORE_1045', wakeCategory: 'WAKE_BEFORE_415', japaCategory: 'JAPA_BY_1500', japaCompleted: true, napCategory: 'NAP_30_OR_LESS', pathanMinutes: 0, sravanMinutes: 20 },
+            { bedtimeCategory: 'BED_BEFORE_1030', wakeCategory: 'WAKE_BEFORE_430', japaCategory: 'JAPA_BEFORE_1200', japaCompleted: true, napCategory: 'NAP_31_TO_45', pathanMinutes: 25, sravanMinutes: 40 }
         ];
 
         let weekEntries = JSON.parse(JSON.stringify(defaultData));
@@ -2272,7 +2236,10 @@
                 JAPA_CATEGORIES.forEach(cat => {
                     const row = document.createElement('div');
                     const isSel = entry.japaCategory === cat.id;
-                    const pts = isCompleted ? cat.points : 0;
+                    const isCompleted = entry.japaCompleted !== false;
+                    const pts = isCompleted ? cat.points : -5;
+                    const ptsSign = pts > 0 ? '+' : '';
+                    const badgeClass = pts <= 0 ? 'option-pts-badge pts-0' : `option-pts-badge pts-${pts}`;
                     row.className = 'category-option-row' + (isSel ? ' selected' : '') + (!isCompleted ? ' disabled' : '');
                     row.onclick = () => {
                         if (!isCompleted) {
@@ -2286,7 +2253,7 @@
                             <div class="option-radio"><div class="option-radio-dot"></div></div>
                             <div class="option-label">${cat.label}</div>
                         </div>
-                        <span class="option-pts-badge pts-${pts}">+${pts} pts</span>
+                        <span class="${badgeClass}" style="${pts <= 0 ? 'color:#E53935;border-color:#E53935;' : ''}">${ptsSign}${pts} pts</span>
                     `;
                     japaList.appendChild(row);
                 });
@@ -2330,35 +2297,43 @@
             document.getElementById('day-score-title').textContent = `${fullDayNames[selectedDayIndex]}’s score`;
 
             // Circular Total Score
-            document.getElementById('total-score-val').textContent = scores.total;
+            const totalScoreValElem = document.getElementById('total-score-val');
+            if (totalScoreValElem) {
+                totalScoreValElem.textContent = scores.total;
+                totalScoreValElem.style.color = scores.total <= 0 ? '#E53935' : '#2B1A12';
+            }
             const statusElem = document.getElementById('circle-score-status');
             if (statusElem) {
                 statusElem.textContent = getScoreStatusText(scores.total, isLogged);
                 statusElem.className = 'score-badge-status ' + getScoreBadgeClass(scores.total, isLogged);
             }
 
-            // Circular Gauge Stroke Animation
+            // Circular Gauge Stroke Animation: solid red #E53935 on <= 0 pts
             const circleBar = document.getElementById('score-circle-bar');
             if (circleBar) {
                 const circumference = 2 * Math.PI * 50; // ~314.159
-                const clamped = Math.max(0, Math.min(200, scores.total));
-                const offset = circumference - (clamped / 200) * circumference;
-                circleBar.style.strokeDashoffset = offset;
-                circleBar.style.stroke = scoreColor;
+                if (scores.total <= 0) {
+                    circleBar.style.strokeDashoffset = 0;
+                    circleBar.style.stroke = '#E53935';
+                } else {
+                    const clamped = Math.min(150, scores.total);
+                    const offset = circumference - (clamped / 150) * circumference;
+                    circleBar.style.strokeDashoffset = offset;
+                    circleBar.style.stroke = scoreColor;
+                }
             }
 
-            // 7 Individual Category Score Breakdown (Day Sleep strictly after Japa)
+            // 6 Individual Category Score Breakdown (Day Sleep strictly after Japa)
             const breakdownContainer = document.getElementById('score-breakdown-container');
             if (breakdownContainer) {
                 breakdownContainer.innerHTML = '';
                 const breakdownItems = [
                     { name: 'Bed', pts: scores.bed, max: 25 },
                     { name: 'Wake', pts: scores.wake, max: 25 },
-                    { name: '16 Japa', pts: scores.japa, max: 50 },
+                    { name: '16 Japa', pts: scores.japa, max: 25 },
                     { name: 'Day Sleep', pts: scores.nap, max: 25 },
                     { name: 'Pathan', pts: scores.pathan, max: 25 },
-                    { name: 'Shravan', pts: scores.shravan, max: 25 },
-                    { name: 'Seva', pts: scores.seva, max: 25 }
+                    { name: 'Shravan', pts: scores.shravan, max: 25 }
                 ];
 
                 breakdownItems.forEach(item => {
@@ -2366,13 +2341,12 @@
                     chip.className = 'breakdown-chip';
                     const sign = item.pts > 0 ? '+' : '';
                     let scoreClass = '';
-                    if (item.pts < 0) scoreClass = 'negative';
+                    if (item.pts <= 0) scoreClass = 'negative';
                     else if (item.pts === item.max) scoreClass = 'full';
-                    else if (item.pts === 0) scoreClass = 'zero';
 
                     chip.innerHTML = `
                         <span class="breakdown-chip-title">${item.name}</span>
-                        <span class="breakdown-chip-score ${scoreClass}">${sign}${item.pts}</span>
+                        <span class="breakdown-chip-score ${scoreClass}" style="${item.pts <= 0 ? 'color:#E53935 !important;' : ''}">${sign}${item.pts}</span>
                     `;
                     breakdownContainer.appendChild(chip);
                 });
@@ -2398,10 +2372,10 @@
             const japaSummary = document.getElementById('japa-summary');
             if (japaSummary) {
                 japaSummary.textContent = japaCompleted
-                    ? (japaCat ? japaCat.label : '16 rounds completed')
-                    : '16 rounds incomplete (0 pts)';
+                    ? (japaCat ? japaCat.label : 'Before 9:00 AM')
+                    : '16 rounds incomplete (-5 pts)';
             }
-            updatePill('japa-pill', scores.japa);
+            updatePillWithNegative('japa-pill', scores.japa);
 
             // Day Sleep summary & pill
             const napCat = NAP_CATEGORIES.find(c => c.id === entry.napCategory) || NAP_CATEGORIES[0];
@@ -2412,11 +2386,9 @@
             // Study & Service inputs & pills
             document.getElementById('pathan-input').value = entry.pathanMinutes != null ? entry.pathanMinutes : 0;
             document.getElementById('sravan-input').value = entry.sravanMinutes != null ? entry.sravanMinutes : 0;
-            document.getElementById('seva-input').value = entry.sevaMinutes != null ? entry.sevaMinutes : 0;
 
             updatePillWithNegative('pathan-pill', scores.pathan);
             updatePillWithNegative('sravan-pill', scores.shravan);
-            updatePill('seva-pill', scores.seva);
 
             renderCategoryOptions();
             renderDaySwitcher();
@@ -2426,11 +2398,16 @@
             const el = document.getElementById(elemId);
             if (!el) return;
             el.style.display = 'inline-block';
-            el.textContent = `+${score} pts`;
             if (score <= 0) {
+                el.textContent = score < 0 ? `${score} pts` : `0 pts`;
                 el.className = 'score-pill zero';
+                el.style.color = '#E53935';
+                el.style.borderColor = '#E53935';
             } else {
+                el.textContent = `+${score} pts`;
                 el.className = 'score-pill';
+                el.style.color = '';
+                el.style.borderColor = '';
             }
         }
 
@@ -2438,14 +2415,16 @@
             const el = document.getElementById(elemId);
             if (!el) return;
             el.style.display = 'inline-block';
-            if (score < 0) {
-                el.textContent = `${score} pts`;
+            if (score <= 0) {
+                el.textContent = score < 0 ? `${score} pts` : `0 pts`;
                 el.className = 'score-pill zero';
-                el.style.color = '#DC2626';
+                el.style.color = '#E53935';
+                el.style.borderColor = '#E53935';
             } else {
                 el.textContent = `+${score} pts`;
-                el.className = score === 0 ? 'score-pill zero' : 'score-pill';
+                el.className = 'score-pill';
                 el.style.color = '';
+                el.style.borderColor = '';
             }
         }
 
@@ -2520,7 +2499,7 @@
             }
         }
 
-        // --- Weekly Matrix Computations (Max 200 pts/day, 1400 pts/week) ---
+        // --- Weekly Matrix Computations (Max 150 pts/day, 1050 pts/week) ---
         function getCellClass(score, maxScore) {
             if (score === null || score === undefined) return 'cell-unlogged';
             const pct = maxScore > 0 ? (score / maxScore) : 0;
@@ -2536,15 +2515,14 @@
             if (!container) return;
             container.innerHTML = '';
 
-            // Note: Day sleep is strictly positioned AFTER Japa in 7-item breakdown
+            // Note: Day sleep is strictly positioned AFTER Japa in 6-item breakdown
             const rowDefs = [
                 { key: 'bed', label: 'Bedtime', unit: 'pts', maxScore: 25, getter: (e) => scoreBedtimeCategory(e.bedtimeCategory), isScore: true },
                 { key: 'wake', label: 'Wake-up', unit: 'pts', maxScore: 25, getter: (e) => scoreWakeUpCategory(e.wakeCategory), isScore: true },
-                { key: 'japa', label: '16 Rounds', unit: 'pts', maxScore: 50, getter: (e) => scoreJapaCategory(e.japaCategory, e.japaCompleted), isScore: true },
+                { key: 'japa', label: '16 Rounds', unit: 'pts', maxScore: 25, getter: (e) => scoreJapaCategory(e.japaCategory, e.japaCompleted), isScore: true },
                 { key: 'nap', label: 'Day sleep', unit: 'pts', maxScore: 25, getter: (e) => scoreDaySleepCategory(e.napCategory), isScore: true },
                 { key: 'pathan', label: 'Pathan', unit: 'min', maxScore: 60, getter: (e) => e.pathanMinutes || 0, isScore: false },
-                { key: 'sravan', label: 'Sravan', unit: 'min', maxScore: 60, getter: (e) => e.sravanMinutes || 0, isScore: false },
-                { key: 'seva', label: 'Seva', unit: 'min', maxScore: 60, getter: (e) => e.sevaMinutes || 0, isScore: false }
+                { key: 'sravan', label: 'Sravan', unit: 'min', maxScore: 60, getter: (e) => e.sravanMinutes || 0, isScore: false }
             ];
 
             const dailyTotals = weekEntries.map(e => computeDayScores(e).total);
@@ -2571,10 +2549,10 @@
                 container.appendChild(rowDiv);
             });
 
-            // Total row (out of 200)
+            // Total row (out of 150)
             const totalRow = document.createElement('div');
             totalRow.className = 'matrix-row';
-            totalRow.innerHTML = `<div class="row-label">Total<div class="row-unit">of 200</div></div>`;
+            totalRow.innerHTML = `<div class="row-label">Total<div class="row-unit">of 150</div></div>`;
             dailyTotals.forEach((tot, i) => {
                 const cell = document.createElement('div');
                 cell.className = 'matrix-cell cell-tot';
@@ -2584,10 +2562,10 @@
             });
             container.appendChild(totalRow);
 
-            // Weekly Summary aggregates (out of 1400)
+            // Weekly Summary aggregates (out of 1050)
             const weekTotal = dailyTotals.reduce((a, b) => a + b, 0);
             document.getElementById('weekly-total-score').textContent = weekTotal;
-            document.getElementById('weekly-progress-bar').style.width = Math.min(100, Math.max(0, (weekTotal / 1400) * 100)) + '%';
+            document.getElementById('weekly-progress-bar').style.width = Math.min(100, Math.max(0, (weekTotal / 1050) * 100)) + '%';
 
             const sumPathan = weekEntries.reduce((a, b) => a + (b.pathanMinutes || 0), 0);
             const sumSravan = weekEntries.reduce((a, b) => a + (b.sravanMinutes || 0), 0);
@@ -2609,7 +2587,7 @@
             const hlBestDay = document.getElementById('highlight-best-day');
             if (hlBestDay) hlBestDay.textContent = fullDayNames[bestIdx];
             const hlBestScore = document.getElementById('highlight-best-score');
-            if (hlBestScore) hlBestScore.textContent = bestScore >= 0 ? `${bestScore} / 200 pts` : '—';
+            if (hlBestScore) hlBestScore.textContent = bestScore >= 0 ? `${bestScore} / 150 pts` : '—';
 
             // Average wake-up category representation
             const hlAvgWake = document.getElementById('highlight-avg-wake');
@@ -2624,11 +2602,10 @@
                 else hlAvgWake.textContent = '4:30 AM or later';
             }
 
-            // Total study and practical service combined
-            const sumSeva = weekEntries.reduce((a, b) => a + (b.sevaMinutes || 0), 0);
-            const totalDevotionalMins = sumBoth + sumSeva;
-            const hlStudySeva = document.getElementById('highlight-study-seva');
-            if (hlStudySeva) hlStudySeva.textContent = `${Math.floor(totalDevotionalMins / 60)}h ${totalDevotionalMins % 60}m`;
+            // Total study minutes
+            const totalDevotionalMins = sumBoth;
+            const hlStudy = document.getElementById('highlight-study-seva');
+            if (hlStudy) hlStudy.textContent = `${Math.floor(totalDevotionalMins / 60)}h ${totalDevotionalMins % 60}m`;
 
             // Load feedback and counselor details if elements exist
             loadWeeklyFeedback();

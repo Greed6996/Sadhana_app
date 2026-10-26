@@ -357,7 +357,7 @@ private fun DevoteeWeeklyReadOnlyView(
     val isLoadingWeekly by viewModel.isLoadingWeekly.collectAsStateWithLifecycle()
 
     val weekTitle = DateUtils.formatWeekRange(selectedWeekStart)
-    val maxScore = 1400
+    val maxScore = 1050
     val totalScore = weeklyState?.weekTotalScore ?: 0
     val percentage = ((totalScore.toFloat() / maxScore.toFloat()).coerceIn(0f, 1f) * 100).toInt()
     val badgeColor = getPercentageBadgeColor(percentage)
@@ -468,7 +468,7 @@ private fun DevoteeWeeklyReadOnlyView(
                             color = DarkTextPrimary
                         )
                         Text(
-                            text = "Reading: ${weeklyState?.totalPathanMinutes ?: 0}m • Hearing: ${weeklyState?.totalSravanMinutes ?: 0}m • Seva: ${weeklyState?.totalSevaMinutes ?: 0}m",
+                            text = "Reading: ${weeklyState?.totalPathanMinutes ?: 0}m • Hearing: ${weeklyState?.totalSravanMinutes ?: 0}m",
                             fontFamily = DmSansFontFamily,
                             fontSize = 11.sp,
                             color = DarkTextMuted
@@ -594,7 +594,7 @@ private fun ReadOnlyMatrixGrid(state: WeeklyMatrixUiState) {
         // Wake-up
         MatrixMetricRow("Wake-up", columns, maxScore = 25) { it.scores.wakeScore }
         // 16 rounds
-        MatrixMetricRow("16 Rnds", columns, maxScore = 50) { it.scores.japaScore }
+        MatrixMetricRow("16 Rnds", columns, maxScore = 25) { it.scores.japaScore }
         // Day Sleep
         MatrixMetricRow("Day Sleep", columns, maxScore = 25) { it.scores.napScore }
 
@@ -604,8 +604,6 @@ private fun ReadOnlyMatrixGrid(state: WeeklyMatrixUiState) {
         MatrixMetricRow("Pathan", columns, maxScore = 25) { it.scores.pathanScore }
         // Sravan
         MatrixMetricRow("Sravan", columns, maxScore = 25) { it.scores.sravanScore }
-        // Seva
-        MatrixMetricRow("Seva", columns, maxScore = 25) { it.scores.sevaScore }
 
         HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
 

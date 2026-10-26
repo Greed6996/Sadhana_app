@@ -211,38 +211,23 @@ class SadhanaScorerTest {
     }
 
     // ---------------------------------------------------------
-    // JAPA (16 ROUNDS COMPLETED BY) BOUNDARY TESTS (0–50 points)
-    // <= 07:15 -> 50
-    // 07:16–09:00 -> 40
-    // 09:01–11:59 -> 30
-    // 12:00–15:00 -> 20
+    // JAPA (16 ROUNDS COMPLETED BY) BOUNDARY TESTS (-5–25 points)
+    // <= 09:00 -> 25
+    // 09:01–12:00 -> 20
+    // 12:01–15:00 -> 15
     // 15:01–18:00 -> 10
-    // after 18:00 -> 0
+    // 18:01–21:00 -> 0
+    // after 21:00 -> -5
     // ---------------------------------------------------------
 
     @Test
-    fun testJapa_boundary07_15_scores50() {
-        assertEquals(50, SadhanaScorer.scoreJapa(LocalTime.of(7, 15)))
+    fun testJapa_boundary09_00_scores25() {
+        assertEquals(25, SadhanaScorer.scoreJapa(LocalTime.of(9, 0)))
     }
 
     @Test
-    fun testJapa_boundary07_16_scores40() {
-        assertEquals(40, SadhanaScorer.scoreJapa(LocalTime.of(7, 16)))
-    }
-
-    @Test
-    fun testJapa_boundary09_00_scores40() {
-        assertEquals(40, SadhanaScorer.scoreJapa(LocalTime.of(9, 0)))
-    }
-
-    @Test
-    fun testJapa_boundary09_01_scores30() {
-        assertEquals(30, SadhanaScorer.scoreJapa(LocalTime.of(9, 1)))
-    }
-
-    @Test
-    fun testJapa_boundary11_59_scores30() {
-        assertEquals(30, SadhanaScorer.scoreJapa(LocalTime.of(11, 59)))
+    fun testJapa_boundary09_01_scores20() {
+        assertEquals(20, SadhanaScorer.scoreJapa(LocalTime.of(9, 1)))
     }
 
     @Test
@@ -251,8 +236,13 @@ class SadhanaScorerTest {
     }
 
     @Test
-    fun testJapa_boundary15_00_scores20() {
-        assertEquals(20, SadhanaScorer.scoreJapa(LocalTime.of(15, 0)))
+    fun testJapa_boundary12_01_scores15() {
+        assertEquals(15, SadhanaScorer.scoreJapa(LocalTime.of(12, 1)))
+    }
+
+    @Test
+    fun testJapa_boundary15_00_scores15() {
+        assertEquals(15, SadhanaScorer.scoreJapa(LocalTime.of(15, 0)))
     }
 
     @Test
@@ -268,6 +258,16 @@ class SadhanaScorerTest {
     @Test
     fun testJapa_boundary18_01_scores0() {
         assertEquals(0, SadhanaScorer.scoreJapa(LocalTime.of(18, 1)))
+    }
+
+    @Test
+    fun testJapa_boundary21_00_scores0() {
+        assertEquals(0, SadhanaScorer.scoreJapa(LocalTime.of(21, 0)))
+    }
+
+    @Test
+    fun testJapa_boundary21_01_scoresMinus5() {
+        assertEquals(-5, SadhanaScorer.scoreJapa(LocalTime.of(21, 1)))
     }
 
     @Test
@@ -319,93 +319,66 @@ class SadhanaScorerTest {
     }
 
     // ---------------------------------------------------------
-    // JAPA CATEGORY TESTS (6 options: 50, 40, 30, 20, 10, 0 + completion check)
+    // JAPA CATEGORY TESTS (6 options: 25, 20, 15, 10, 0, -5)
     // ---------------------------------------------------------
 
     @Test
     fun testJapaCategory_whenCompleted_allSixCategories() {
-        assertEquals(50, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM, japaCompleted = true))
-        assertEquals(40, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = true))
-        assertEquals(30, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM, japaCompleted = true))
-        assertEquals(20, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM, japaCompleted = true))
-        assertEquals(10, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM, japaCompleted = true))
+        assertEquals(25, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = true))
+        assertEquals(20, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_12_00_PM, japaCompleted = true))
+        assertEquals(15, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_3_00_PM, japaCompleted = true))
+        assertEquals(10, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_6_00_PM, japaCompleted = true))
         assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM, japaCompleted = true))
+        assertEquals(-5, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_9_00_PM_OR_INCOMPLETE, japaCompleted = true))
     }
 
     @Test
     fun testJapaCategory_directScoringWithoutCompletionFlag() {
-        assertEquals(50, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM))
-        assertEquals(40, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM))
-        assertEquals(30, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM))
-        assertEquals(20, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM))
-        assertEquals(10, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM))
+        assertEquals(25, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM))
+        assertEquals(20, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_12_00_PM))
+        assertEquals(15, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_3_00_PM))
+        assertEquals(10, SadhanaScorer.scoreJapaCategory(JapaCategory.BEFORE_6_00_PM))
         assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM))
+        assertEquals(-5, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_9_00_PM_OR_INCOMPLETE))
         assertNull(SadhanaScorer.scoreJapaCategory(null))
     }
 
     @Test
-    fun testJapaCategory_whenIncomplete_alwaysZero() {
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_7_15_AM, japaCompleted = false))
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = false))
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_11_59_AM, japaCompleted = false))
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_3_00_PM, japaCompleted = false))
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_6_00_PM, japaCompleted = false))
-        assertEquals(0, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_6_00_PM, japaCompleted = false))
+    fun testJapaCategory_whenIncomplete_scoresMinus5() {
+        assertEquals(-5, SadhanaScorer.scoreJapaCategory(JapaCategory.BY_9_00_AM, japaCompleted = false))
+        assertEquals(-5, SadhanaScorer.scoreJapaCategory(JapaCategory.AFTER_9_00_PM_OR_INCOMPLETE, japaCompleted = false))
     }
 
     // ---------------------------------------------------------
-    // PATHAN, SHRAVAN, AND SEVA SCORING TESTS
+    // PATHAN AND SHRAVAN SCORING TESTS
     // ---------------------------------------------------------
 
     @Test
     fun testPathanScoring_tiersAndPenalties() {
+        assertEquals(25, SadhanaScorer.scorePathan(30))
+        assertEquals(25, SadhanaScorer.scorePathan(45))
         assertEquals(25, SadhanaScorer.scorePathan(60))
-        assertEquals(25, SadhanaScorer.scorePathan(90))
-        assertEquals(20, SadhanaScorer.scorePathan(45))
-        assertEquals(20, SadhanaScorer.scorePathan(50))
-        assertEquals(20, SadhanaScorer.scorePathan(55))
-        assertEquals(15, SadhanaScorer.scorePathan(30))
-        assertEquals(15, SadhanaScorer.scorePathan(35))
-        assertEquals(15, SadhanaScorer.scorePathan(40))
-        assertEquals(5, SadhanaScorer.scorePathan(15))
-        assertEquals(5, SadhanaScorer.scorePathan(20))
-        assertEquals(5, SadhanaScorer.scorePathan(25))
-        assertEquals(3, SadhanaScorer.scorePathan(10))
-        assertEquals(2, SadhanaScorer.scorePathan(5))
+        assertEquals(20, SadhanaScorer.scorePathan(20))
+        assertEquals(20, SadhanaScorer.scorePathan(25))
+        assertEquals(10, SadhanaScorer.scorePathan(15))
+        assertEquals(5, SadhanaScorer.scorePathan(10))
+        assertEquals(0, SadhanaScorer.scorePathan(5))
         assertEquals(-5, SadhanaScorer.scorePathan(0)) // -5 penalty for zero reading
         assertNull(SadhanaScorer.scorePathan(null))
     }
 
     @Test
     fun testShravanScoring_tiersAndPenalties() {
+        assertEquals(25, SadhanaScorer.scoreShravan(30))
+        assertEquals(25, SadhanaScorer.scoreShravan(45))
         assertEquals(25, SadhanaScorer.scoreShravan(60))
-        assertEquals(25, SadhanaScorer.scoreShravan(80))
-        assertEquals(20, SadhanaScorer.scoreShravan(45))
-        assertEquals(20, SadhanaScorer.scoreShravan(55))
-        assertEquals(15, SadhanaScorer.scoreShravan(30))
-        assertEquals(15, SadhanaScorer.scoreShravan(40))
-        assertEquals(5, SadhanaScorer.scoreShravan(15))
-        assertEquals(5, SadhanaScorer.scoreShravan(25))
-        assertEquals(3, SadhanaScorer.scoreShravan(10))
-        assertEquals(2, SadhanaScorer.scoreShravan(5))
-        assertEquals(-5, SadhanaScorer.scoreShravan(0)) // -5 penalty for zero listening
+        assertEquals(20, SadhanaScorer.scoreShravan(20))
+        assertEquals(20, SadhanaScorer.scoreShravan(25))
+        assertEquals(10, SadhanaScorer.scoreShravan(15))
+        assertEquals(5, SadhanaScorer.scoreShravan(10))
+        assertEquals(0, SadhanaScorer.scoreShravan(5))
+        assertEquals(-5, SadhanaScorer.scoreShravan(0)) // -5 penalty for zero hearing
         assertNull(SadhanaScorer.scoreShravan(null))
-    }
-
-    @Test
-    fun testSevaScoring_tiersNoNegative() {
-        assertEquals(25, SadhanaScorer.scoreSeva(60))
-        assertEquals(25, SadhanaScorer.scoreSeva(120))
-        assertEquals(20, SadhanaScorer.scoreSeva(45))
-        assertEquals(20, SadhanaScorer.scoreSeva(50))
-        assertEquals(15, SadhanaScorer.scoreSeva(30))
-        assertEquals(15, SadhanaScorer.scoreSeva(35))
-        assertEquals(5, SadhanaScorer.scoreSeva(15))
-        assertEquals(5, SadhanaScorer.scoreSeva(25))
-        assertEquals(3, SadhanaScorer.scoreSeva(10))
-        assertEquals(2, SadhanaScorer.scoreSeva(5))
-        assertEquals(0, SadhanaScorer.scoreSeva(0)) // 0 points for zero Seva (no negative penalty)
-        assertNull(SadhanaScorer.scoreSeva(null))
     }
 
     // ---------------------------------------------------------
@@ -413,27 +386,25 @@ class SadhanaScorerTest {
     // ---------------------------------------------------------
 
     @Test
-    fun testScoreEntry_allSevenCategoriesFullMarks_scores200Max() {
+    fun testScoreEntry_allSixCategoriesFullMarks_scores150Max() {
         val entry = SadhanaEntry(
             date = LocalDate.of(2026, 10, 14),
             bedtimeCategory = BedtimeCategory.BY_9_30_PM,       // 25
             wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,    // 25
-            japaCategory = JapaCategory.BY_7_15_AM,            // 50
+            japaCategory = JapaCategory.BY_9_00_AM,            // 25
             japaCompleted = true,
             daySleepCategory = DaySleepCategory.UP_TO_30_MIN,  // 25
-            pathanMinutes = 60,                                // 25
-            sravanMinutes = 60,                                // 25
-            sevaMinutes = 60                                   // 25
+            pathanMinutes = 30,                                // 25
+            sravanMinutes = 30                                 // 25
         )
         val scores = SadhanaScorer.scoreEntry(entry)
         assertEquals(25, scores.bedScore)
         assertEquals(25, scores.wakeScore)
-        assertEquals(50, scores.japaScore)
+        assertEquals(25, scores.japaScore)
         assertEquals(25, scores.napScore)
         assertEquals(25, scores.pathanScore)
         assertEquals(25, scores.sravanScore)
-        assertEquals(25, scores.sevaScore)
-        assertEquals(200, scores.totalScore)
+        assertEquals(150, scores.totalScore)
     }
 
     @Test
@@ -443,7 +414,6 @@ class SadhanaScorerTest {
         assertNull(scores.totalScore)
         assertNull(scores.pathanScore)
         assertNull(scores.sravanScore)
-        assertNull(scores.sevaScore)
         assertNull(scores.japaScore)
         assertNull(scores.bedScore)
         assertNull(scores.wakeScore)

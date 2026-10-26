@@ -560,20 +560,10 @@ fun WeeklyHeatmapMatrixCard(
                 onDayClick = onDayClick
             )
 
-            // 7. Seva (pts)
-            V5MatrixScoreRow(
-                label = "Seva",
-                unit = "pts",
-                columns = columns,
-                maxScore = 25,
-                getScore = { it.scores.sevaScore },
-                onDayClick = onDayClick
-            )
-
-            // 8. Total (of 200)
+            // 7. Total (of 150)
             V5MatrixTotalRow(
                 label = "Total",
-                unit = "of 200",
+                unit = "of 150",
                 columns = columns,
                 onDayClick = onDayClick
             )
@@ -734,7 +724,7 @@ private fun V5ScoreMatrixCell(
 }
 
 /**
- * Minute matrix cell (Pathan, Sravan, Seva) with dark fill and crisp white text.
+ * Minute matrix cell (Pathan, Sravan) with dark fill and crisp white text.
  */
 @Composable
 private fun V5MinuteMatrixCell(

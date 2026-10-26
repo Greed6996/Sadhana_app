@@ -14,7 +14,7 @@ import com.sadhana.card.data.local.entity.SadhanaEntryEntity
  */
 @Database(
     entities = [SadhanaEntryEntity::class, com.sadhana.card.data.local.entity.SadhanaEntryConflictEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(SadhanaTypeConverters::class)
@@ -116,6 +116,92 @@ abstract class SadhanaDatabase : RoomDatabase() {
                 """.trimIndent())
             }
         }
+
+        /**
+         * Migration from version 3 to 4:
+         * Completely removes Seva (sevaMinutes and sevaTags) from schema.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS sadhana_entries_v4 (
+                        userId TEXT NOT NULL DEFAULT 'local',
+                        date TEXT NOT NULL,
+                        bedtime TEXT,
+                        wakeTime TEXT,
+                        napMinutes INTEGER,
+                        trainJourney INTEGER NOT NULL DEFAULT 0,
+                        japaTime TEXT,
+                        bedtimeCategory TEXT,
+                        wakeUpCategory TEXT,
+                        daySleepCategory TEXT,
+                        japaCategory TEXT,
+                        japaCompleted INTEGER NOT NULL DEFAULT 0,
+                        pathanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sravanMinutes INTEGER NOT NULL DEFAULT 0,
+                        isSynced INTEGER NOT NULL DEFAULT 0,
+                        updatedAt INTEGER NOT NULL,
+                        PRIMARY KEY(userId, date)
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO sadhana_entries_v4 (
+                        userId, date, bedtime, wakeTime, napMinutes, trainJourney, japaTime,
+                        bedtimeCategory, wakeUpCategory, daySleepCategory, japaCategory, japaCompleted,
+                        pathanMinutes, sravanMinutes, isSynced, updatedAt
+                    )
+                    SELECT userId, date, bedtime, wakeTime, napMinutes, trainJourney, japaTime,
+                           bedtimeCategory, wakeUpCategory, daySleepCategory, japaCategory, japaCompleted,
+                           pathanMinutes, sravanMinutes, isSynced, updatedAt
+                    FROM sadhana_entries
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE sadhana_entries")
+                db.execSQL("ALTER TABLE sadhana_entries_v4 RENAME TO sadhana_entries")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_sadhana_entries_userId_date ON sadhana_entries(userId, date)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS sadhana_entry_conflicts_v4 (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        userId TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        source TEXT NOT NULL,
+                        conflictTimestamp INTEGER NOT NULL,
+                        bedtime TEXT,
+                        wakeTime TEXT,
+                        napMinutes INTEGER,
+                        trainJourney INTEGER NOT NULL DEFAULT 0,
+                        japaTime TEXT,
+                        bedtimeCategory TEXT,
+                        wakeUpCategory TEXT,
+                        daySleepCategory TEXT,
+                        japaCategory TEXT,
+                        japaCompleted INTEGER NOT NULL DEFAULT 0,
+                        pathanMinutes INTEGER NOT NULL DEFAULT 0,
+                        sravanMinutes INTEGER NOT NULL DEFAULT 0,
+                        isSynced INTEGER NOT NULL DEFAULT 0,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+
+                db.execSQL("""
+                    INSERT INTO sadhana_entry_conflicts_v4 (
+                        id, userId, date, source, conflictTimestamp, bedtime, wakeTime, napMinutes,
+                        trainJourney, japaTime, bedtimeCategory, wakeUpCategory, daySleepCategory,
+                        japaCategory, japaCompleted, pathanMinutes, sravanMinutes, isSynced, updatedAt
+                    )
+                    SELECT id, userId, date, source, conflictTimestamp, bedtime, wakeTime, napMinutes,
+                           trainJourney, japaTime, bedtimeCategory, wakeUpCategory, daySleepCategory,
+                           japaCategory, japaCompleted, pathanMinutes, sravanMinutes, isSynced, updatedAt
+                    FROM sadhana_entry_conflicts
+                """.trimIndent())
+
+                db.execSQL("DROP TABLE sadhana_entry_conflicts")
+                db.execSQL("ALTER TABLE sadhana_entry_conflicts_v4 RENAME TO sadhana_entry_conflicts")
+            }
+        }
     }
 }
+
 

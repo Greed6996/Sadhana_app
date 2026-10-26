@@ -26,7 +26,8 @@ object DatabaseModule {
             SadhanaDatabase.DATABASE_NAME
         ).addMigrations(
             SadhanaDatabase.MIGRATION_1_2,
-            SadhanaDatabase.MIGRATION_2_3
+            SadhanaDatabase.MIGRATION_2_3,
+            SadhanaDatabase.MIGRATION_3_4
         ).build()
     }
 

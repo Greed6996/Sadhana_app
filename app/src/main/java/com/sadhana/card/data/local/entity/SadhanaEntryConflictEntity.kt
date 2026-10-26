@@ -29,8 +29,7 @@ data class SadhanaEntryConflictEntity(
     val japaCompleted: Boolean = false,
     val pathanMinutes: Int = 0,
     val sravanMinutes: Int = 0,
-    val sevaMinutes: Int = 0,
-    val sevaTags: List<String> = emptyList(),
     val isSynced: Boolean = false,
     val updatedAt: Long
 )
+

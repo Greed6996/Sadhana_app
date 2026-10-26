@@ -74,7 +74,6 @@ class WeeklyMatrixViewModel @Inject constructor(
                 var weekTotal = 0
                 var pathanTotal = 0
                 var sravanTotal = 0
-                var sevaTotal = 0
 
                 val columns = weekDates.map { date ->
                     val entry = entryMap[date]
@@ -87,7 +86,6 @@ class WeeklyMatrixViewModel @Inject constructor(
                     if (entry != null) {
                         pathanTotal += entry.pathanMinutes
                         sravanTotal += entry.sravanMinutes
-                        sevaTotal += entry.sevaMinutes
                     }
 
                     val dayTotal = scores.totalScore
@@ -111,7 +109,6 @@ class WeeklyMatrixViewModel @Inject constructor(
                     weekTotalScore = weekTotal,
                     totalPathanMinutes = pathanTotal,
                     totalSravanMinutes = sravanTotal,
-                    totalSevaMinutes = sevaTotal,
                     isLoading = false
                 )
             }

@@ -23,14 +23,13 @@ data class WeeklyMatrixUiState(
     val weekTotalScore: Int = 0,
     val totalPathanMinutes: Int = 0,
     val totalSravanMinutes: Int = 0,
-    val totalSevaMinutes: Int = 0,
     val isLoading: Boolean = false,
     val isExporting: Boolean = false,
     val exportError: String? = null,
     val sadhakaName: String = "",
     val counselorName: String = ""
 ) {
-    val maxWeeklyScore: Int = 1400 // 7 days * 200 max points
+    val maxWeeklyScore: Int = 1050 // 7 days * 150 max points
     val scoreProgress: Float
         get() = if (maxWeeklyScore > 0) (weekTotalScore.toFloat() / maxWeeklyScore.toFloat()).coerceIn(0f, 1f) else 0f
 

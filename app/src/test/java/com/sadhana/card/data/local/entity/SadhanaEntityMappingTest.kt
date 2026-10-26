@@ -19,8 +19,6 @@ class SadhanaEntityMappingTest {
             japaTime = LocalTime.of(8, 10),
             pathanMinutes = 45,
             sravanMinutes = 30,
-            sevaMinutes = 60,
-            sevaTags = listOf("Cooking", "Mentoring"),
             updatedAt = 123456789L
         )
 
@@ -33,8 +31,6 @@ class SadhanaEntityMappingTest {
         assertEquals(domain.japaTime, entity.japaTime)
         assertEquals(domain.pathanMinutes, entity.pathanMinutes)
         assertEquals(domain.sravanMinutes, entity.sravanMinutes)
-        assertEquals(domain.sevaMinutes, entity.sevaMinutes)
-        assertEquals(domain.sevaTags, entity.sevaTags)
         assertEquals(domain.userId, entity.userId)
         assertEquals(domain.isSynced, entity.isSynced)
         assertEquals(domain.updatedAt, entity.updatedAt)
@@ -53,7 +49,6 @@ class SadhanaEntityMappingTest {
         assertEquals(null, entity.napMinutes)
         assertEquals(false, entity.trainJourney)
         assertEquals(null, entity.japaTime)
-        assertEquals(emptyList<String>(), entity.sevaTags)
 
         val reconstructed = entity.toDomain()
         assertEquals(domain, reconstructed)

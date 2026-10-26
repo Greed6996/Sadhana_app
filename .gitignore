@@ -21,8 +21,9 @@ release.jks
 sadhana-release.jks
 *signing*.properties
 
-# Local Project Rules
+# Local Project Rules & AI Memory
 PROJECT_RULES.md
+MEMORY.md
 
 # Node modules for Firestore rules tests
 firestore-tests/node_modules/

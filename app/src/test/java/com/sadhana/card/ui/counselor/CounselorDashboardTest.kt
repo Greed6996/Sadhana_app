@@ -60,8 +60,8 @@ class CounselorDashboardTest {
         // Simulating dayData from Firestore weekly summary with japaCategory or japaScore
         val dayData = mapOf(
             "japaCategory" to "BY_9_00_AM",
-            "japaScore" to 40L,
-            "totalScore" to 40
+            "japaScore" to 25L,
+            "totalScore" to 25
         )
 
         val japaCategoryStr = (dayData["japaCategory"] as? String)?.ifBlank { null }
@@ -84,7 +84,7 @@ class CounselorDashboardTest {
             scores = scores.copy(japaScore = japaScoreDirect)
         }
 
-        assertEquals("16 rounds score in counselor view must be 40 points, not stuck at 0", 40, scores.japaScore)
+        assertEquals("16 rounds score in counselor view must be 25 points, not stuck at 0", 25, scores.japaScore)
     }
 
     @Test
@@ -107,22 +107,20 @@ class CounselorDashboardTest {
 
         assertEquals("BY_9_00_AM", dayData["japaCategory"])
         assertEquals(true, dayData["japaCompleted"])
-        assertEquals(40, dayData["japaScore"])
-        assertEquals(40, dayData["sixteenRoundsDoneByScore"])
-        assertEquals(40, dayData["roundsCompletedScore"])
+        assertEquals(25, dayData["japaScore"])
+        assertEquals(25, dayData["sixteenRoundsDoneByScore"])
+        assertEquals(25, dayData["roundsCompletedScore"])
     }
 
     @Test
-    fun testCounselorPathanSravanSevaPoints_mappedCorrectly() {
+    fun testCounselorPathanSravanPoints_mappedCorrectly() {
         val entry = SadhanaEntry(
             date = LocalDate.of(2026, 10, 24),
-            pathanMinutes = 30, // 30 min / 60 min * 25 = 12 or 13 pts
-            sravanMinutes = 45, // 45 min / 60 min * 25 = 18 or 19 pts
-            sevaMinutes = 60    // 60 min / 60 min * 25 = 25 pts
+            pathanMinutes = 30, // >= 30 min -> 25 pts
+            sravanMinutes = 45  // >= 30 min -> 25 pts
         )
         val scores = com.sadhana.card.domain.scorer.SadhanaScorer.scoreEntry(entry)
-        assertTrue(scores.pathanScore != null && scores.pathanScore!! > 0)
-        assertTrue(scores.sravanScore != null && scores.sravanScore!! > 0)
-        assertEquals(25, scores.sevaScore)
+        assertEquals(25, scores.pathanScore)
+        assertEquals(25, scores.sravanScore)
     }
 }

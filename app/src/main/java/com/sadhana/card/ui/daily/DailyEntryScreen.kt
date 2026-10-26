@@ -105,8 +105,6 @@ fun DailyEntryScreen(
         onUpdateJapaCategory = viewModel::updateJapaCategory,
         onUpdatePathanMinutes = viewModel::updatePathanMinutes,
         onUpdateSravanMinutes = viewModel::updateSravanMinutes,
-        onUpdateSevaMinutes = viewModel::updateSevaMinutes,
-        onUpdateSevaTags = viewModel::updateSevaTags,
         onOpenSettings = onOpenSettings,
         modifier = modifier
     )
@@ -136,8 +134,6 @@ fun DailyEntryContent(
     onUpdateJapaCompleted: (Boolean) -> Unit = {},
     onUpdatePathanMinutes: (Int?) -> Unit,
     onUpdateSravanMinutes: (Int?) -> Unit,
-    onUpdateSevaMinutes: (Int?) -> Unit,
-    onUpdateSevaTags: (List<String>) -> Unit,
     onUpdateSadhakaName: (String) -> Unit = {},
     onUpdateCounselorName: (String) -> Unit = {},
     onOpenSettings: () -> Unit = {},
@@ -153,9 +149,9 @@ fun DailyEntryContent(
         Color(0xFFF5B041) // Default State (Unlogged / Normal): Yellow
     } else {
         when {
-            total < 75 -> Color(0xFFEF4444)   // Red: totalScore < 75
-            total < 200 -> Color(0xFFF5B041)  // Yellow: 75 <= totalScore < 200
-            else -> Color(0xFF10B981)         // Green: totalScore == 200
+            total < 50 -> Color(0xFFEF4444)   // Red: totalScore < 50
+            total < 150 -> Color(0xFFF5B041)  // Yellow: 50 <= totalScore < 150
+            else -> Color(0xFF10B981)         // Green: totalScore == 150
         }
     }
 
@@ -282,14 +278,13 @@ fun DailyEntryContent(
         item(key = "score_hero") {
             ScoreCard(
                 score = uiState.score.totalScore,
-                maxScore = 200,
+                maxScore = 150,
                 bedScore = uiState.score.bedScore,
                 wakeScore = uiState.score.wakeScore,
                 japaScore = uiState.score.japaScore,
                 napScore = uiState.score.napScore,
                 pathanScore = uiState.score.pathanScore,
-                sravanScore = uiState.score.sravanScore,
-                sevaScore = uiState.score.sevaScore
+                sravanScore = uiState.score.sravanScore
             )
         }
 
@@ -430,7 +425,7 @@ fun DailyEntryContent(
                 // Row 3: 16 rounds done by (JAPA) - Placed BEFORE Day Sleep
                 V5AccordionRow(
                     title = "16 rounds done by",
-                    subtitle = "50 pts if by 7:15 AM",
+                    subtitle = "25 pts if by 9:00 AM",
                     score = uiState.score.japaScore ?: 0,
                     isExpanded = expandedSection == DailyEntryAccordionSection.JAPA,
                     enabled = uiState.isEditable,
@@ -543,19 +538,6 @@ fun DailyEntryContent(
                     minutes = uiState.entry.sravanMinutes,
                     score = uiState.score.sravanScore,
                     onMinutesChanged = onUpdateSravanMinutes,
-                    step = 5,
-                    enabled = uiState.isEditable
-                )
-
-                HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f), thickness = 1.dp)
-
-                // Row 3: Seva (Practical Service) - Tags removed
-                V5MinuteStepperRow(
-                    title = "Seva",
-                    subtitle = "Practical devotional service",
-                    minutes = uiState.entry.sevaMinutes,
-                    score = uiState.score.sevaScore,
-                    onMinutesChanged = onUpdateSevaMinutes,
                     step = 5,
                     enabled = uiState.isEditable
                 )
@@ -718,7 +700,7 @@ private fun V5OptionItem(
         )
 
         Text(
-            text = "+$points pts",
+            text = if (points > 0) "+$points pts" else "$points pts",
             fontFamily = DmSansFontFamily,
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp,
@@ -728,7 +710,7 @@ private fun V5OptionItem(
 }
 
 /**
- * Stepper row for Study & Service (Pathan, Sravan, Seva)
+ * Stepper row for Study & Service (Pathan, Sravan)
  */
 @Composable
 private fun V5MinuteStepperRow(

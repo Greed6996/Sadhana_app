@@ -1,9 +1,9 @@
 {
   "updateEnabled": true,
-  "approvedVersion": "1.0.30",
-  "approvedVersionCode": 30,
-  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.30/Sadhana-Card.apk",
+  "approvedVersion": "1.0.31",
+  "approvedVersionCode": 31,
+  "downloadUrl": "https://github.com/Greed6996/Sadhana_app/releases/download/v1.0.31/Sadhana-Card.apk",
   "apkSizeMb": "7.8 MB",
-  "releaseNotes": "- Point System Refactored to 200 Max Score\n- Day Sleep (Nap) placed strictly after 16 Rounds Japa\n- Removed Travel / Train Journey and Seva tag management\n- Score Circle & Top Date synced (Red < 75, Yellow 75-199, Green 200 Full Marks)\n- Dynamic weekly target progress row in Weekly Summary\n- New adaptive Vaishnava Tilak app launcher icon",
-  "updateMessage": "A new version of My Sadhana Card (v1.0.30) is available."
+  "releaseNotes": "- Point System Refactored to 150 Max Daily Score & 1050 Weekly Target\n- Complete removal of Seva tracking metric from UI, calculations, and database\n- Updated Japa scoring logic (+25 by 9AM, +20 by 12PM, +15 by 3PM, +10 by 6PM, 0 after 6PM, -5 after 9PM/incomplete)\n- Updated Pathan & Shravan scoring (+25 for >=30m, +20 for 20m, +10 for 15m, +5 for 10m, -5 for 0m)\n- Solid Red Ring Indicator for zero & negative points displaying negative values\n- Database migration to Room Schema Version 4",
+  "updateMessage": "A new version of My Sadhana Card (v1.0.31) is available."
 }

@@ -123,9 +123,9 @@ jobs:
             echo "version_code=$VER_CODE" >> "$GITHUB_OUTPUT"
             echo "tag_name=$RAW_TAG" >> "$GITHUB_OUTPUT"
           else
-            echo "version_name=1.0.30" >> "$GITHUB_OUTPUT"
-            echo "version_code=30" >> "$GITHUB_OUTPUT"
-            echo "tag_name=v1.0.30" >> "$GITHUB_OUTPUT"
+            echo "version_name=1.0.31" >> "$GITHUB_OUTPUT"
+            echo "version_code=31" >> "$GITHUB_OUTPUT"
+            echo "tag_name=v1.0.31" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
@@ -246,10 +246,12 @@ jobs:
           tag_name: ${{ (startsWith(github.ref, 'refs/tags/') && github.ref_name) || steps.version_meta.outputs.tag_name }}
           name: ${{ (startsWith(github.ref, 'refs/tags/') && format('Sadhana Card {0}', github.ref_name)) || format('Sadhana Card {0}', steps.version_meta.outputs.tag_name) }}
           body: |
-            - Point System Refactored to 200 Max Score (Bedtime: 25, Wake-up: 25, 16 Rounds: 50, Day Sleep: 25, Pathan: 25, Shravan: 25, Seva: 25)
-            - Day Sleep (Nap) placed strictly after 16 Rounds Japa in daily breakdown & weekly matrix
-            - Removed Travel / Train Journey allowance and Seva tag management
-            - Synced score colors: Red (<75), Yellow (75-199), Green (200 Full Marks)
+            - Point System Refactored to 150 Max Daily Score & 1050 Weekly Target
+            - Complete removal of Seva tracking metric from UI, calculations, and database
+            - Updated Japa scoring logic (+25 by 9AM, +20 by 12PM, +15 by 3PM, +10 by 6PM, 0 after 6PM, -5 after 9PM/incomplete)
+            - Updated Pathan & Shravan scoring (+25 for >=30m, +20 for 20m, +10 for 15m, +5 for 10m, -5 for 0m)
+            - Solid Red Ring Indicator for zero & negative points displaying negative values
+            - Database migration to Room Schema Version 4
           files: |
             Sadhana-Card.apk
           draft: false

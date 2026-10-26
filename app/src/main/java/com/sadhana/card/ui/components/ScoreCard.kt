@@ -48,36 +48,34 @@ import com.sadhana.card.ui.theme.DmSansFontFamily
  */
 fun getDailyScoreColor(totalScore: Int): Color {
     return when {
-        totalScore < 75 -> Color(0xFFEF4444)  // Red
-        totalScore < 200 -> Color(0xFFF5B041) // Yellow
+        totalScore < 50 -> Color(0xFFEF4444)  // Red
+        totalScore < 150 -> Color(0xFFF5B041) // Yellow
         else -> Color(0xFF10B981)             // Green (Full Marks)
     }
 }
 
 /**
  * Hero Score Card:
- * - Circular total score indicator (out of 200 pts) with dynamic color thresholds:
- *   - Red (< 75), Yellow (75–199), Green (200 Full Marks)
- * - Individual score breakdown list for all 7 categories in exact sequence:
+ * - Circular total score indicator (out of 150 pts) with dynamic color thresholds:
+ *   - Red (< 50), Yellow (50–149), Green (150 Full Marks)
+ * - Individual score breakdown list for all 6 categories in exact sequence:
  *   1. Bedtime (Sleep) [Max: 25 pts]
  *   2. Wake-up [Max: 25 pts]
- *   3. 16 Rounds Japa [Max: 50 pts]
- *   4. Day Sleep / Nap [Max: 25 pts] (Placed after 16 Rounds Japa)
+ *   3. 16 Rounds Japa [Max: 25 pts]
+ *   4. Day Sleep / Nap [Max: 25 pts]
  *   5. Pathan (Reading) [Max: 25 pts]
  *   6. Shravan (Listening) [Max: 25 pts]
- *   7. Seva [Max: 25 pts]
  */
 @Composable
 fun ScoreCard(
     score: Int?,
-    maxScore: Int = 200,
+    maxScore: Int = 150,
     bedScore: Int? = null,
     wakeScore: Int? = null,
     japaScore: Int? = null,
     napScore: Int? = null,
     pathanScore: Int? = null,
     sravanScore: Int? = null,
-    sevaScore: Int? = null,
     modifier: Modifier = Modifier
 ) {
     val total = score ?: 0
@@ -85,7 +83,7 @@ fun ScoreCard(
 
     val accessibilityDesc = "Daily total score: $total out of $maxScore points. " +
         "Bed: ${bedScore ?: 0}, Wake: ${wakeScore ?: 0}, Japa: ${japaScore ?: 0}, " +
-        "Nap: ${napScore ?: 0}, Pathan: ${pathanScore ?: 0}, Shravan: ${sravanScore ?: 0}, Seva: ${sevaScore ?: 0}."
+        "Nap: ${napScore ?: 0}, Pathan: ${pathanScore ?: 0}, Shravan: ${sravanScore ?: 0}."
 
     Column(
         modifier = modifier
@@ -105,12 +103,12 @@ fun ScoreCard(
             scoreColor = scoreColor
         )
 
-        // ── Individual Score Breakdown (Sequence: Bed, Wake, Japa, Nap, Pathan, Shravan, Seva) ──
+        // ── Individual Score Breakdown (Sequence: Bed, Wake, Japa, Nap, Pathan, Shravan) ──
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Row 1: Bed (25), Wake (25), Japa (50), Nap (25)
+            // Row 1: Bed (25), Wake (25), Japa (25), Nap (25)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -118,11 +116,11 @@ fun ScoreCard(
             ) {
                 ScoreCircularRing(label = "Bed", score = bedScore ?: 0, maxPoints = 25)
                 ScoreCircularRing(label = "Wake", score = wakeScore ?: 0, maxPoints = 25)
-                ScoreCircularRing(label = "Japa", score = japaScore ?: 0, maxPoints = 50)
+                ScoreCircularRing(label = "Japa", score = japaScore ?: 0, maxPoints = 25)
                 ScoreCircularRing(label = "Nap", score = napScore ?: 0, maxPoints = 25)
             }
 
-            // Row 2: Pathan (25), Shravan (25), Seva (25)
+            // Row 2: Pathan (25), Shravan (25)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -130,7 +128,6 @@ fun ScoreCard(
             ) {
                 ScoreCircularRing(label = "Pathan", score = pathanScore ?: 0, maxPoints = 25)
                 ScoreCircularRing(label = "Shravan", score = sravanScore ?: 0, maxPoints = 25)
-                ScoreCircularRing(label = "Seva", score = sevaScore ?: 0, maxPoints = 25)
             }
         }
     }
@@ -143,7 +140,7 @@ fun ScoreCard(
 @Composable
 fun TotalScoreCircle(
     totalScore: Int,
-    maxScore: Int = 200,
+    maxScore: Int = 150,
     scoreColor: Color,
     modifier: Modifier = Modifier
 ) {
@@ -157,41 +154,60 @@ fun TotalScoreCircle(
     val strokeWidth = 8.dp
     val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
     val haloWidthPx = with(LocalDensity.current) { (strokeWidth + 4.dp).toPx() }
+    val solidRed = Color(0xFFE53935)
 
     Box(
         modifier = modifier.size(136.dp),
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(136.dp)) {
-            // Subtle glowing halo when score is in red territory
-            if (totalScore < 75) {
+            if (totalScore <= 0) {
+                // If points <= 0: circle stroke renders in solid red instead of default dark/grey outline
                 drawArc(
-                    color = scoreColor.copy(alpha = 0.15f),
+                    color = solidRed.copy(alpha = 0.15f),
                     startAngle = -90f,
                     sweepAngle = 360f,
                     useCenter = false,
                     style = Stroke(width = haloWidthPx, cap = StrokeCap.Round)
                 )
-            }
-
-            // Background Ring Track
-            drawArc(
-                color = DarkRingTrack,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
-            )
-
-            // Dynamic Active Progress Arc
-            if (animatedSweep > 0f) {
                 drawArc(
-                    color = scoreColor,
+                    color = solidRed,
                     startAngle = -90f,
-                    sweepAngle = animatedSweep,
+                    sweepAngle = 360f,
                     useCenter = false,
                     style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                 )
+            } else {
+                // Subtle glowing halo when score is in red territory
+                if (totalScore < 50) {
+                    drawArc(
+                        color = scoreColor.copy(alpha = 0.15f),
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = haloWidthPx, cap = StrokeCap.Round)
+                    )
+                }
+
+                // Background Ring Track
+                drawArc(
+                    color = DarkRingTrack,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                )
+
+                // Dynamic Active Progress Arc
+                if (animatedSweep > 0f) {
+                    drawArc(
+                        color = scoreColor,
+                        startAngle = -90f,
+                        sweepAngle = animatedSweep,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                    )
+                }
             }
         }
 
@@ -206,7 +222,7 @@ fun TotalScoreCircle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 38.sp,
                 lineHeight = 38.sp,
-                color = DarkTextPrimary
+                color = if (totalScore < 0) solidRed else DarkTextPrimary
             )
             Text(
                 text = "/ $maxScore pts",
@@ -231,12 +247,9 @@ fun TotalScoreCircle(
 /**
  * Single Circular Progress Ring for individual categories:
  * - 54.dp size
- * - Dynamic color based on score vs maxPoints:
- *   - <= 0 pts: Red
- *   - == maxPoints: Green
- *   - in-between: Yellow / Amber
- * - Centered bold score number
- * - Category label below
+ * - If points == 0: The circle stroke renders in solid red (Color.Red / #E53935) instead of the default dark/grey outline.
+ * - If points < 0: The circle stroke renders in solid red, and inner label displays the negative value.
+ * - If points > 0: Maintain existing progress arc coloring (green for full completion, yellow/amber for partial).
  */
 @Composable
 fun ScoreCircularRing(
@@ -257,11 +270,12 @@ fun ScoreCircularRing(
 
     val strokeWidth = 4.5.dp
     val strokeWidthPx = with(LocalDensity.current) { strokeWidth.toPx() }
+    val solidRed = Color(0xFFE53935)
 
     val activeColor = ringColor ?: when {
-        score <= 0 -> Color(0xFFEF4444)           // Red
+        score <= 0 -> solidRed
         clampedScore >= maxPoints -> Color(0xFF10B981) // Green
-        else -> DarkPrimary                       // Amber Yellow (#F5B041)
+        else -> DarkPrimary                           // Amber Yellow (#F5B041)
     }
 
     Column(
@@ -274,34 +288,45 @@ fun ScoreCircularRing(
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.size(54.dp)) {
-                // Background Track
-                drawArc(
-                    color = trackColor,
-                    startAngle = -90f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
-                )
-
-                // Active Progress Arc
-                if (animatedSweep > 0f) {
+                if (score <= 0) {
+                    // Points <= 0: circle stroke must render in solid red (#E53935) instead of default outline
                     drawArc(
-                        color = activeColor,
+                        color = solidRed,
                         startAngle = -90f,
-                        sweepAngle = animatedSweep,
+                        sweepAngle = 360f,
                         useCenter = false,
                         style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
                     )
+                } else {
+                    // Background Track
+                    drawArc(
+                        color = trackColor,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                    )
+
+                    // Active Progress Arc
+                    if (animatedSweep > 0f) {
+                        drawArc(
+                            color = activeColor,
+                            startAngle = -90f,
+                            sweepAngle = animatedSweep,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round)
+                        )
+                    }
                 }
             }
 
-            // Numeric score inside in bold white
+            // Numeric score inside
             Text(
                 text = if (score > 0) "+$score" else "$score",
                 fontFamily = DmSansFontFamily,
                 fontWeight = FontWeight.Bold,
                 fontSize = if (score >= 100 || score <= -10) 12.sp else 14.sp,
-                color = if (score < 0) Color(0xFFEF4444) else DarkTextPrimary
+                color = if (score < 0) solidRed else DarkTextPrimary
             )
         }
 

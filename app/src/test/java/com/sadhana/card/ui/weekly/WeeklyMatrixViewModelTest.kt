@@ -60,12 +60,11 @@ class WeeklyMatrixViewModelTest {
                 napMinutes = 20,
                 japaTime = LocalTime.of(7, 0),
                 pathanMinutes = 60,
-                sravanMinutes = 30,
-                sevaMinutes = 45
+                sravanMinutes = 30
             )
         )
 
-        // Monday: 4 bed, 4 wake, 4 nap, 4 japa -> 16 pts, 30 min pathan, 60 min sravan
+        // Monday
         fakeRepository.upsertEntry(
             SadhanaEntry(
                 date = sunday.plusDays(1),
@@ -74,18 +73,16 @@ class WeeklyMatrixViewModelTest {
                 napMinutes = 40,
                 japaTime = LocalTime.of(8, 0),
                 pathanMinutes = 30,
-                sravanMinutes = 60,
-                sevaMinutes = 15
+                sravanMinutes = 60
             )
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(7, state.columns.size)
-        assertEquals(330, state.weekTotalScore) // 185 + 145
+        assertEquals(285, state.weekTotalScore) // 150 + 135
         assertEquals(90, state.totalPathanMinutes) // 60 + 30
         assertEquals(90, state.totalSravanMinutes) // 30 + 60
-        assertEquals(60, state.totalSevaMinutes) // 45 + 15
         assertEquals("1h 30m", state.pathanHoursMinutes)
         assertEquals("1h 30m", state.sravanHoursMinutes)
         assertEquals("3h 0m", state.bothHoursMinutes)

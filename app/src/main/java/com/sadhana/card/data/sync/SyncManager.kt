@@ -241,7 +241,6 @@ fun buildWeeklySummaryMap(
     var weekTotal = 0
     var pathanTotal = 0
     var sravanTotal = 0
-    var sevaTotal = 0
 
     val daysMap = mutableMapOf<String, Any>()
 
@@ -252,7 +251,6 @@ fun buildWeeklySummaryMap(
             val scores = SadhanaScorer.scoreEntry(entry)
             pathanTotal += entry.pathanMinutes
             sravanTotal += entry.sravanMinutes
-            sevaTotal += entry.sevaMinutes
             val dayTotal = scores.totalScore ?: 0
             weekTotal += dayTotal
 
@@ -270,17 +268,15 @@ fun buildWeeklySummaryMap(
                 "napScore" to (scores.napScore ?: 0),
                 "pathanScore" to (scores.pathanScore ?: 0),
                 "sravanScore" to (scores.sravanScore ?: 0),
-                "sevaScore" to (scores.sevaScore ?: 0),
                 "daySleepCategory" to (entry.daySleepCategory?.name ?: ""),
                 "pathanMinutes" to entry.pathanMinutes,
                 "sravanMinutes" to entry.sravanMinutes,
-                "sevaMinutes" to entry.sevaMinutes,
                 "totalScore" to dayTotal
             )
         }
     }
 
-    val maxScore = 1400
+    val maxScore = 1050
     val percentage = ((weekTotal.toFloat() / maxScore.toFloat()).coerceIn(0f, 1f) * 100).toInt()
 
     return mapOf(
@@ -290,7 +286,6 @@ fun buildWeeklySummaryMap(
         "percentage" to percentage,
         "totalPathanMinutes" to pathanTotal,
         "totalSravanMinutes" to sravanTotal,
-        "totalSevaMinutes" to sevaTotal,
         "updatedAt" to System.currentTimeMillis(),
         "days" to daysMap
     )

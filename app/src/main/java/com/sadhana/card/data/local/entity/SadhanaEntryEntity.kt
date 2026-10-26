@@ -38,11 +38,9 @@ data class SadhanaEntryEntity(
     val daySleepCategory: String? = null,
     val japaCategory: String? = null,
     val japaCompleted: Boolean = false,
-    // Unscored fields
+    // Activity fields
     val pathanMinutes: Int = 0,
     val sravanMinutes: Int = 0,
-    val sevaMinutes: Int = 0,
-    val sevaTags: List<String> = emptyList(),
     val isSynced: Boolean = false,
     val updatedAt: Long = System.currentTimeMillis()
 )
@@ -61,12 +59,18 @@ fun SadhanaEntryEntity.toDomain(): SadhanaEntry = SadhanaEntry(
     bedtimeCategory = bedtimeCategory?.let { runCatching { BedtimeCategory.valueOf(it) }.getOrNull() },
     wakeUpCategory = wakeUpCategory?.let { runCatching { WakeUpCategory.valueOf(it) }.getOrNull() },
     daySleepCategory = daySleepCategory?.let { runCatching { DaySleepCategory.valueOf(it) }.getOrNull() },
-    japaCategory = japaCategory?.let { runCatching { JapaCategory.valueOf(it) }.getOrNull() },
+    japaCategory = japaCategory?.let { raw ->
+        runCatching { JapaCategory.valueOf(raw) }.getOrElse {
+            when (raw) {
+                "BY_7_15_AM" -> JapaCategory.BY_9_00_AM
+                "BY_11_59_AM" -> JapaCategory.BEFORE_12_00_PM
+                else -> null
+            }
+        }
+    },
     japaCompleted = japaCompleted || (japaCategory != null),
     pathanMinutes = pathanMinutes,
     sravanMinutes = sravanMinutes,
-    sevaMinutes = sevaMinutes,
-    sevaTags = sevaTags,
     isSynced = isSynced,
     updatedAt = updatedAt
 )
@@ -86,8 +90,7 @@ fun SadhanaEntry.toEntity(): SadhanaEntryEntity = SadhanaEntryEntity(
     japaCompleted = japaCompleted,
     pathanMinutes = pathanMinutes,
     sravanMinutes = sravanMinutes,
-    sevaMinutes = sevaMinutes,
-    sevaTags = sevaTags,
     isSynced = isSynced,
     updatedAt = updatedAt
 )
+

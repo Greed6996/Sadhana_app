@@ -62,27 +62,23 @@ class SadhanaWeeklyExcelExporterTest {
         val entries = listOf(
             SadhanaEntry(
                 date = startOfWeek, // Sunday
-                bedtime = LocalTime.of(21, 15), // <= 21:30 -> 5 pts
-                wakeTime = LocalTime.of(2, 45), // < 03:00 -> 5 pts
-                napMinutes = 25, // <= 30 -> 5 pts
+                bedtime = LocalTime.of(21, 15), // <= 21:30 -> 25 pts
+                wakeTime = LocalTime.of(2, 45), // < 03:00 -> 25 pts
+                napMinutes = 25, // <= 30 -> 25 pts
                 trainJourney = false,
-                japaTime = LocalTime.of(7, 0), // < 07:15 -> 5 pts
+                japaTime = LocalTime.of(7, 0), // < 09:00 -> 25 pts
                 pathanMinutes = 45,
-                sravanMinutes = 30,
-                sevaMinutes = 60,
-                sevaTags = listOf("Cooking", "Book Distribution")
+                sravanMinutes = 30
             ),
             SadhanaEntry(
                 date = startOfWeek.plusDays(1), // Monday
-                bedtime = LocalTime.of(21, 50), // 21:31-22:00 -> 4 pts
-                wakeTime = LocalTime.of(3, 15), // 03:00-03:30 -> 4 pts
-                napMinutes = 80, // 80 - 60 = 20 <= 30 -> 5 pts with train journey
+                bedtime = LocalTime.of(21, 50), // 21:31-22:00 -> 20 pts
+                wakeTime = LocalTime.of(3, 15), // 03:00-03:30 -> 20 pts
+                napMinutes = 80, // > 60 -> 0 pts
                 trainJourney = true,
-                japaTime = LocalTime.of(8, 30), // 07:16-09:00 -> 4 pts
+                japaTime = LocalTime.of(8, 30), // <= 09:00 -> 25 pts
                 pathanMinutes = 30,
-                sravanMinutes = 45,
-                sevaMinutes = 20,
-                sevaTags = listOf("Calling")
+                sravanMinutes = 45
             )
         )
 
@@ -120,15 +116,13 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue("Japa 7:00 AM missing", xml.contains("7:00 AM"))
         assertTrue("Pathan 45 mins missing", xml.contains("45 mins"))
         assertTrue("Sravan 30 mins missing", xml.contains("30 mins"))
-        assertTrue("Seva duration 60 mins missing", xml.contains("60 mins"))
-        assertTrue("Seva tags Cooking, Book Distribution missing", xml.contains("Cooking, Book Distribution"))
-        assertTrue("Sunday total score 185 / 200 missing", xml.contains("185 / 200"))
+        assertTrue("Sunday total score 150 / 150 missing", xml.contains("150 / 150"))
 
         // Verify Monday train journey bonus
         assertTrue("Train journey bonus missing", xml.contains("+60 mins bonus"))
 
         // Verify summary row
-        assertTrue("Summary total score missing", xml.contains("Total Score = 305 / 1400 pts"))
+        assertTrue("Summary total score missing", xml.contains("Total Score = 260 / 1050 pts"))
     }
 
     @Test
@@ -137,27 +131,23 @@ class SadhanaWeeklyExcelExporterTest {
         val entries = listOf(
             SadhanaEntry(
                 date = startOfWeek, // Sunday
-                bedtimeCategory = BedtimeCategory.BY_9_30_PM,            // "9:30 PM or before" -> 5 pts
-                wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,          // "Before 3:00 AM" -> 5 pts
-                daySleepCategory = DaySleepCategory.UP_TO_30_MIN,        // "30 minutes or less" -> 5 pts
-                japaCategory = JapaCategory.BY_7_15_AM,                  // "All 16 rounds completed by 7:15 AM" -> 5 pts
+                bedtimeCategory = BedtimeCategory.BY_9_30_PM,
+                wakeUpCategory = WakeUpCategory.BEFORE_3_00_AM,
+                daySleepCategory = DaySleepCategory.UP_TO_30_MIN,
+                japaCategory = JapaCategory.BY_9_00_AM,
                 japaCompleted = true,
                 pathanMinutes = 45,
-                sravanMinutes = 30,
-                sevaMinutes = 60,
-                sevaTags = listOf("Cooking")
+                sravanMinutes = 30
             ),
             SadhanaEntry(
                 date = startOfWeek.plusDays(1), // Monday with incomplete japa
-                bedtimeCategory = BedtimeCategory.BEFORE_10_00_PM,       // "Before 10:00 PM" -> 4 pts
-                wakeUpCategory = WakeUpCategory.BEFORE_3_30_AM,          // "Before 3:30 AM" -> 4 pts
-                daySleepCategory = DaySleepCategory.FROM_31_TO_45_MIN,   // "31–45 minutes" -> 4 pts
-                japaCategory = JapaCategory.BY_9_00_AM,                  // Incomplete -> 0 pts
+                bedtimeCategory = BedtimeCategory.BEFORE_10_00_PM,
+                wakeUpCategory = WakeUpCategory.BEFORE_3_30_AM,
+                daySleepCategory = DaySleepCategory.FROM_31_TO_45_MIN,
+                japaCategory = JapaCategory.AFTER_9_00_PM_OR_INCOMPLETE,
                 japaCompleted = false,
                 pathanMinutes = 30,
-                sravanMinutes = 45,
-                sevaMinutes = 30,
-                sevaTags = listOf("Calling")
+                sravanMinutes = 45
             )
         )
 
@@ -168,21 +158,21 @@ class SadhanaWeeklyExcelExporterTest {
             entries = entries
         )
 
-        // Verify Sunday category labels and 185/200 points
+        // Verify Sunday category labels and 150/150 points
         assertTrue("Bedtime category label missing", xml.contains("9:30 PM or before"))
         assertTrue("Wake-up category label missing", xml.contains("Before 3:00 AM"))
         assertTrue("Day sleep category label missing", xml.contains("30 minutes or less"))
-        assertTrue("Japa category label missing", xml.contains("Before 7:15 AM"))
-        assertTrue("Sunday total 185 / 200 missing", xml.contains("185 / 200"))
+        assertTrue("Japa category label missing", xml.contains("Before 9:00 AM"))
+        assertTrue("Sunday total 150 / 150 missing", xml.contains("150 / 150"))
 
-        // Verify Monday incomplete japa label and 110/200 points (20+20+20+0+15+20+15)
+        // Verify Monday incomplete japa label and 105/150 points (20+20+20-5+25+25)
         assertTrue("Monday bedtime category missing", xml.contains("Before 10:00 PM"))
         assertTrue("Monday wake-up category missing", xml.contains("Before 3:30 AM"))
         assertTrue("Monday incomplete japa missing", xml.contains("(Incomplete)"))
-        assertTrue("Monday total 110 / 200 missing", xml.contains("110 / 200"))
+        assertTrue("Monday total 105 / 150 missing", xml.contains("105 / 150"))
 
-        // Verify weekly total: 185 + 110 = 295
-        assertTrue("Weekly total score missing", xml.contains("Total Score = 295 / 1400 pts"))
+        // Verify weekly total: 150 + 105 = 255
+        assertTrue("Weekly total score missing", xml.contains("Total Score = 255 / 1050 pts"))
     }
 
     @Test
@@ -205,7 +195,7 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue(xml.contains("—"))
         assertFalse(xml.contains("[enter value]"))
         assertFalse(xml.contains("[total]"))
-        assertTrue(xml.contains("Total Score = 0 / 1400 pts"))
+        assertTrue(xml.contains("Total Score = 0 / 1050 pts"))
     }
 
     @Test

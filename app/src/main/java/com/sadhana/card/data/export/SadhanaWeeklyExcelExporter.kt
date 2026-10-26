@@ -162,7 +162,6 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         var weekTotalScore = 0
         var totalPathan = 0
         var totalSravan = 0
-        var totalSeva = 0
 
         val dayDataList = weekDates.mapIndexed { idx, date ->
             val entry = entryMap[date]
@@ -171,7 +170,6 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
             if (entry != null) {
                 totalPathan += entry.pathanMinutes
                 totalSravan += entry.sravanMinutes
-                totalSeva += entry.sevaMinutes
             }
             val dayTotal = scores?.totalScore
             if (dayTotal != null) {
@@ -382,45 +380,22 @@ class SadhanaWeeklyExcelExporter @Inject constructor(
         }
         sb.append("""</row>""")
 
-        // Row 51: Section SEVA
-        sb.append("""<row r="51" ht="24" customHeight="1"><c r="A51" s="6" t="inlineStr"><is><t>SEVA – Lecturing / Mentoring / Shopping / Calling / Cooking etc.</t></is></c></row>""")
-
-        // Row 52: Service activity / notes
-        sb.append("""<row r="52" ht="26" customHeight="1"><c r="A52" s="9" t="inlineStr"><is><t>Service activity / notes</t></is></c>""")
-        dayDataList.forEach { day ->
-            val text = when {
-                day.entry == null -> "—"
-                day.entry.sevaTags.isNotEmpty() -> day.entry.sevaTags.joinToString(", ")
-                else -> "None"
-            }
-            sb.append("""<c r="${day.col}52" s="10" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
-        }
-        sb.append("""</row>""")
-
-        // Row 53: Service duration
-        sb.append("""<row r="53" ht="26" customHeight="1"><c r="A53" s="11" t="inlineStr"><is><t>Service duration (minutes)</t></is></c>""")
-        dayDataList.forEach { day ->
-            val text = if (day.entry != null) "${day.entry.sevaMinutes} mins" else "—"
-            sb.append("""<c r="${day.col}53" s="12" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
-        }
-        sb.append("""</row>""")
-
         // Row 54: WEEKLY TOTAL
         sb.append("""<row r="54" ht="26" customHeight="1"><c r="A54" s="13" t="inlineStr"><is><t>WEEKLY TOTAL</t></is></c>""")
         dayDataList.forEach { day ->
-            val text = if (day.scores?.totalScore != null) "${day.scores.totalScore} / 200" else "—"
+            val text = if (day.scores?.totalScore != null) "${day.scores.totalScore} / 150" else "—"
             sb.append("""<c r="${day.col}54" s="13" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>""")
         }
         sb.append("""</row>""")
 
         // Row 56: Summary footer
-        val summaryNote = "Weekly Summary: Total Score = $weekTotalScore / 1400 pts | Reading = ${totalPathan}m | Hearing = ${totalSravan}m | Seva = ${totalSeva}m"
+        val summaryNote = "Weekly Summary: Total Score = $weekTotalScore / 1050 pts | Reading = ${totalPathan}m | Hearing = ${totalSravan}m"
         sb.append("""<row r="56" ht="30" customHeight="1"><c r="A56" s="14" t="inlineStr"><is><t>${xmlEscape(summaryNote)}</t></is></c></row>""")
 
         sb.append("""</sheetData>""")
 
         // Merged Cells
-        sb.append("""<mergeCells count="15"><mergeCell ref="A1:H1"/><mergeCell ref="A56:H56"/><mergeCell ref="A3:H3"/><mergeCell ref="A29:H29"/><mergeCell ref="A20:H20"/><mergeCell ref="A38:H38"/><mergeCell ref="A51:H51"/><mergeCell ref="A11:H11"/><mergeCell ref="A49:H49"/><mergeCell ref="A2:D2"/><mergeCell ref="A5:H5"/><mergeCell ref="A47:H47"/><mergeCell ref="A8:H8"/><mergeCell ref="E2:H2"/><mergeCell ref="A6:H6"/></mergeCells>""")
+        sb.append("""<mergeCells count="14"><mergeCell ref="A1:H1"/><mergeCell ref="A56:H56"/><mergeCell ref="A3:H3"/><mergeCell ref="A29:H29"/><mergeCell ref="A20:H20"/><mergeCell ref="A38:H38"/><mergeCell ref="A11:H11"/><mergeCell ref="A49:H49"/><mergeCell ref="A2:D2"/><mergeCell ref="A5:H5"/><mergeCell ref="A47:H47"/><mergeCell ref="A8:H8"/><mergeCell ref="E2:H2"/><mergeCell ref="A6:H6"/></mergeCells>""")
         sb.append("""<pageMargins left="0.25" right="0.25" top="0.4" bottom="0.4" header="0.2" footer="0.2"/>""")
         sb.append("""<pageSetup orientation="landscape" paperSize="9" fitToHeight="0" fitToWidth="1"/>""")
         sb.append("""</worksheet>""")

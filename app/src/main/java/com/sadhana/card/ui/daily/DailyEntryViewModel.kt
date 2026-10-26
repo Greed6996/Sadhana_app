@@ -241,14 +241,6 @@ class DailyEntryViewModel internal constructor(
         updateCurrentEntry { it.copy(sravanMinutes = minutes ?: 0) }
     }
 
-    fun updateSevaMinutes(minutes: Int?) {
-        updateCurrentEntry { it.copy(sevaMinutes = minutes ?: 0) }
-    }
-
-    fun updateSevaTags(tags: List<String>) {
-        updateCurrentEntry { it.copy(sevaTags = tags) }
-    }
-
     fun updateSadhakaName(name: String) {
         inMemorySadhakaName.value = name
         debouncedSadhakaNameFlow.tryEmit(name)

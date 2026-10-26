@@ -70,8 +70,6 @@ interface SadhanaDao {
                     japaCompleted = local.japaCompleted,
                     pathanMinutes = local.pathanMinutes,
                     sravanMinutes = local.sravanMinutes,
-                    sevaMinutes = local.sevaMinutes,
-                    sevaTags = local.sevaTags,
                     isSynced = local.isSynced,
                     updatedAt = local.updatedAt
                 )
@@ -95,8 +93,6 @@ interface SadhanaDao {
                         japaCompleted = existing.japaCompleted,
                         pathanMinutes = existing.pathanMinutes,
                         sravanMinutes = existing.sravanMinutes,
-                        sevaMinutes = existing.sevaMinutes,
-                        sevaTags = existing.sevaTags,
                         isSynced = existing.isSynced,
                         updatedAt = existing.updatedAt
                     )
