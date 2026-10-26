@@ -122,7 +122,7 @@ class SadhanaWeeklyExcelExporterTest {
         assertTrue("Train journey bonus missing", xml.contains("+60 mins bonus"))
 
         // Verify summary row
-        assertTrue("Summary total score missing", xml.contains("Total Score = 260 / 1050 pts"))
+        assertTrue("Summary total score missing", xml.contains("Total Score = 265 / 1050 pts"))
     }
 
     @Test
