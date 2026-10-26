@@ -157,20 +157,20 @@ class DailyEntryViewModelTest {
         viewModel.selectDate(date)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Select Before 7:15 AM -> immediately awards 50 points and sets japaCompleted = true
-        viewModel.updateJapaCategory(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM)
+        // Select Before 9:00 AM -> immediately awards 25 points and sets japaCompleted = true
+        viewModel.updateJapaCategory(com.sadhana.card.domain.model.JapaCategory.BY_9_00_AM)
         testDispatcher.scheduler.advanceTimeBy(350)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM, state.entry.japaCategory)
+        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_9_00_AM, state.entry.japaCategory)
         assertEquals(true, state.entry.japaCompleted)
-        assertEquals(50, state.score.japaScore)
+        assertEquals(25, state.score.japaScore)
 
         val saved = fakeRepository.getEntry(date).first()
         assertNotNull(saved)
         assertEquals(true, saved?.japaCompleted)
-        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_7_15_AM, saved?.japaCategory)
+        assertEquals(com.sadhana.card.domain.model.JapaCategory.BY_9_00_AM, saved?.japaCategory)
 
         // Change to null -> sets japaCompleted = false and japaScore = null
         viewModel.updateJapaCategory(null)
